@@ -26,3 +26,7 @@ database.sqlite
 .react-router/
 
 CLAUDE.md
+
+# Chat widget bundle, built by npm run widget:build
+/extensions/chat-widget/assets/chat-widget.js
+/extensions/chat-widget/assets/chat-widget.css

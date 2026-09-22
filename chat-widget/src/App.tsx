@@ -1,70 +1,49 @@
 import { useEffect, useRef, useState } from "react";
 
-import { renderComponent } from "./components";
+import { renderPart } from "./components";
 import type { ChatMessage } from "./components/types";
-
-const GREETING: ChatMessage[] = [
-  {
-    id: 0,
-    role: "assistant",
-    component: {
-      type: "textMessage",
-      props: { text: "Hi! Ask me anything about this store." },
-    },
-  },
-  {
-    id: 1,
-    role: "assistant",
-    component: {
-      type: "productCard",
-      props: {
-        title: "Ayers Chambray",
-        price: "$128.00",
-        imageUrl:
-          "https://ranger-ngiknsha.myshopify.com/cdn/shop/files/chambray_5f232530-4331-492a-872c-81c225d6bafd.jpg?v=1790077051&width=3840",
-        productUrl:
-          "https://ranger-ngiknsha.myshopify.com/products/ayers-chambray",
-        options: [
-          { name: "Fabric", values: ["Chambray", "Oxford", "Flannel"] },
-          { name: "Fit", values: ["Slim", "Regular", "Relaxed"] },
-          { name: "Sleeve", values: ["Short", "Long"] },
-        ],
-      },
-    },
-  },
-];
+import { fakeChat, fakeGreeting } from "./fakeServer";
 
 export default function App({ shopDomain }: { shopDomain: string }) {
-  const [messages, setMessages] = useState<ChatMessage[]>(GREETING);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [draft, setDraft] = useState("");
+  const [status, setStatus] = useState<"ready" | "submitted">("submitted");
   const logRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const log = logRef.current;
     if (log) log.scrollTop = log.scrollHeight;
-  }, [messages]);
+  }, [messages, status]);
 
-  function send(event: React.FormEvent) {
+  useEffect(() => {
+    fakeGreeting().then((greeting) => {
+      setMessages([greeting]);
+      setStatus("ready");
+    });
+  }, []);
+
+  async function send(event: React.FormEvent) {
     event.preventDefault();
     const text = draft.trim();
-    if (!text) return;
-    setDraft("");
-    setMessages((prev) => [
-      ...prev,
+    if (!text || status !== "ready") return;
+
+    const next: ChatMessage[] = [
+      ...messages,
       {
-        id: prev.length,
+        id: crypto.randomUUID(),
         role: "user",
-        component: { type: "textMessage", props: { text } },
+        parts: [{ type: "data-textMessage", data: { text } }],
       },
-      {
-        id: prev.length + 1,
-        role: "assistant",
-        component: {
-          type: "textMessage",
-          props: { text: "Not wired up yet — the agent layer comes next." },
-        },
-      },
-    ]);
+    ];
+
+    setDraft("");
+    setMessages(next);
+    setStatus("submitted");
+
+    const reply = await fakeChat(next);
+
+    setMessages([...next, reply]);
+    setStatus("ready");
   }
 
   return (
@@ -73,11 +52,21 @@ export default function App({ shopDomain }: { shopDomain: string }) {
         {messages.map((message) => (
           <div
             key={message.id}
-            className={`cc-message cc-message--${message.role} cc-message--${message.component.type}`}
+            className={`cc-message cc-message--${message.role}`}
           >
-            {renderComponent(message.component)}
+            {message.parts.map((part, index) => (
+              <div key={index} className={`cc-part cc-part--${part.type}`}>
+                {renderPart(part)}
+              </div>
+            ))}
           </div>
         ))}
+
+        {status === "submitted" && (
+          <div className="cc-message cc-message--assistant">
+            <div className="cc-part cc-typing">Typing…</div>
+          </div>
+        )}
       </div>
 
       <form className="cc-composer" onSubmit={send}>
@@ -87,8 +76,9 @@ export default function App({ shopDomain }: { shopDomain: string }) {
           onChange={(event) => setDraft(event.target.value)}
           placeholder="Type a message"
           aria-label="Message"
+          disabled={status !== "ready"}
         />
-        <button className="cc-send" type="submit">
+        <button className="cc-send" type="submit" disabled={status !== "ready"}>
           Send
         </button>
       </form>

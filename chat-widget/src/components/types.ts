@@ -1,20 +1,12 @@
-export type ProductOption = { name: string; values: string[] };
+import type { ProductCardProps } from "./ProductCard";
+import type { TextMessageProps } from "./TextMessage";
 
-export type ChatComponent =
-  | { type: "textMessage"; props: { text: string } }
-  | {
-      type: "productCard";
-      props: {
-        title: string;
-        price: string;
-        imageUrl: string;
-        productUrl: string;
-        options: ProductOption[];
-      };
-    };
+export type ChatPart =
+  | { type: "data-textMessage"; data: TextMessageProps }
+  | { type: "data-productCard"; data: ProductCardProps };
 
 export type ChatMessage = {
-  id: number;
+  id: string;
   role: "user" | "assistant";
-  component: ChatComponent;
+  parts: ChatPart[];
 };

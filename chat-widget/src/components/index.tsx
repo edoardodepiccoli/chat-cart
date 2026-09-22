@@ -1,12 +1,12 @@
 import ProductCard from "./ProductCard";
 import TextMessage from "./TextMessage";
-import type { ChatComponent } from "./types";
+import type { ChatPart } from "./types";
 
-export function renderComponent(component: ChatComponent) {
-  switch (component.type) {
-    case "textMessage":
-      return <TextMessage {...component.props} />;
-    case "productCard":
-      return <ProductCard {...component.props} />;
+export function renderPart(part: ChatPart) {
+  switch (part.type) {
+    case "data-textMessage":
+      return <TextMessage {...part.data} />;
+    case "data-productCard":
+      return <ProductCard {...part.data} />;
   }
 }

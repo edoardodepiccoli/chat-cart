@@ -1,0 +1,12 @@
+<div id="chat-cart-root" data-shop-domain="{{ shop.permanent_domain }}"></div>
+
+<link rel="stylesheet" href="{{ 'chat-widget.css' | asset_url }}">
+<script src="{{ 'chat-widget.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "Chat Cart",
+  "target": "body",
+  "settings": []
+}
+{% endschema %}

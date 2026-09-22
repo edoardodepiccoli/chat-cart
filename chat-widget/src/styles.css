@@ -41,21 +41,35 @@
 
 .cc-message {
   max-width: 80%;
-  padding: 8px 12px;
-  border-radius: 12px;
-  white-space: pre-wrap;
   word-break: break-word;
 }
 
 .cc-message--assistant {
   align-self: flex-start;
-  background: #f1f1f1;
 }
 
 .cc-message--user {
   align-self: flex-end;
+}
+
+.cc-message--textMessage {
+  padding: 8px 12px;
+  border-radius: 12px;
+  white-space: pre-wrap;
+}
+
+.cc-message--assistant.cc-message--textMessage {
+  background: #f1f1f1;
+}
+
+.cc-message--user.cc-message--textMessage {
   background: #1a1a1a;
   color: #ffffff;
+}
+
+.cc-message--productCard {
+  width: 100%;
+  max-width: 100%;
 }
 
 .cc-composer {
@@ -96,5 +110,88 @@
 }
 
 .cc-send:hover {
+  background: #333333;
+}
+
+.cc-card {
+  overflow: hidden;
+  border: 1px solid #e3e3e3;
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.cc-card__media {
+  display: block;
+}
+
+.cc-card__image {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: #f1f1f1;
+}
+
+.cc-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+}
+
+.cc-card__title {
+  color: inherit;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.cc-card__title:hover {
+  text-decoration: underline;
+}
+
+.cc-card__price {
+  color: #616161;
+}
+
+.cc-card__options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cc-field {
+  display: flex;
+  flex: 1 1 120px;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 120px;
+}
+
+.cc-field__label {
+  color: #616161;
+  font-size: 12px;
+}
+
+.cc-select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #d0d0d0;
+  border-radius: 8px;
+  background: #ffffff;
+  color: inherit;
+  font: inherit;
+}
+
+.cc-card__add {
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 8px;
+  background: #1a1a1a;
+  color: #ffffff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cc-card__add:hover {
   background: #333333;
 }

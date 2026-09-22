@@ -1,19 +1,19 @@
 import { useEffect, useRef, useState } from "react";
 
-type Message = {
-  id: number;
-  role: "user" | "assistant";
-  text: string;
-};
+import { renderComponent } from "./components";
+import type { ChatMessage } from "./components/types";
 
-const GREETING: Message = {
+const GREETING: ChatMessage = {
   id: 0,
   role: "assistant",
-  text: "Hi! Ask me anything about this store.",
+  component: {
+    type: "textMessage",
+    props: { text: "Hi! Ask me anything about this store." },
+  },
 };
 
 export default function App({ shopDomain }: { shopDomain: string }) {
-  const [messages, setMessages] = useState<Message[]>([GREETING]);
+  const [messages, setMessages] = useState<ChatMessage[]>([GREETING]);
   const [draft, setDraft] = useState("");
   const logRef = useRef<HTMLDivElement>(null);
 
@@ -29,11 +29,18 @@ export default function App({ shopDomain }: { shopDomain: string }) {
     setDraft("");
     setMessages((prev) => [
       ...prev,
-      { id: prev.length, role: "user", text },
+      {
+        id: prev.length,
+        role: "user",
+        component: { type: "textMessage", props: { text } },
+      },
       {
         id: prev.length + 1,
         role: "assistant",
-        text: "Not wired up yet — the agent layer comes next.",
+        component: {
+          type: "textMessage",
+          props: { text: "Not wired up yet — the agent layer comes next." },
+        },
       },
     ]);
   }
@@ -43,7 +50,7 @@ export default function App({ shopDomain }: { shopDomain: string }) {
       <div className="cc-log" ref={logRef}>
         {messages.map((message) => (
           <div key={message.id} className={`cc-message cc-message--${message.role}`}>
-            {message.text}
+            {renderComponent(message.component)}
           </div>
         ))}
       </div>

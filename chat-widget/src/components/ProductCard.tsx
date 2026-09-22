@@ -58,6 +58,10 @@ export default function ProductCard({
         <button className="cc-card__add" type="button">
           Add to cart
         </button>
+
+        <a className="cc-card__view" href={productUrl}>
+          See product page
+        </a>
       </div>
     </div>
   );

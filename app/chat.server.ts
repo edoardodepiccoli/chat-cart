@@ -1,5 +1,5 @@
-import type { ChatMessage } from "./components/types";
-import type { ProductCardProps } from "./components/ProductCard";
+import type { ChatMessage } from "../chat-widget/src/components/types";
+import type { ProductCardProps } from "../chat-widget/src/components/ProductCard";
 
 const SWEATPANTS: ProductCardProps = {
   handle: "sweatpants",
@@ -150,29 +150,19 @@ const SWEATPANTS: ProductCardProps = {
   ],
 };
 
-function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
+const GREETING = "Hi! Ask me anything about this store.";
 
-export async function fakeGreeting(): Promise<ChatMessage> {
-  await sleep(1000);
-
-  return {
-    id: crypto.randomUUID(),
-    role: "assistant",
-    parts: [
-      {
-        type: "data-textMessage",
-        data: { text: "Hi! Ask me anything about this store." },
-      },
-    ],
-  };
-}
-
-export async function fakeChat(messages: ChatMessage[]): Promise<ChatMessage> {
-  await sleep(1000);
-
+export async function reply(messages: ChatMessage[]): Promise<ChatMessage> {
   const turn = messages.filter((message) => message.role === "user").length;
+
+  if (turn === 0) {
+    return {
+      id: crypto.randomUUID(),
+      role: "assistant",
+      parts: [{ type: "data-textMessage", data: { text: GREETING } }],
+    };
+  }
+
   const isCard = turn % 2 === 0;
 
   return {

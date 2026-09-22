@@ -2,7 +2,20 @@ import { useEffect, useRef, useState } from "react";
 
 import { renderPart } from "./components";
 import type { ChatMessage } from "./components/types";
-import { fakeChat, fakeGreeting } from "./fakeServer";
+import { chat } from "./chatClient";
+
+function errorMessage(): ChatMessage {
+  return {
+    id: crypto.randomUUID(),
+    role: "assistant",
+    parts: [
+      {
+        type: "data-textMessage",
+        data: { text: "Something went wrong. Please try again." },
+      },
+    ],
+  };
+}
 
 export default function App({ shopDomain }: { shopDomain: string }) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -16,10 +29,10 @@ export default function App({ shopDomain }: { shopDomain: string }) {
   }, [messages, status]);
 
   useEffect(() => {
-    fakeGreeting().then((greeting) => {
-      setMessages([greeting]);
-      setStatus("ready");
-    });
+    chat([])
+      .then((greeting) => setMessages([greeting]))
+      .catch(() => setMessages([errorMessage()]))
+      .finally(() => setStatus("ready"));
   }, []);
 
   async function send(event: React.FormEvent) {
@@ -40,10 +53,14 @@ export default function App({ shopDomain }: { shopDomain: string }) {
     setMessages(next);
     setStatus("submitted");
 
-    const reply = await fakeChat(next);
-
-    setMessages([...next, reply]);
-    setStatus("ready");
+    try {
+      const reply = await chat(next);
+      setMessages([...next, reply]);
+    } catch {
+      setMessages([...next, errorMessage()]);
+    } finally {
+      setStatus("ready");
+    }
   }
 
   return (

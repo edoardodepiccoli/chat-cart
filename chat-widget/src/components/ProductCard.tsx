@@ -2,19 +2,21 @@ import { useState } from "react";
 
 import type { ProductOption } from "./types";
 
+export type ProductCardProps = {
+  title: string;
+  price: string;
+  imageUrl: string;
+  productUrl: string;
+  options: ProductOption[];
+};
+
 export default function ProductCard({
   title,
   price,
   imageUrl,
   productUrl,
   options,
-}: {
-  title: string;
-  price: string;
-  imageUrl: string;
-  productUrl: string;
-  options: ProductOption[];
-}) {
+}: ProductCardProps) {
   const [selected, setSelected] = useState<Record<string, string>>(() =>
     Object.fromEntries(options.map((option) => [option.name, option.values[0]])),
   );

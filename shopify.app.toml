@@ -4,7 +4,7 @@ application_url = "https://example.com"
 embedded = true
 
 [access_scopes]
-scopes = "write_app_proxy,unauthenticated_read_product_listings,unauthenticated_read_content"
+scopes = "write_app_proxy,unauthenticated_read_product_listings,unauthenticated_read_product_tags,unauthenticated_read_content"
 
 [app_proxy]
 url = "/proxy"

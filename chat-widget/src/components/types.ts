@@ -1,12 +1,15 @@
+import type { UIMessage } from "ai";
+
 import type { ProductCardProps } from "./ProductCard";
-import type { TextMessageProps } from "./TextMessage";
 
-export type ChatPart =
-  | { type: "data-textMessage"; data: TextMessageProps }
-  | { type: "data-productCard"; data: ProductCardProps };
+export type ChatMessage = UIMessage<
+  never,
+  { suggestions: string[] },
+  {
+    listProducts: { input: Record<string, never>; output: unknown };
+    getProduct: { input: { handle: string }; output: unknown };
+    showProductCard: { input: { handle: string }; output: ProductCardProps };
+  }
+>;
 
-export type ChatMessage = {
-  id: string;
-  role: "user" | "assistant";
-  parts: ChatPart[];
-};
+export type ChatPart = ChatMessage["parts"][number];

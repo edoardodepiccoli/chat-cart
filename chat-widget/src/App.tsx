@@ -1,66 +1,59 @@
+import { useChat } from "@ai-sdk/react";
+import { DefaultChatTransport } from "ai";
 import { useEffect, useRef, useState } from "react";
 
 import { renderPart } from "./components";
 import type { ChatMessage } from "./components/types";
-import { chat } from "./chatClient";
 
-function errorMessage(): ChatMessage {
-  return {
-    id: crypto.randomUUID(),
-    role: "assistant",
-    parts: [
-      {
-        type: "data-textMessage",
-        data: { text: "Something went wrong. Please try again." },
-      },
-    ],
-  };
-}
+const GREETING: ChatMessage = {
+  id: "greeting",
+  role: "assistant",
+  parts: [
+    { type: "text", text: "Hi! Ask me anything about this store." },
+    {
+      type: "data-suggestions",
+      data: [
+        "What do you sell?",
+        "Help me find a gift",
+        "What are your best sellers?",
+      ],
+    },
+  ],
+};
+
+const transport = new DefaultChatTransport<ChatMessage>({
+  api: "/apps/chat-cart/chat",
+  headers: { "ngrok-skip-browser-warning": "true" },
+});
 
 export default function App({ shopDomain }: { shopDomain: string }) {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const { messages, sendMessage, status, error } = useChat<ChatMessage>({
+    transport,
+    messages: [GREETING],
+  });
   const [draft, setDraft] = useState("");
-  const [status, setStatus] = useState<"ready" | "submitted">("submitted");
   const logRef = useRef<HTMLDivElement>(null);
+  const last = messages.at(-1);
+  const busy = status === "submitted" || status === "streaming";
+  const suggestions =
+    status === "ready" && last?.role === "assistant"
+      ? last.parts.find((part) => part.type === "data-suggestions")?.data
+      : undefined;
 
   useEffect(() => {
     const log = logRef.current;
     log?.scrollTo({ top: log.scrollHeight, behavior: "smooth" });
   }, [messages, status]);
 
-  useEffect(() => {
-    chat([])
-      .then((greeting) => setMessages([greeting]))
-      .catch(() => setMessages([errorMessage()]))
-      .finally(() => setStatus("ready"));
-  }, []);
-
-  async function send(event: React.FormEvent) {
+  function submit(event: React.FormEvent) {
     event.preventDefault();
-    const text = draft.trim();
-    if (!text || status !== "ready") return;
+    send(draft.trim());
+  }
 
-    const next: ChatMessage[] = [
-      ...messages,
-      {
-        id: crypto.randomUUID(),
-        role: "user",
-        parts: [{ type: "data-textMessage", data: { text } }],
-      },
-    ];
-
+  function send(text: string) {
+    if (!text || busy) return;
     setDraft("");
-    setMessages(next);
-    setStatus("submitted");
-
-    try {
-      const reply = await chat(next);
-      setMessages([...next, reply]);
-    } catch {
-      setMessages([...next, errorMessage()]);
-    } finally {
-      setStatus("ready");
-    }
+    sendMessage({ text });
   }
 
   return (
@@ -71,19 +64,36 @@ export default function App({ shopDomain }: { shopDomain: string }) {
             key={message.id}
             className={`cc-message cc-message--${message.role}`}
           >
-            {message.parts.map((part, index) => (
-              <div
-                key={index}
-                className={`cc-part cc-part--${part.type}`}
-                style={{ "--cc-i": index } as React.CSSProperties}
-              >
-                {renderPart(part)}
-              </div>
-            ))}
+            {message.parts.map((part, index) => {
+              const node = renderPart(part);
+              return (
+                node && (
+                  <div key={index} className={`cc-part cc-part--${part.type}`}>
+                    {node}
+                  </div>
+                )
+              );
+            })}
           </div>
         ))}
 
-        {status === "submitted" && (
+        {suggestions && (
+          <div className="cc-suggestions">
+            {suggestions.map((suggestion, index) => (
+              <button
+                key={suggestion}
+                type="button"
+                className="cc-suggestion"
+                style={{ "--cc-i": index } as React.CSSProperties}
+                onClick={() => send(suggestion)}
+              >
+                {suggestion}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {busy && (
           <div className="cc-message cc-message--assistant">
             <div className="cc-part cc-typing">
               Typing
@@ -93,18 +103,24 @@ export default function App({ shopDomain }: { shopDomain: string }) {
             </div>
           </div>
         )}
+
+        {error && (
+          <div className="cc-message cc-message--assistant">
+            <div className="cc-part">Something went wrong. Please try again.</div>
+          </div>
+        )}
       </div>
 
-      <form className="cc-composer" onSubmit={send}>
+      <form className="cc-composer" onSubmit={submit}>
         <input
           className="cc-input"
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
           placeholder="Type a message"
           aria-label="Message"
-          disabled={status !== "ready"}
+          disabled={busy}
         />
-        <button className="cc-send" type="submit" disabled={status !== "ready"}>
+        <button className="cc-send" type="submit" disabled={busy}>
           Send
         </button>
       </form>

@@ -1,5 +1,6 @@
 import type { UIMessage } from "ai";
 
+import type { FaqCardProps } from "./FaqCard";
 import type { ProductCardProps } from "./ProductCard";
 
 export type ChatMessage = UIMessage<
@@ -11,6 +12,10 @@ export type ChatMessage = UIMessage<
     listStorePages: { input: Record<string, never>; output: unknown };
     getStorePage: { input: { handle: string }; output: unknown };
     showProductCard: { input: { handle: string }; output: ProductCardProps };
+    showFaqCard: {
+      input: { handle: string; answer: string };
+      output: FaqCardProps;
+    };
   }
 >;
 

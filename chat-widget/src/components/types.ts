@@ -6,7 +6,7 @@ import type { ProductCardsProps } from "./ProductCards";
 
 export type ChatMessage = UIMessage<
   never,
-  { suggestions: string[] },
+  { suggestions: string[]; like: { handle: string; title: string } },
   {
     listProducts: { input: Record<string, never>; output: unknown };
     getProduct: { input: { handle: string }; output: unknown };

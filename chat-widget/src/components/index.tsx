@@ -1,10 +1,13 @@
 import FaqCard from "./FaqCard";
-import ProductCard from "./ProductCard";
+import ProductCard, { type ProductCardProps } from "./ProductCard";
 import ProductCards from "./ProductCards";
 import TextMessage from "./TextMessage";
 import type { ChatPart } from "./types";
 
-export function renderPart(part: ChatPart) {
+export function renderPart(
+  part: ChatPart,
+  like: (product: ProductCardProps) => void,
+) {
   switch (part.type) {
     case "text":
       return part.text.trim() ? <TextMessage text={part.text.trim()} /> : null;
@@ -14,7 +17,7 @@ export function renderPart(part: ChatPart) {
       ) : null;
     case "tool-showProductCards":
       return part.state === "output-available" ? (
-        <ProductCards {...part.output} />
+        <ProductCards {...part.output} onLike={like} />
       ) : null;
     case "tool-showFaqCard":
       return part.state === "output-available" ? (

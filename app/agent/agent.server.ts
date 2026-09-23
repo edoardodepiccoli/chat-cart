@@ -40,6 +40,7 @@ For questions about the store itself, like shipping, delivery times, returns, pa
 You can't see orders, discount codes or reviews: if asked, say you can't check that here.
 Every reply should bring the shopper one step closer to buying.
 Whenever your reply is about specific products, including whether the store has something, its price, sizes, colors or stock, show them: one product with showProductCard, two or more with a single showProductCards call holding all of them (up to 6), never several showProductCard calls. Don't repeat in text what the cards already show: use your sentences to help them pick, like the size or color that matches what they asked for.
+When the shopper says they like a product, reply with one short upbeat sentence and show it with showProductCard so they can pick size and color and add it to the cart.
 You can't add to the cart yourself: the shopper does it from the card.
 If a few products could fit, show them rather than asking. Only if the request is too vague to pick any, ask one short question about what they need.
 The shopper just wants to shop: talk in everyday shopping words, and never mention cards, tools, tags, handles, variants, the catalog or anything else about how this chat works.
@@ -106,7 +107,7 @@ function tools(storefront: StorefrontApiContext) {
     }),
     showProductCards: tool({
       description:
-        "Show the shopper two or more products side by side, by their handles from listProducts, each with size and color pickers and add to cart.",
+        "Show the shopper two or more products side by side, by their handles from listProducts, each with its photo, price and a button to say they like it.",
       inputSchema: z.object({ handles: z.array(z.string()).min(2).max(6) }),
       execute: async ({ handles }): Promise<ProductCardsProps> => ({
         products: await Promise.all(
@@ -148,7 +149,15 @@ export async function reply(
   messages: ChatMessage[],
   storefront: StorefrontApiContext,
 ): Promise<Response> {
-  const modelMessages = await convertToModelMessages(messages);
+  const modelMessages = await convertToModelMessages<ChatMessage>(messages, {
+    convertDataPart: (part) =>
+      part.type === "data-like"
+        ? {
+            type: "text",
+            text: `I like ${part.data.title} (${part.data.handle}), tell me more about it.`,
+          }
+        : undefined,
+  });
 
   const stream = createUIMessageStream<ChatMessage>({
     originalMessages: messages,

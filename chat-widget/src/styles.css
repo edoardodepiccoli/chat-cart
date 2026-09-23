@@ -438,15 +438,19 @@
   padding: 8px;
 }
 
-.cc-carousel .cc-field {
-  flex-basis: 100%;
-  min-width: 0;
+.cc-card__like {
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 8px;
+  background: #1a1a1a;
+  color: #ffffff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
 }
 
-.cc-carousel .cc-select,
-.cc-carousel .cc-card__add,
-.cc-carousel .cc-card__view {
-  padding: 6px 8px;
+.cc-card__like:hover {
+  background: #333333;
 }
 
 @keyframes cc-rise {

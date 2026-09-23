@@ -15,6 +15,7 @@ import { existsSync } from "node:fs";
 import { z } from "zod";
 
 import type { ChatMessage } from "../../chat-widget/src/components/types";
+import type { FaqCardProps } from "../../chat-widget/src/components/FaqCard";
 import type { ProductCardProps } from "../../chat-widget/src/components/ProductCard";
 import {
   getProduct,
@@ -34,7 +35,7 @@ const SYSTEM = `You are the shopping assistant of an online store, chatting with
 Be very concise: reply in the shopper's language, in at most 2 short sentences of plain text, with no markdown and no filler.
 All you know comes from your tools: the store's product catalog (which products exist, their descriptions, tags, prices, sale prices, sizes, colors and other options, and what's in stock), and the store's policies and info pages.
 Never invent products, prices, stock or details: check with your tools before answering. Use listProducts to browse, filter by price, type or availability, and find similar products by their tags; use getProduct for a specific product, size or color.
-For questions about the store itself, like shipping, delivery times, returns, payments, contact or policies, use listStorePages to find the right page, then getStorePage to read it, and answer only from what it says. If no page covers it, say you can't check that here.
+For questions about the store itself, like shipping, delivery times, returns, payments, contact or policies, use listStorePages to find the right page, then getStorePage to read it, then show the answer with showFaqCard, in 1 or 2 short sentences taken only from what the page says. Don't repeat the answer in text: use your sentence to take the shopper back to shopping. If no page covers it, say you can't check that here.
 You can't see orders, discount codes or reviews: if asked, say you can't check that here.
 Every reply should bring the shopper one step closer to buying.
 Whenever your reply is about specific products, including whether the store has something, its price, sizes, colors or stock, show them with showProductCard, up to 3 cards when several fit. Don't repeat in text what the cards already show: use your sentences to help them pick, like the size or color that matches what they asked for.
@@ -95,6 +96,16 @@ function tools(storefront: StorefrontApiContext) {
           options: product.options,
           variants: product.variants,
         };
+      },
+    }),
+    showFaqCard: tool({
+      description:
+        "Show the shopper the answer to their store question, with a link to the store page it comes from, by its handle from listStorePages.",
+      inputSchema: z.object({ handle: z.string(), answer: z.string() }),
+      execute: async ({ handle, answer }): Promise<FaqCardProps> => {
+        const page = await getStorePage(storefront, handle);
+        if (!page) throw new Error(`No store page with handle ${handle}`);
+        return { title: page.title, answer, url: page.url };
       },
     }),
   };

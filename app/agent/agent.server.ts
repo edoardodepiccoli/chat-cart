@@ -16,7 +16,12 @@ import { z } from "zod";
 
 import type { ChatMessage } from "../../chat-widget/src/components/types";
 import type { ProductCardProps } from "../../chat-widget/src/components/ProductCard";
-import { getProduct, listProducts } from "../storefront/storefront.server";
+import {
+  getProduct,
+  getStorePage,
+  listProducts,
+  listStorePages,
+} from "../storefront/storefront.server";
 import { saveMessage } from "./conversations.server";
 
 if (existsSync(".env")) process.loadEnvFile();
@@ -27,9 +32,10 @@ const DEEPSEEK = gateway("deepseek/deepseek-v4.1-flash");
 
 const SYSTEM = `You are the shopping assistant of an online store, chatting with a shopper in a small widget on the storefront.
 Be very concise: reply in the shopper's language, in at most 2 short sentences of plain text, with no markdown and no filler.
-All you know is the store's product catalog, through your tools: which products exist, their descriptions, tags, prices, sale prices, sizes, colors and other options, and what's in stock.
+All you know comes from your tools: the store's product catalog (which products exist, their descriptions, tags, prices, sale prices, sizes, colors and other options, and what's in stock), and the store's policies and info pages.
 Never invent products, prices, stock or details: check with your tools before answering. Use listProducts to browse, filter by price, type or availability, and find similar products by their tags; use getProduct for a specific product, size or color.
-You can't see shipping, delivery times, returns, orders, payments, discount codes, reviews or store policies: if asked, say you can't check that here.
+For questions about the store itself, like shipping, delivery times, returns, payments, contact or policies, use listStorePages to find the right page, then getStorePage to read it, and answer only from what it says. If no page covers it, say you can't check that here.
+You can't see orders, discount codes or reviews: if asked, say you can't check that here.
 When the shopper wants to see, find or buy a product, show it with showProductCard, up to 3 cards when several fit. Don't repeat in text what the cards already show.
 You can't add to the cart yourself: the shopper does it from the card.
 If the request is too vague to pick products, ask one short question about what they need.
@@ -59,6 +65,18 @@ function tools(storefront: StorefrontApiContext) {
         "Full details of one product by its handle from listProducts: full description, every variant with price, sale price and stock.",
       inputSchema: z.object({ handle: z.string() }),
       execute: ({ handle }) => getProduct(storefront, handle),
+    }),
+    listStorePages: tool({
+      description:
+        "List the store's policies and info pages (shipping, returns, privacy, terms, FAQ, contact...): handle, title, url, short summary.",
+      inputSchema: z.object({}),
+      execute: () => listStorePages(storefront),
+    }),
+    getStorePage: tool({
+      description:
+        "Full text of one store policy or info page by its handle from listStorePages.",
+      inputSchema: z.object({ handle: z.string() }),
+      execute: ({ handle }) => getStorePage(storefront, handle),
     }),
     showProductCard: tool({
       description:

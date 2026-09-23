@@ -71,9 +71,14 @@ async function suggest(messages: ModelMessage[]): Promise<string[]> {
     output: Output.object({
       schema: z.object({ suggestions: z.array(z.string()).length(3) }),
     }),
-    system: `Write three short messages the shopper might send next in this conversation with an online store's shopping assistant.
-Write them in the shopper's language, from the shopper's point of view, each under 8 words.`,
-    messages,
+    messages: [
+      ...messages,
+      {
+        role: "user",
+        content:
+          "Write three short messages I might send you next in this conversation. Write them in my language, from my point of view, each under 8 words.",
+      },
+    ],
   });
 
   return output.suggestions;

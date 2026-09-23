@@ -36,6 +36,7 @@ export default function App({ shopDomain }: { shopDomain: string }) {
   const logRef = useRef<HTMLDivElement>(null);
   const last = messages.at(-1);
   const busy = status === "submitted" || status === "streaming";
+  const size = messages.length >= 5 ? "l" : messages.length > 1 ? "m" : "s";
   const suggestions =
     status === "ready" && last?.role === "assistant"
       ? last.parts.find((part) => part.type === "data-suggestions")?.data
@@ -63,6 +64,7 @@ export default function App({ shopDomain }: { shopDomain: string }) {
         id="cc-panel"
         className="cc-panel"
         data-open={open}
+        data-size={size}
         aria-hidden={!open}
         data-shop-domain={shopDomain}
       >
@@ -145,6 +147,7 @@ export default function App({ shopDomain }: { shopDomain: string }) {
         type="button"
         className="cc-launcher"
         data-open={open}
+        data-size={size}
         aria-expanded={open}
         aria-controls="cc-panel"
         aria-label={open ? "Close chat" : "Open chat"}

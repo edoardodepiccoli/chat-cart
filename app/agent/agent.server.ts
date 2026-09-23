@@ -36,13 +36,15 @@ If the request is too vague to pick products, ask one short question about what 
 The shopper just wants to shop: talk in everyday shopping words, and never mention cards, tools, tags, handles, variants, the catalog or anything else about how this chat works.
 If the message has nothing to do with shopping in this store, politely steer back to it.`;
 
-const SUGGEST = `Write three short messages I could send you next.
-You only know what this store sells: which products exist, what they're like, their prices, sizes, colors and other options, and which are in stock. You can also show me a product so I can pick options and buy it.
-Every message must be something you can fully answer with that alone. Never suggest anything about shipping, delivery times, returns, orders, payments, discount codes, reviews, bestsellers, new arrivals or store policies.
-Keep them generic, so they make sense whatever you just replied: browsing what the store sells, narrowing by price, type or availability, asking about sizes or colors, seeing something similar, seeing a product. Name a product only if it already came up in this conversation.
-I'm just a shopper: write in everyday shopping words, and never mention cards, tools, tags, handles, variants, the catalog or anything else about how this chat works.
-Make the three different from each other and from what I already asked.
-Write them in my language, as I would type them, each under 8 words.`;
+const SUGGEST = `Write the three replies I'm most likely to send you next, as I would type them.
+Start from your last message:
+- If you asked me something, all three answer it, each with a different concrete choice. Asked "What are you looking for?" in a store selling shirts and bags: "Show me your shirts", "A bag under $50", "Something in black".
+- If you showed me products, one is about them by name (another color, a size, something similar) and the others narrow or change my search.
+- Otherwise, they take my search one step further: a kind of product, a price limit, a color or a size.
+Every reply must lead to a yes: only ask for products, kinds of products, colors, sizes and price ranges that your tool results show the store has.
+Stick to what you can check: products, prices, sizes, colors and stock. Nothing about shipping, returns, orders, discounts, reviews or bestsellers.
+Each one makes sense on its own: never "it" or "this one" instead of a product name.
+All three different from each other and from what I already asked. In my language, in everyday shopping words, under 8 words each, never about how this chat works.`;
 
 function tools(storefront: StorefrontApiContext) {
   return {

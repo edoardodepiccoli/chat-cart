@@ -31,6 +31,7 @@ export default function App({ shopDomain }: { shopDomain: string }) {
     transport,
     messages: [GREETING],
   });
+  const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState("");
   const logRef = useRef<HTMLDivElement>(null);
   const last = messages.at(-1);
@@ -57,78 +58,113 @@ export default function App({ shopDomain }: { shopDomain: string }) {
   }
 
   return (
-    <div className="cc-panel" data-shop-domain={shopDomain}>
-      <div className="cc-log" ref={logRef}>
-        {messages.map((message) => {
-          const parts = message.parts.map((part, index) => {
-            const node = renderPart(part);
+    <>
+      <div
+        id="cc-panel"
+        className="cc-panel"
+        data-open={open}
+        aria-hidden={!open}
+        data-shop-domain={shopDomain}
+      >
+        <div className="cc-log" ref={logRef}>
+          {messages.map((message) => {
+            const parts = message.parts.map((part, index) => {
+              const node = renderPart(part);
+              return (
+                node && (
+                  <div key={index} className={`cc-part cc-part--${part.type}`}>
+                    {node}
+                  </div>
+                )
+              );
+            });
             return (
-              node && (
-                <div key={index} className={`cc-part cc-part--${part.type}`}>
-                  {node}
+              parts.some(Boolean) && (
+                <div
+                  key={message.id}
+                  className={`cc-message cc-message--${message.role}`}
+                >
+                  {parts}
                 </div>
               )
             );
-          });
-          return (
-            parts.some(Boolean) && (
-              <div
-                key={message.id}
-                className={`cc-message cc-message--${message.role}`}
-              >
-                {parts}
-              </div>
-            )
-          );
-        })}
+          })}
 
-        {suggestions && (
-          <div className="cc-suggestions">
-            {suggestions.map((suggestion, index) => (
-              <button
-                key={suggestion}
-                type="button"
-                className="cc-suggestion"
-                style={{ "--cc-i": index } as React.CSSProperties}
-                onClick={() => send(suggestion)}
-              >
-                {suggestion}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {busy && (
-          <div className="cc-message cc-message--assistant">
-            <div className="cc-part cc-typing">
-              Typing
-              <span className="cc-typing__dot">.</span>
-              <span className="cc-typing__dot">.</span>
-              <span className="cc-typing__dot">.</span>
+          {suggestions && (
+            <div className="cc-suggestions">
+              {suggestions.map((suggestion, index) => (
+                <button
+                  key={suggestion}
+                  type="button"
+                  className="cc-suggestion"
+                  style={{ "--cc-i": index } as React.CSSProperties}
+                  onClick={() => send(suggestion)}
+                >
+                  {suggestion}
+                </button>
+              ))}
             </div>
-          </div>
-        )}
+          )}
 
-        {error && (
-          <div className="cc-message cc-message--assistant">
-            <div className="cc-part">Something went wrong. Please try again.</div>
-          </div>
-        )}
+          {busy && (
+            <div className="cc-message cc-message--assistant">
+              <div className="cc-part cc-typing">
+                Typing
+                <span className="cc-typing__dot">.</span>
+                <span className="cc-typing__dot">.</span>
+                <span className="cc-typing__dot">.</span>
+              </div>
+            </div>
+          )}
+
+          {error && (
+            <div className="cc-message cc-message--assistant">
+              <div className="cc-part">
+                Something went wrong. Please try again.
+              </div>
+            </div>
+          )}
+        </div>
+
+        <form className="cc-composer" onSubmit={submit}>
+          <input
+            className="cc-input"
+            value={draft}
+            onChange={(event) => setDraft(event.target.value)}
+            placeholder="Type a message"
+            aria-label="Message"
+            disabled={busy}
+          />
+          <button className="cc-send" type="submit" disabled={busy}>
+            Send
+          </button>
+        </form>
       </div>
 
-      <form className="cc-composer" onSubmit={submit}>
-        <input
-          className="cc-input"
-          value={draft}
-          onChange={(event) => setDraft(event.target.value)}
-          placeholder="Type a message"
-          aria-label="Message"
-          disabled={busy}
-        />
-        <button className="cc-send" type="submit" disabled={busy}>
-          Send
-        </button>
-      </form>
-    </div>
+      <button
+        type="button"
+        className="cc-launcher"
+        data-open={open}
+        aria-expanded={open}
+        aria-controls="cc-panel"
+        aria-label={open ? "Close chat" : "Open chat"}
+        onClick={() => setOpen((value) => !value)}
+      >
+        <svg
+          className="cc-launcher__icon cc-launcher__icon--chat"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+        </svg>
+        <svg
+          className="cc-launcher__icon cc-launcher__icon--close"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path d="M6 6l12 12M18 6L6 18" />
+        </svg>
+      </button>
+    </>
   );
 }

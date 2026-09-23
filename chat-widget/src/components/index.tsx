@@ -1,5 +1,6 @@
 import FaqCard from "./FaqCard";
 import ProductCard from "./ProductCard";
+import ProductCards from "./ProductCards";
 import TextMessage from "./TextMessage";
 import type { ChatPart } from "./types";
 
@@ -10,6 +11,10 @@ export function renderPart(part: ChatPart) {
     case "tool-showProductCard":
       return part.state === "output-available" ? (
         <ProductCard {...part.output} />
+      ) : null;
+    case "tool-showProductCards":
+      return part.state === "output-available" ? (
+        <ProductCards {...part.output} />
       ) : null;
     case "tool-showFaqCard":
       return part.state === "output-available" ? (

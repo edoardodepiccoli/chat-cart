@@ -30,6 +30,13 @@ Never invent prices, stock, shipping or store policies: look them up with your t
 When the shopper wants to see, find or buy a product, show it with showProductCard. Don't repeat in text what the card already shows.
 If the message has nothing to do with shopping in this store, politely steer back to it.`;
 
+const SUGGEST = `Write three short messages I could send you next.
+You only know this store's catalog: which products exist, their descriptions, tags, prices, sizes, colors and other options, and which are in stock. You can also show me a product card where I pick options and add it to the cart myself.
+Every message must be something you can fully answer with that alone. Never suggest anything about shipping, delivery times, returns, orders, payments, discount codes, reviews, bestsellers, new arrivals or store policies.
+Keep them generic, so they make sense whatever you just replied: browsing what the store sells, narrowing by price, type or availability, asking about sizes or colors, seeing something similar, seeing a product up close. Name a product only if it already came up in this conversation.
+Make the three different from each other and from what I already asked.
+Write them in my language, as I would type them, each under 8 words.`;
+
 function tools(storefront: StorefrontApiContext) {
   return {
     listProducts: tool({
@@ -73,11 +80,7 @@ async function suggest(messages: ModelMessage[]): Promise<string[]> {
     }),
     messages: [
       ...messages,
-      {
-        role: "user",
-        content:
-          "Write three short messages I might send you next in this conversation. Write them in my language, from my point of view, each under 8 words.",
-      },
+      { role: "user", content: SUGGEST },
     ],
   });
 

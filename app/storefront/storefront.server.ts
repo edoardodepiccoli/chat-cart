@@ -45,6 +45,20 @@ const PRODUCT_QUERY = `#graphql
     }
   }`;
 
+const STORE_PAGES_QUERY = `#graphql
+  query StorePages {
+    shop {
+      privacyPolicy { handle title body url }
+      refundPolicy { handle title body url }
+      shippingPolicy { handle title body url }
+      termsOfService { handle title body url }
+      subscriptionPolicy { handle title body url }
+    }
+    pages(first: 250) {
+      nodes { handle title body onlineStoreUrl }
+    }
+  }`;
+
 type Money = { amount: string; currencyCode: string };
 
 type OptionNode = { name: string; optionValues: { name: string }[] };
@@ -82,6 +96,45 @@ type ProductResponse = {
       }[];
     };
   } | null;
+};
+
+type PolicyNode = {
+  handle: string;
+  title: string;
+  body: string;
+  url: string;
+} | null;
+
+type StorePagesResponse = {
+  shop: {
+    privacyPolicy: PolicyNode;
+    refundPolicy: PolicyNode;
+    shippingPolicy: PolicyNode;
+    termsOfService: PolicyNode;
+    subscriptionPolicy: PolicyNode;
+  };
+  pages: {
+    nodes: {
+      handle: string;
+      title: string;
+      body: string;
+      onlineStoreUrl: string | null;
+    }[];
+  };
+};
+
+type StorePage = {
+  handle: string;
+  title: string;
+  url: string;
+  text: string;
+};
+
+type StorePageSummary = {
+  handle: string;
+  title: string;
+  url: string;
+  summary: string;
 };
 
 type ProductSummary = {
@@ -161,4 +214,60 @@ export async function getProduct(
       imageUrl: variant.image?.url ?? null,
     })),
   };
+}
+
+function plainText(html: string): string {
+  return html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+}
+
+async function storePages(
+  storefront: StorefrontApiContext,
+): Promise<StorePage[]> {
+  const response = await storefront.graphql(STORE_PAGES_QUERY);
+  const { data } = (await response.json()) as { data: StorePagesResponse };
+
+  const policies = Object.values(data.shop)
+    .filter((policy) => policy !== null)
+    .map((policy) => ({
+      handle: policy.handle,
+      title: policy.title,
+      url: policy.url,
+      text: plainText(policy.body),
+    }));
+
+  const pages = data.pages.nodes.flatMap((page) =>
+    page.onlineStoreUrl
+      ? [
+          {
+            handle: page.handle,
+            title: page.title,
+            url: page.onlineStoreUrl,
+            text: plainText(page.body),
+          },
+        ]
+      : [],
+  );
+
+  return [...policies, ...pages];
+}
+
+export async function listStorePages(
+  storefront: StorefrontApiContext,
+): Promise<StorePageSummary[]> {
+  return (await storePages(storefront)).map((page) => ({
+    handle: page.handle,
+    title: page.title,
+    url: page.url,
+    summary: page.text.slice(0, 150),
+  }));
+}
+
+export async function getStorePage(
+  storefront: StorefrontApiContext,
+  handle: string,
+): Promise<StorePage | null> {
+  return (
+    (await storePages(storefront)).find((page) => page.handle === handle) ??
+    null
+  );
 }

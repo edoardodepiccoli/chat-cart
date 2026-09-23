@@ -59,23 +59,28 @@ export default function App({ shopDomain }: { shopDomain: string }) {
   return (
     <div className="cc-panel" data-shop-domain={shopDomain}>
       <div className="cc-log" ref={logRef}>
-        {messages.map((message) => (
-          <div
-            key={message.id}
-            className={`cc-message cc-message--${message.role}`}
-          >
-            {message.parts.map((part, index) => {
-              const node = renderPart(part);
-              return (
-                node && (
-                  <div key={index} className={`cc-part cc-part--${part.type}`}>
-                    {node}
-                  </div>
-                )
-              );
-            })}
-          </div>
-        ))}
+        {messages.map((message) => {
+          const parts = message.parts.map((part, index) => {
+            const node = renderPart(part);
+            return (
+              node && (
+                <div key={index} className={`cc-part cc-part--${part.type}`}>
+                  {node}
+                </div>
+              )
+            );
+          });
+          return (
+            parts.some(Boolean) && (
+              <div
+                key={message.id}
+                className={`cc-message cc-message--${message.role}`}
+              >
+                {parts}
+              </div>
+            )
+          );
+        })}
 
         {suggestions && (
           <div className="cc-suggestions">

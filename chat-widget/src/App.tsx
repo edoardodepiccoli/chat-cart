@@ -25,7 +25,7 @@ export default function App({ shopDomain }: { shopDomain: string }) {
 
   useEffect(() => {
     const log = logRef.current;
-    if (log) log.scrollTop = log.scrollHeight;
+    log?.scrollTo({ top: log.scrollHeight, behavior: "smooth" });
   }, [messages, status]);
 
   useEffect(() => {
@@ -72,7 +72,11 @@ export default function App({ shopDomain }: { shopDomain: string }) {
             className={`cc-message cc-message--${message.role}`}
           >
             {message.parts.map((part, index) => (
-              <div key={index} className={`cc-part cc-part--${part.type}`}>
+              <div
+                key={index}
+                className={`cc-part cc-part--${part.type}`}
+                style={{ "--cc-i": index } as React.CSSProperties}
+              >
                 {renderPart(part)}
               </div>
             ))}
@@ -81,7 +85,12 @@ export default function App({ shopDomain }: { shopDomain: string }) {
 
         {status === "submitted" && (
           <div className="cc-message cc-message--assistant">
-            <div className="cc-part cc-typing">Typing…</div>
+            <div className="cc-part cc-typing">
+              Typing
+              <span className="cc-typing__dot">.</span>
+              <span className="cc-typing__dot">.</span>
+              <span className="cc-typing__dot">.</span>
+            </div>
           </div>
         )}
       </div>

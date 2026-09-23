@@ -42,7 +42,7 @@ function pickedValue(picks: SelectedOption[], optionName: string): string {
   return pick.value;
 }
 
-function ProductPrice({
+export function ProductPrice({
   price,
   compareAtPrice,
 }: {

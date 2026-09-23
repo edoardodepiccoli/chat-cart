@@ -72,6 +72,11 @@ export default function App({ shopDomain }: { shopDomain: string }) {
     sendMessage({ text });
   }
 
+  function like({ handle, title }: { handle: string; title: string }) {
+    if (busy || !conversation) return;
+    sendMessage({ parts: [{ type: "data-like", data: { handle, title } }] });
+  }
+
   return (
     <>
       <div
@@ -85,7 +90,7 @@ export default function App({ shopDomain }: { shopDomain: string }) {
         <div className="cc-log" ref={logRef}>
           {messages.map((message) => {
             const parts = message.parts.map((part, index) => {
-              const node = renderPart(part);
+              const node = renderPart(part, like);
               return (
                 node && (
                   <div key={index} className={`cc-part cc-part--${part.type}`}>

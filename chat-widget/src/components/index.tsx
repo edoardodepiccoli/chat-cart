@@ -4,9 +4,13 @@ import type { ChatPart } from "./types";
 
 export function renderPart(part: ChatPart) {
   switch (part.type) {
-    case "data-textMessage":
-      return <TextMessage {...part.data} />;
-    case "data-productCard":
-      return <ProductCard {...part.data} />;
+    case "text":
+      return part.text.trim() ? <TextMessage text={part.text.trim()} /> : null;
+    case "tool-showProductCard":
+      return part.state === "output-available" ? (
+        <ProductCard {...part.output} />
+      ) : null;
+    default:
+      return null;
   }
 }

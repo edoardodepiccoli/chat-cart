@@ -7,6 +7,7 @@
     "prebuild": "npm run widget:build",
     "build": "react-router build",
     "dev": "shopify app dev",
+    "dev:ngrok": "./scripts/dev-ngrok.sh",
     "predeploy": "npm run widget:build",
     "deploy": "shopify app deploy",
     "start": "react-router-serve ./build/server/index.js",
@@ -19,6 +20,8 @@
     "node": ">=20.19 <22 || >=22.12"
   },
   "dependencies": {
+    "@ai-sdk/gateway": "^4.0.89",
+    "@ai-sdk/react": "^4.0.115",
     "@prisma/client": "^6.16.3",
     "@react-router/dev": "7.18.2",
     "@react-router/fs-routes": "7.18.2",
@@ -27,12 +30,14 @@
     "@shopify/app-bridge-react": "^4.2.4",
     "@shopify/shopify-app-react-router": "^1.2.1",
     "@shopify/shopify-app-session-storage-prisma": "^9.0.0",
+    "ai": "^7.0.111",
     "isbot": "^5.1.31",
     "prisma": "^6.16.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router": "7.18.2",
-    "vite-tsconfig-paths": "^5.1.4"
+    "vite-tsconfig-paths": "^5.1.4",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@shopify/polaris-types": "^1.0.1",

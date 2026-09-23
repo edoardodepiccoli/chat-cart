@@ -57,19 +57,19 @@
   align-items: flex-end;
 }
 
-.cc-part--data-textMessage,
+.cc-part--text,
 .cc-typing {
   padding: 8px 12px;
   border-radius: 12px;
   white-space: pre-wrap;
 }
 
-.cc-message--assistant .cc-part--data-textMessage,
+.cc-message--assistant .cc-part--text,
 .cc-typing {
   background: #f1f1f1;
 }
 
-.cc-message--user .cc-part--data-textMessage {
+.cc-message--user .cc-part--text {
   background: #1a1a1a;
   color: #ffffff;
 }
@@ -78,7 +78,28 @@
   color: #6b6b6b;
 }
 
-.cc-part--data-productCard {
+.cc-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.cc-suggestion {
+  padding: 6px 12px;
+  border: 1px solid #d0d0d0;
+  border-radius: 999px;
+  background: #ffffff;
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.cc-suggestion:hover {
+  background: #f1f1f1;
+}
+
+.cc-part--tool-showProductCard {
   width: 100%;
   max-width: 100%;
 }

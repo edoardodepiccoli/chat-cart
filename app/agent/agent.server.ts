@@ -17,6 +17,7 @@ import { z } from "zod";
 import type { ChatMessage } from "../../chat-widget/src/components/types";
 import type { FaqCardProps } from "../../chat-widget/src/components/FaqCard";
 import type { ProductCardProps } from "../../chat-widget/src/components/ProductCard";
+import type { ProductCardsProps } from "../../chat-widget/src/components/ProductCards";
 import {
   getProduct,
   getStorePage,
@@ -38,7 +39,7 @@ Never invent products, prices, stock or details: check with your tools before an
 For questions about the store itself, like shipping, delivery times, returns, payments, contact or policies, use listStorePages to find the right page, then getStorePage to read it, then show the answer with showFaqCard, in 1 or 2 short sentences taken only from what the page says. Don't repeat the answer in text: use your sentence to take the shopper back to shopping. If no page covers it, say you can't check that here.
 You can't see orders, discount codes or reviews: if asked, say you can't check that here.
 Every reply should bring the shopper one step closer to buying.
-Whenever your reply is about specific products, including whether the store has something, its price, sizes, colors or stock, show them with showProductCard, up to 3 cards when several fit. Don't repeat in text what the cards already show: use your sentences to help them pick, like the size or color that matches what they asked for.
+Whenever your reply is about specific products, including whether the store has something, its price, sizes, colors or stock, show them: one product with showProductCard, two or more with a single showProductCards call holding all of them (up to 6), never several showProductCard calls. Don't repeat in text what the cards already show: use your sentences to help them pick, like the size or color that matches what they asked for.
 You can't add to the cart yourself: the shopper does it from the card.
 If a few products could fit, show them rather than asking. Only if the request is too vague to pick any, ask one short question about what they need.
 The shopper just wants to shop: talk in everyday shopping words, and never mention cards, tools, tags, handles, variants, the catalog or anything else about how this chat works.
@@ -54,6 +55,22 @@ Every reply must lead to a yes: only ask for products, kinds of products, colors
 Stick to what you can check: products, prices, sizes, colors, stock and what the store's pages say. Nothing about orders, discounts, reviews or bestsellers.
 Each one makes sense on its own: never "it" or "this one" instead of a product name.
 All three different from each other and from what I already asked. In my language, in everyday shopping words, under 8 words each, never about how this chat works.`;
+
+async function productCard(
+  storefront: StorefrontApiContext,
+  handle: string,
+): Promise<ProductCardProps> {
+  const product = await getProduct(storefront, handle);
+  if (!product) throw new Error(`No product with handle ${handle}`);
+  return {
+    handle: product.handle,
+    title: product.title,
+    imageUrl: product.imageUrl,
+    imageAlt: product.imageAlt,
+    options: product.options,
+    variants: product.variants,
+  };
+}
 
 function tools(storefront: StorefrontApiContext) {
   return {
@@ -85,18 +102,17 @@ function tools(storefront: StorefrontApiContext) {
       description:
         "Show the shopper a product card by its handle from listProducts, where they can pick size and color and add it to the cart.",
       inputSchema: z.object({ handle: z.string() }),
-      execute: async ({ handle }): Promise<ProductCardProps> => {
-        const product = await getProduct(storefront, handle);
-        if (!product) throw new Error(`No product with handle ${handle}`);
-        return {
-          handle: product.handle,
-          title: product.title,
-          imageUrl: product.imageUrl,
-          imageAlt: product.imageAlt,
-          options: product.options,
-          variants: product.variants,
-        };
-      },
+      execute: ({ handle }) => productCard(storefront, handle),
+    }),
+    showProductCards: tool({
+      description:
+        "Show the shopper two or more products side by side, by their handles from listProducts, each with size and color pickers and add to cart.",
+      inputSchema: z.object({ handles: z.array(z.string()).min(2).max(6) }),
+      execute: async ({ handles }): Promise<ProductCardsProps> => ({
+        products: await Promise.all(
+          handles.map((handle) => productCard(storefront, handle)),
+        ),
+      }),
     }),
     showFaqCard: tool({
       description:

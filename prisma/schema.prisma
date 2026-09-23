@@ -32,3 +32,21 @@ model Session {
   refreshToken        String?
   refreshTokenExpires DateTime?
 }
+
+model Conversation {
+  id        String    @id @default(uuid())
+  shop      String
+  createdAt DateTime  @default(now())
+  messages  Message[]
+}
+
+model Message {
+  id             String       @id
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  role           String
+  parts          Json
+  createdAt      DateTime     @default(now())
+
+  @@index([conversationId, createdAt])
+}

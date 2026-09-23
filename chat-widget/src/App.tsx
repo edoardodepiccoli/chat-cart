@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { renderPart } from "./components";
 import type { ChatMessage } from "./components/types";
+import { openConversation, type Conversation } from "./conversation";
 
 const GREETING: ChatMessage = {
   id: "greeting",
@@ -24,23 +25,36 @@ const GREETING: ChatMessage = {
 const transport = new DefaultChatTransport<ChatMessage>({
   api: "/apps/chat-cart/chat",
   headers: { "ngrok-skip-browser-warning": "true" },
+  prepareSendMessagesRequest: ({ id, messages }) => ({
+    body: { id, message: messages.at(-1) },
+  }),
 });
 
 export default function App({ shopDomain }: { shopDomain: string }) {
+  const [conversation, setConversation] = useState<Conversation>();
+  const [loadFailed, setLoadFailed] = useState(false);
   const { messages, sendMessage, status, error } = useChat<ChatMessage>({
+    id: conversation?.id,
     transport,
-    messages: [GREETING],
+    messages: conversation ? [GREETING, ...conversation.messages] : [],
   });
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState("");
   const logRef = useRef<HTMLDivElement>(null);
   const last = messages.at(-1);
-  const busy = status === "submitted" || status === "streaming";
+  const loading = !conversation && !loadFailed;
+  const busy = loading || status === "submitted" || status === "streaming";
   const size = messages.length >= 5 ? "l" : messages.length > 1 ? "m" : "s";
   const suggestions =
     status === "ready" && last?.role === "assistant"
       ? last.parts.find((part) => part.type === "data-suggestions")?.data
       : undefined;
+
+  useEffect(() => {
+    openConversation()
+      .then(setConversation)
+      .catch(() => setLoadFailed(true));
+  }, []);
 
   useEffect(() => {
     const log = logRef.current;
@@ -53,7 +67,7 @@ export default function App({ shopDomain }: { shopDomain: string }) {
   }
 
   function send(text: string) {
-    if (!text || busy) return;
+    if (!text || busy || !conversation) return;
     setDraft("");
     sendMessage({ text });
   }
@@ -119,7 +133,7 @@ export default function App({ shopDomain }: { shopDomain: string }) {
             </div>
           )}
 
-          {error && (
+          {(error || loadFailed) && (
             <div className="cc-message cc-message--assistant">
               <div className="cc-part">
                 Something went wrong. Please try again.
@@ -135,9 +149,13 @@ export default function App({ shopDomain }: { shopDomain: string }) {
             onChange={(event) => setDraft(event.target.value)}
             placeholder="Type a message"
             aria-label="Message"
-            disabled={busy}
+            disabled={busy || !conversation}
           />
-          <button className="cc-send" type="submit" disabled={busy}>
+          <button
+            className="cc-send"
+            type="submit"
+            disabled={busy || !conversation}
+          >
             Send
           </button>
         </form>

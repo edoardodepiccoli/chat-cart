@@ -17,6 +17,7 @@ import { z } from "zod";
 import type { ChatMessage } from "../../chat-widget/src/components/types";
 import type { ProductCardProps } from "../../chat-widget/src/components/ProductCard";
 import { getProduct, listProducts } from "../storefront/storefront.server";
+import { saveMessage } from "./conversations.server";
 
 if (existsSync(".env")) process.loadEnvFile();
 
@@ -94,12 +95,19 @@ async function suggest(messages: ModelMessage[]): Promise<string[]> {
 }
 
 export async function reply(
+  conversationId: string,
   messages: ChatMessage[],
   storefront: StorefrontApiContext,
 ): Promise<Response> {
   const modelMessages = await convertToModelMessages(messages);
 
   const stream = createUIMessageStream<ChatMessage>({
+    originalMessages: messages,
+    onEnd: async ({ responseMessage }) => {
+      if (responseMessage.parts.length) {
+        await saveMessage(conversationId, responseMessage);
+      }
+    },
     execute: async ({ writer }) => {
       const result = streamText({
         model: DEEPSEEK,

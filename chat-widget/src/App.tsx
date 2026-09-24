@@ -44,6 +44,8 @@ export default function App({ shopDomain }: { shopDomain: string }) {
   const [draft, setDraft] = useState("");
   const [leaving, setLeaving] = useState<Suggestions>();
   const logRef = useRef<HTMLDivElement>(null);
+  const pinned = useRef(true);
+  const lastTop = useRef(0);
   const last = messages.at(-1);
   const loading = !conversation && !loadFailed;
   const busy = loading || status === "submitted" || status === "streaming";
@@ -64,8 +66,18 @@ export default function App({ shopDomain }: { shopDomain: string }) {
 
   useEffect(() => {
     const log = logRef.current;
-    log?.scrollTo({ top: log.scrollHeight, behavior: "smooth" });
+    if (pinned.current)
+      log?.scrollTo({ top: log.scrollHeight, behavior: "smooth" });
   }, [messages, status]);
+
+  function track() {
+    const log = logRef.current;
+    if (!log) return;
+    if (log.scrollHeight - log.scrollTop - log.clientHeight < 24)
+      pinned.current = true;
+    else if (log.scrollTop < lastTop.current) pinned.current = false;
+    lastTop.current = log.scrollTop;
+  }
 
   function submit(event: React.FormEvent) {
     event.preventDefault();
@@ -98,7 +110,7 @@ export default function App({ shopDomain }: { shopDomain: string }) {
         aria-hidden={!open}
         data-shop-domain={shopDomain}
       >
-        <div className="cc-log" ref={logRef}>
+        <div className="cc-log" ref={logRef} onScroll={track}>
           <div className="cc-log__content">
             {messages.map((message) => {
               const parts = message.parts.map((part, index) => {

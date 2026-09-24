@@ -77,10 +77,15 @@ export default function ProductCard({
   options,
   variants,
   selectedOptions,
-}: ProductCardProps) {
+  onAdd,
+}: ProductCardProps & {
+  onAdd: (variant: ProductVariant) => Promise<void>;
+}) {
   const [picks, setPicks] = useState<SelectedOption[]>(
     () => selectedOptions ?? defaultSelectedOptions(variants),
   );
+  const [adding, setAdding] = useState(false);
+  const [failed, setFailed] = useState(false);
 
   const selectedVariant = findVariant(variants, picks);
   const shownVariant = selectedVariant ?? variants[0];
@@ -88,6 +93,26 @@ export default function ProductCard({
   const hasChoice = variants.length > 1;
   const canAddToCart = selectedVariant !== null && selectedVariant.available;
   const productUrl = `/products/${handle}`;
+
+  async function add() {
+    if (selectedVariant === null) return;
+    setAdding(true);
+    setFailed(false);
+    try {
+      await onAdd(selectedVariant);
+    } catch {
+      setFailed(true);
+    } finally {
+      setAdding(false);
+    }
+  }
+
+  function addLabel() {
+    if (!canAddToCart) return "Sold out";
+    if (adding) return "Adding…";
+    if (failed) return "Try again";
+    return "Add to cart";
+  }
 
   return (
     <div className="cc-card">
@@ -150,8 +175,13 @@ export default function ProductCard({
           </div>
         )}
 
-        <button className="cc-card__add" type="button" disabled={!canAddToCart}>
-          {canAddToCart ? "Add to cart" : "Sold out"}
+        <button
+          className="cc-card__add"
+          type="button"
+          disabled={!canAddToCart || adding}
+          onClick={add}
+        >
+          {addLabel()}
         </button>
 
         <a className="cc-card__view" href={productUrl}>

@@ -2,7 +2,7 @@ import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { Fragment, useEffect, useRef, useState } from "react";
 
-import { addToCart, getCartVariantIds, variantNumber } from "./cart";
+import { addToCart, getCart, type Cart } from "./cart";
 import { renderPart } from "./components";
 import type {
   ProductCardProps,
@@ -40,7 +40,7 @@ const transport = new DefaultChatTransport<ChatMessage>({
 export default function App({ shopDomain }: { shopDomain: string }) {
   const [conversation, setConversation] = useState<Conversation>();
   const [loadFailed, setLoadFailed] = useState(false);
-  const [cartVariantIds, setCartVariantIds] = useState<number[]>([]);
+  const [cart, setCart] = useState<Cart>();
   const { messages, sendMessage, status, error } = useChat<ChatMessage>({
     id: conversation?.id,
     transport,
@@ -68,8 +68,8 @@ export default function App({ shopDomain }: { shopDomain: string }) {
     openConversation()
       .then(setConversation)
       .catch(() => setLoadFailed(true));
-    getCartVariantIds()
-      .then(setCartVariantIds)
+    getCart()
+      .then(setCart)
       .catch(() => {});
   }, []);
 
@@ -119,7 +119,7 @@ export default function App({ shopDomain }: { shopDomain: string }) {
   async function add(product: ProductCardProps, variant: ProductVariant) {
     if (busy || !conversation) return;
     await addToCart(variant.id);
-    setCartVariantIds((ids) => [...ids, variantNumber(variant.id)]);
+    setCart(await getCart());
     const label =
       product.variants.length > 1
         ? ` (${variant.selectedOptions.map((option) => option.value).join(" / ")})`
@@ -146,7 +146,7 @@ export default function App({ shopDomain }: { shopDomain: string }) {
                   part,
                   like,
                   add,
-                  cartVariantIds,
+                  cart,
                   status === "streaming" && message === last,
                 );
                 return (

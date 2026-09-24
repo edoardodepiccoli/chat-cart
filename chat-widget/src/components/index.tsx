@@ -1,3 +1,5 @@
+import type { Cart } from "../cart";
+import CartSummary from "./CartSummary";
 import FaqCard from "./FaqCard";
 import ProductCard, {
   type ProductCardProps,
@@ -11,7 +13,7 @@ export function renderPart(
   part: ChatPart,
   like: (product: ProductCardProps) => void,
   add: (product: ProductCardProps, variant: ProductVariant) => Promise<void>,
-  cartVariantIds: number[],
+  cart: Cart | undefined,
   streaming: boolean,
 ) {
   switch (part.type) {
@@ -23,7 +25,7 @@ export function renderPart(
       return part.state === "output-available" ? (
         <ProductCard
           {...part.output}
-          cartVariantIds={cartVariantIds}
+          cartVariantIds={cart?.items.map((item) => item.variant_id) ?? []}
           onAdd={(variant) => add(part.output, variant)}
         />
       ) : null;
@@ -34,6 +36,10 @@ export function renderPart(
     case "tool-showFaqCard":
       return part.state === "output-available" ? (
         <FaqCard {...part.output} />
+      ) : null;
+    case "tool-showCart":
+      return part.state === "output-available" ? (
+        <CartSummary cart={cart} />
       ) : null;
     default:
       return null;

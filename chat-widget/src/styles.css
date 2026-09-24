@@ -436,7 +436,9 @@
 }
 
 .cc-carousel .cc-card {
+  display: flex;
   flex: 0 0 160px;
+  flex-direction: column;
   scroll-snap-align: start;
   font-size: 13px;
 }
@@ -448,8 +450,13 @@
 }
 
 .cc-carousel .cc-card__body {
+  flex: 1;
   gap: 6px;
   padding: 8px;
+}
+
+.cc-carousel .cc-card__price {
+  margin-top: auto;
 }
 
 .cc-card__like {

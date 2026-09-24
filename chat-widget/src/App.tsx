@@ -66,9 +66,15 @@ export default function App({ shopDomain }: { shopDomain: string }) {
 
   useEffect(() => {
     const log = logRef.current;
-    if (pinned.current)
-      log?.scrollTo({ top: log.scrollHeight, behavior: "smooth" });
-  }, [messages, status]);
+    const content = log?.firstElementChild;
+    if (!log || !content) return;
+    const observer = new ResizeObserver(() => {
+      if (pinned.current)
+        log.scrollTo({ top: log.scrollHeight, behavior: "smooth" });
+    });
+    observer.observe(content);
+    return () => observer.disconnect();
+  }, []);
 
   function track() {
     const log = logRef.current;
@@ -115,7 +121,11 @@ export default function App({ shopDomain }: { shopDomain: string }) {
           <div className="cc-log__content">
             {messages.map((message) => {
               const parts = message.parts.map((part, index) => {
-                const node = renderPart(part, like);
+                const node = renderPart(
+                  part,
+                  like,
+                  status === "streaming" && message === last,
+                );
                 return (
                   node && (
                     <div

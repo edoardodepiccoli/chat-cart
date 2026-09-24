@@ -1,6 +1,6 @@
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 
 import { renderPart } from "./components";
 import type { ChatMessage } from "./components/types";
@@ -22,6 +22,8 @@ const GREETING: ChatMessage = {
   ],
 };
 
+type Suggestions = { id: string; items: string[]; top?: number };
+
 const transport = new DefaultChatTransport<ChatMessage>({
   api: "/apps/chat-cart/chat",
   headers: { "ngrok-skip-browser-warning": "true" },
@@ -40,15 +42,19 @@ export default function App({ shopDomain }: { shopDomain: string }) {
   });
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState("");
+  const [leaving, setLeaving] = useState<Suggestions>();
   const logRef = useRef<HTMLDivElement>(null);
   const last = messages.at(-1);
   const loading = !conversation && !loadFailed;
   const busy = loading || status === "submitted" || status === "streaming";
   const size = messages.length >= 5 ? "l" : messages.length > 1 ? "m" : "s";
-  const suggestions =
+  const items =
     status === "ready" && last?.role === "assistant"
       ? last.parts.find((part) => part.type === "data-suggestions")?.data
       : undefined;
+  const live: Suggestions | undefined =
+    last && items ? { id: last.id, items } : undefined;
+  const suggestions = live ?? leaving;
 
   useEffect(() => {
     openConversation()
@@ -69,6 +75,12 @@ export default function App({ shopDomain }: { shopDomain: string }) {
   function send(text: string) {
     if (!text || busy || !conversation) return;
     setDraft("");
+    if (live)
+      setLeaving({
+        ...live,
+        top: logRef.current?.querySelector<HTMLElement>(".cc-suggestions")
+          ?.offsetTop,
+      });
     sendMessage({ text });
   }
 
@@ -87,63 +99,74 @@ export default function App({ shopDomain }: { shopDomain: string }) {
         data-shop-domain={shopDomain}
       >
         <div className="cc-log" ref={logRef}>
-          {messages.map((message) => {
-            const parts = message.parts.map((part, index) => {
-              const node = renderPart(part, like);
+          <div className="cc-log__content">
+            {messages.map((message) => {
+              const parts = message.parts.map((part, index) => {
+                const node = renderPart(part, like);
+                return (
+                  node && (
+                    <div
+                      key={index}
+                      className={`cc-part cc-part--${part.type}`}
+                    >
+                      {node}
+                    </div>
+                  )
+                );
+              });
               return (
-                node && (
-                  <div key={index} className={`cc-part cc-part--${part.type}`}>
-                    {node}
-                  </div>
-                )
+                <Fragment key={message.id}>
+                  {parts.some(Boolean) && (
+                    <div className={`cc-message cc-message--${message.role}`}>
+                      {parts}
+                    </div>
+                  )}
+                  {suggestions?.id === message.id && (
+                    <div
+                      className="cc-suggestions"
+                      data-leaving={suggestions === leaving}
+                      style={{ top: suggestions.top }}
+                      onAnimationEnd={(event) => {
+                        if (event.target === event.currentTarget)
+                          setLeaving(undefined);
+                      }}
+                    >
+                      {suggestions.items.map((suggestion, index) => (
+                        <button
+                          key={suggestion}
+                          type="button"
+                          className="cc-suggestion"
+                          style={{ "--cc-i": index } as React.CSSProperties}
+                          onClick={() => send(suggestion)}
+                        >
+                          {suggestion}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </Fragment>
               );
-            });
-            return (
-              parts.some(Boolean) && (
-                <div
-                  key={message.id}
-                  className={`cc-message cc-message--${message.role}`}
-                >
-                  {parts}
+            })}
+
+            {busy && (
+              <div className="cc-message cc-message--assistant">
+                <div className="cc-part cc-typing">
+                  Typing
+                  <span className="cc-typing__dot">.</span>
+                  <span className="cc-typing__dot">.</span>
+                  <span className="cc-typing__dot">.</span>
                 </div>
-              )
-            );
-          })}
-
-          {suggestions && (
-            <div className="cc-suggestions">
-              {suggestions.map((suggestion, index) => (
-                <button
-                  key={suggestion}
-                  type="button"
-                  className="cc-suggestion"
-                  style={{ "--cc-i": index } as React.CSSProperties}
-                  onClick={() => send(suggestion)}
-                >
-                  {suggestion}
-                </button>
-              ))}
-            </div>
-          )}
-
-          {busy && (
-            <div className="cc-message cc-message--assistant">
-              <div className="cc-part cc-typing">
-                Typing
-                <span className="cc-typing__dot">.</span>
-                <span className="cc-typing__dot">.</span>
-                <span className="cc-typing__dot">.</span>
               </div>
-            </div>
-          )}
+            )}
 
-          {(error || loadFailed) && (
-            <div className="cc-message cc-message--assistant">
-              <div className="cc-part">
-                Something went wrong. Please try again.
+            {(error || loadFailed) && (
+              <div className="cc-message cc-message--assistant">
+                <div className="cc-part">
+                  Something went wrong. Please try again.
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         <form className="cc-composer" onSubmit={submit}>

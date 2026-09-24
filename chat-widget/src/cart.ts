@@ -1,3 +1,21 @@
+export type CartItem = {
+  key: string;
+  variant_id: number;
+  product_title: string;
+  image: string | null;
+  url: string;
+  quantity: number;
+  final_line_price: number;
+  options_with_values: { name: string; value: string }[];
+  product_has_only_default_variant: boolean;
+};
+
+export type Cart = {
+  items: CartItem[];
+  total_price: number;
+  currency: string;
+};
+
 export function variantNumber(variantId: string) {
   return Number(variantId.split("/").at(-1));
 }
@@ -13,9 +31,8 @@ export async function addToCart(variantId: string) {
   if (!response.ok) throw new Error(`Cart ${response.status}`);
 }
 
-export async function getCartVariantIds(): Promise<number[]> {
+export async function getCart(): Promise<Cart> {
   const response = await fetch("/cart.js");
   if (!response.ok) throw new Error(`Cart ${response.status}`);
-  const cart: { items: { variant_id: number }[] } = await response.json();
-  return cart.items.map((item) => item.variant_id);
+  return response.json();
 }

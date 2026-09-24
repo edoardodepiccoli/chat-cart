@@ -244,6 +244,16 @@ export default function App({ shopDomain }: { shopDomain: string }) {
           aria-hidden="true"
         >
           <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          <circle
+            className="cc-launcher__spark-cut"
+            cx="20.5"
+            cy="3.5"
+            r="5"
+          />
+          <path
+            className="cc-launcher__spark"
+            d="M20.5 0Q20.5 3.5 24 3.5Q20.5 3.5 20.5 7Q20.5 3.5 17 3.5Q20.5 3.5 20.5 0Z"
+          />
         </svg>
         <svg
           className="cc-launcher__icon cc-launcher__icon--close"

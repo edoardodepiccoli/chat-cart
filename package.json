@@ -8,6 +8,7 @@
     "build": "react-router build",
     "dev": "shopify app dev",
     "dev:ngrok": "./scripts/dev-ngrok.sh",
+    "chat-cart": "./scripts/chat-cart.sh",
     "predeploy": "npm run widget:build",
     "deploy": "shopify app deploy",
     "start": "react-router-serve ./build/server/index.js",

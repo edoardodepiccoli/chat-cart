@@ -2,7 +2,12 @@ import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { Fragment, useEffect, useRef, useState } from "react";
 
+import { addToCart } from "./cart";
 import { renderPart } from "./components";
+import type {
+  ProductCardProps,
+  ProductVariant,
+} from "./components/ProductCard";
 import type { ChatMessage } from "./components/types";
 import { openConversation, type Conversation } from "./conversation";
 
@@ -107,6 +112,17 @@ export default function App({ shopDomain }: { shopDomain: string }) {
     send(`I like ${title}, tell me more about it.`);
   }
 
+  async function add(product: ProductCardProps, variant: ProductVariant) {
+    if (busy || !conversation) return;
+    await addToCart(variant.id);
+    const label =
+      product.variants.length > 1
+        ? ` (${variant.selectedOptions.map((option) => option.value).join(" / ")})`
+        : "";
+    pinned.current = true;
+    send(`I added ${product.title}${label} to my cart.`);
+  }
+
   return (
     <>
       <div
@@ -124,6 +140,7 @@ export default function App({ shopDomain }: { shopDomain: string }) {
                 const node = renderPart(
                   part,
                   like,
+                  add,
                   status === "streaming" && message === last,
                 );
                 return (

@@ -1,5 +1,8 @@
 import FaqCard from "./FaqCard";
-import ProductCard, { type ProductCardProps } from "./ProductCard";
+import ProductCard, {
+  type ProductCardProps,
+  type ProductVariant,
+} from "./ProductCard";
 import ProductCards from "./ProductCards";
 import TextMessage from "./TextMessage";
 import type { ChatPart } from "./types";
@@ -7,6 +10,7 @@ import type { ChatPart } from "./types";
 export function renderPart(
   part: ChatPart,
   like: (product: ProductCardProps) => void,
+  add: (product: ProductCardProps, variant: ProductVariant) => Promise<void>,
   streaming: boolean,
 ) {
   switch (part.type) {
@@ -16,7 +20,10 @@ export function renderPart(
       ) : null;
     case "tool-showProductCard":
       return part.state === "output-available" ? (
-        <ProductCard {...part.output} />
+        <ProductCard
+          {...part.output}
+          onAdd={(variant) => add(part.output, variant)}
+        />
       ) : null;
     case "tool-showProductCards":
       return part.state === "output-available" ? (

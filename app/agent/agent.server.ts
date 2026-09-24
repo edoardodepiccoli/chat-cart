@@ -152,15 +152,7 @@ export async function reply(
   messages: ChatMessage[],
   storefront: StorefrontApiContext,
 ): Promise<Response> {
-  const modelMessages = await convertToModelMessages<ChatMessage>(messages, {
-    convertDataPart: (part) =>
-      part.type === "data-like"
-        ? {
-            type: "text",
-            text: `I like ${part.data.title} (${part.data.handle}), tell me more about it.`,
-          }
-        : undefined,
-  });
+  const modelMessages = await convertToModelMessages<ChatMessage>(messages);
 
   const stream = createUIMessageStream<ChatMessage>({
     originalMessages: messages,

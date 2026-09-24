@@ -97,6 +97,7 @@ export default function App({ shopDomain }: { shopDomain: string }) {
   }
 
   function like({ title }: { title: string }) {
+    pinned.current = true;
     send(`I like ${title}, tell me more about it.`);
   }
 

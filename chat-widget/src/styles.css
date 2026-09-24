@@ -430,6 +430,11 @@
   cursor: not-allowed;
 }
 
+.cc-card__add[data-added="true"]:disabled {
+  opacity: 1;
+  cursor: default;
+}
+
 .cc-card__view {
   display: inline-flex;
   align-items: center;

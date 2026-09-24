@@ -201,6 +201,7 @@ export async function reply(
   storefront: StorefrontApiContext,
 ): Promise<Response> {
   const modelMessages = await convertToModelMessages<ChatMessage>(messages);
+  const firstReply = !messages.some((message) => message.role === "assistant");
 
   const stream = createUIMessageStream<ChatMessage>({
     originalMessages: messages,
@@ -217,6 +218,10 @@ export async function reply(
         messages: modelMessages,
         tools: tools(storefront),
         stopWhen: isStepCount(10),
+        prepareStep: ({ stepNumber }) =>
+          firstReply && stepNumber === 0
+            ? { toolChoice: { type: "tool", toolName: "listProducts" } }
+            : undefined,
       });
 
       writer.merge(result.toUIMessageStream({ sendFinish: false }));

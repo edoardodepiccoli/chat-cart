@@ -7,10 +7,13 @@ import type { ChatPart } from "./types";
 export function renderPart(
   part: ChatPart,
   like: (product: ProductCardProps) => void,
+  streaming: boolean,
 ) {
   switch (part.type) {
     case "text":
-      return part.text.trim() ? <TextMessage text={part.text.trim()} /> : null;
+      return part.text.trim() ? (
+        <TextMessage text={part.text.trim()} streaming={streaming} />
+      ) : null;
     case "tool-showProductCard":
       return part.state === "output-available" ? (
         <ProductCard {...part.output} />

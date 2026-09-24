@@ -30,6 +30,7 @@ export type ProductCardProps = {
   imageAlt: string | null;
   options: ProductOption[];
   variants: ProductVariant[];
+  selectedOptions?: SelectedOption[];
 };
 
 function pickedValue(picks: SelectedOption[], optionName: string): string {
@@ -75,9 +76,10 @@ export default function ProductCard({
   imageAlt,
   options,
   variants,
+  selectedOptions,
 }: ProductCardProps) {
-  const [picks, setPicks] = useState<SelectedOption[]>(() =>
-    defaultSelectedOptions(variants),
+  const [picks, setPicks] = useState<SelectedOption[]>(
+    () => selectedOptions ?? defaultSelectedOptions(variants),
   );
 
   const selectedVariant = findVariant(variants, picks);

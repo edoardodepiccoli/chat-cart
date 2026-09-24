@@ -16,7 +16,11 @@ import { z } from "zod";
 
 import type { ChatMessage } from "../../chat-widget/src/components/types";
 import type { FaqCardProps } from "../../chat-widget/src/components/FaqCard";
-import type { ProductCardProps } from "../../chat-widget/src/components/ProductCard";
+import type {
+  ProductCardProps,
+  ProductVariant,
+  SelectedOption,
+} from "../../chat-widget/src/components/ProductCard";
 import type { ProductCardsProps } from "../../chat-widget/src/components/ProductCards";
 import {
   getProduct,
@@ -43,6 +47,7 @@ Whenever your reply is about specific products, including whether the store has 
 When you show products, always follow this exact order: first look them up with your tools without writing anything, then write one short sentence introducing them, then show them, then stop and write nothing after them. Every product reply is exactly that: one intro sentence, then the products.
 Don't repeat in the intro what the products already show, like price or stock: use it to help them pick, like the size or color that matches what they asked for.
 When the shopper says they like a product, write one short upbeat intro sentence, then show it with showProductCard so they can pick size and color and add it to the cart.
+When you show one product with showProductCard, pass the size, color or other options the shopper asked for anywhere in the conversation, so they're already picked on it.
 You can't add to the cart yourself: the shopper does it from the card.
 If a few products could fit, show them rather than asking. Only if the request is too vague to pick any, ask one short question about what they need.
 The shopper just wants to shop: talk in everyday shopping words, and never mention cards, tools, tags, handles, variants, the catalog or anything else about how this chat works.
@@ -62,9 +67,31 @@ Nothing you can't check: no orders, discounts, reviews, best sellers, restocks, 
 Each one makes sense on its own: never "it" or "this one" instead of a product name.
 All three different from each other and from what I already asked. In my language, in everyday shopping words, under 8 words each, never about how this chat works.`;
 
+function same(a: string, b: string): boolean {
+  return a.trim().toLowerCase() === b.trim().toLowerCase();
+}
+
+function preselect(
+  variants: ProductVariant[],
+  picks: SelectedOption[] = [],
+): SelectedOption[] | undefined {
+  if (!picks.length) return undefined;
+  const matching = variants.filter((variant) =>
+    picks.every((pick) =>
+      variant.selectedOptions.some(
+        (option) =>
+          same(option.name, pick.name) && same(option.value, pick.value),
+      ),
+    ),
+  );
+  return (matching.find((variant) => variant.available) ?? matching[0])
+    ?.selectedOptions;
+}
+
 async function productCard(
   storefront: StorefrontApiContext,
   handle: string,
+  picks?: SelectedOption[],
 ): Promise<ProductCardProps> {
   const product = await getProduct(storefront, handle);
   if (!product) throw new Error(`No product with handle ${handle}`);
@@ -75,6 +102,7 @@ async function productCard(
     imageAlt: product.imageAlt,
     options: product.options,
     variants: product.variants,
+    selectedOptions: preselect(product.variants, picks),
   };
 }
 
@@ -107,8 +135,17 @@ function tools(storefront: StorefrontApiContext) {
     showProductCard: tool({
       description:
         "Show the shopper a product card by its handle from listProducts, where they can pick size and color and add it to the cart.",
-      inputSchema: z.object({ handle: z.string() }),
-      execute: ({ handle }) => productCard(storefront, handle),
+      inputSchema: z.object({
+        handle: z.string(),
+        options: z
+          .array(z.object({ name: z.string(), value: z.string() }))
+          .optional()
+          .describe(
+            "The size, color or other options the shopper asked for anywhere in the conversation, with names and values exactly as listProducts shows them.",
+          ),
+      }),
+      execute: ({ handle, options }) =>
+        productCard(storefront, handle, options),
     }),
     showProductCards: tool({
       description:

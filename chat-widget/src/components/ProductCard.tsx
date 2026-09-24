@@ -1,6 +1,7 @@
 import { useState } from "react";
 
-import { CartIcon } from "../icons";
+import { variantNumber } from "../cart";
+import { CartCheckIcon, CartIcon } from "../icons";
 import { formatMoney } from "./money";
 import {
   defaultSelectedOptions,
@@ -78,8 +79,10 @@ export default function ProductCard({
   options,
   variants,
   selectedOptions,
+  cartVariantIds,
   onAdd,
 }: ProductCardProps & {
+  cartVariantIds: number[];
   onAdd: (variant: ProductVariant) => Promise<void>;
 }) {
   const [picks, setPicks] = useState<SelectedOption[]>(
@@ -93,6 +96,9 @@ export default function ProductCard({
   const shownImageUrl = shownVariant.imageUrl ?? imageUrl;
   const hasChoice = variants.length > 1;
   const canAddToCart = selectedVariant !== null && selectedVariant.available;
+  const inCart =
+    selectedVariant !== null &&
+    cartVariantIds.includes(variantNumber(selectedVariant.id));
   const productUrl = `/products/${handle}`;
 
   async function add() {
@@ -109,6 +115,7 @@ export default function ProductCard({
   }
 
   function addLabel() {
+    if (inCart) return "Added";
     if (!canAddToCart) return "Sold out";
     if (adding) return "Adding…";
     if (failed) return "Try again";
@@ -179,10 +186,15 @@ export default function ProductCard({
         <button
           className="cc-card__add"
           type="button"
-          disabled={!canAddToCart || adding}
+          disabled={!canAddToCart || adding || inCart}
+          data-added={inCart}
           onClick={add}
         >
-          <CartIcon className="cc-icon" />
+          {inCart ? (
+            <CartCheckIcon className="cc-icon" />
+          ) : (
+            <CartIcon className="cc-icon" />
+          )}
           {addLabel()}
         </button>
 

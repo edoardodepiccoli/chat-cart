@@ -11,6 +11,7 @@ export function renderPart(
   part: ChatPart,
   like: (product: ProductCardProps) => void,
   add: (product: ProductCardProps, variant: ProductVariant) => Promise<void>,
+  cartVariantIds: number[],
   streaming: boolean,
 ) {
   switch (part.type) {
@@ -22,6 +23,7 @@ export function renderPart(
       return part.state === "output-available" ? (
         <ProductCard
           {...part.output}
+          cartVariantIds={cartVariantIds}
           onAdd={(variant) => add(part.output, variant)}
         />
       ) : null;

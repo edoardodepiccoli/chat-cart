@@ -72,9 +72,8 @@ export default function App({ shopDomain }: { shopDomain: string }) {
     sendMessage({ text });
   }
 
-  function like({ handle, title }: { handle: string; title: string }) {
-    if (busy || !conversation) return;
-    sendMessage({ parts: [{ type: "data-like", data: { handle, title } }] });
+  function like({ title }: { title: string }) {
+    send(`I like ${title}, tell me more about it.`);
   }
 
   return (

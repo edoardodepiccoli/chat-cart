@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+import { CartIcon } from "../icons";
 import { formatMoney } from "./money";
 import {
   defaultSelectedOptions,
@@ -181,6 +182,7 @@ export default function ProductCard({
           disabled={!canAddToCart || adding}
           onClick={add}
         >
+          <CartIcon className="cc-icon" />
           {addLabel()}
         </button>
 

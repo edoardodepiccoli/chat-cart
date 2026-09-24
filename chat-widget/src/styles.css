@@ -396,6 +396,10 @@
 }
 
 .cc-card__add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   padding: 10px 16px;
   border: 0;
   border-radius: 8px;
@@ -417,6 +421,10 @@
 }
 
 .cc-card__view {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   padding: 10px 16px;
   border: 1px solid #d0d0d0;
   border-radius: 8px;
@@ -429,6 +437,12 @@
 
 .cc-card__view:hover {
   background: #f1f1f1;
+}
+
+.cc-icon {
+  flex: none;
+  width: 18px;
+  height: 18px;
 }
 
 .cc-carousel {
@@ -464,6 +478,10 @@
 }
 
 .cc-card__like {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   padding: 6px 8px;
   border: 0;
   border-radius: 8px;

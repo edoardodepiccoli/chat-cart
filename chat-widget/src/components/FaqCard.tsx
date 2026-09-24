@@ -1,3 +1,5 @@
+import { ListIcon } from "../icons";
+
 export type FaqCardProps = {
   title: string;
   answer: string;
@@ -15,6 +17,7 @@ export default function FaqCard({ title, answer, url }: FaqCardProps) {
         <div>{answer}</div>
 
         <a className="cc-card__view" href={url}>
+          <ListIcon className="cc-icon" />
           Read full page
         </a>
       </div>

@@ -1,3 +1,4 @@
+import { HeartIcon } from "../icons";
 import { ProductPrice, type ProductCardProps } from "./ProductCard";
 
 export default function SimpleProductCard({
@@ -39,6 +40,7 @@ export default function SimpleProductCard({
         />
 
         <button className="cc-card__like" type="button" onClick={onLike}>
+          <HeartIcon className="cc-icon" />
           I like this
         </button>
       </div>

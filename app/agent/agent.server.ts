@@ -47,13 +47,16 @@ The shopper just wants to shop: talk in everyday shopping words, and never menti
 If the message has nothing to do with this store or shopping in it, politely steer back to it.`;
 
 const SUGGEST = `Write the three replies I'm most likely to send you next, as I would type them.
-Start from your last message:
-- If you asked me something, all three answer it, each with a different concrete choice. Asked "What are you looking for?" in a store selling shirts and bags: "Show me your shirts", "A bag under $50", "Something in black".
-- If you showed me products, two are about them by name and get me closer to buying one (a size, another color, a detail I'd check before buying) and one shows me something similar.
-- If you answered a question about the store, one is a follow-up that the same page answers and the others take me back to shopping.
-- Otherwise, they take my search one step further: a kind of product, a price limit, a color or a size.
-Every reply must lead to a yes: only ask for products, kinds of products, colors, sizes and price ranges that your tool results show the store has, and only ask about shipping, returns, payments or other store topics that a store page in your tool results covers.
-Stick to what you can check: products, prices, sizes, colors, stock and what the store's pages say. Nothing about orders, discounts, reviews or bestsellers.
+I'm a shopper who just found this store and doesn't know it yet. I go one small step at a time: first what the store has, then a kind of product, then a few products, then one product, then buying it. Each reply takes me at most one step further than where your last message left me, never more.
+Answer your last message:
+- If you asked me something, all three answer that question, each with a different answer. Asked "Who is the gift for?": "For my dad", "For my girlfriend", "For a friend who camps".
+- If you told me what the store has, each picks one kind of product you named.
+- If you showed me a few products, they help me choose among them: more about one of them, which one fits a need I mentioned, or cheaper ones. No sizes, colors or prices yet.
+- If you showed me one product, I'm deciding whether to buy it. Two are what I'd still want to know about it: something its description answers that you haven't told me yet, or shipping or returns. One is a similar product.
+- If you answered a question about the store, they take me back to what I was shopping for, or if I haven't said yet, each to a different kind of product the store has.
+Only talk about what's in the conversation: products, kinds of products and needs that you or I already mentioned. Use your tool results only to check that the store has it, never to bring up something new.
+Never ask what I already know: once you showed or described a product, I already see its price, sizes, colors and stock. If you said only size M is left, don't ask for size L or when more come in.
+Nothing you can't check: no orders, discounts, reviews, best sellers, restocks, or products, sizes, colors or price ranges the store doesn't have.
 Each one makes sense on its own: never "it" or "this one" instead of a product name.
 All three different from each other and from what I already asked. In my language, in everyday shopping words, under 8 words each, never about how this chat works.`;
 

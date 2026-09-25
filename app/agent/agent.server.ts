@@ -74,18 +74,22 @@ function same(a: string, b: string): boolean {
   return a.trim().toLowerCase() === b.trim().toLowerCase();
 }
 
+function has(variant: ProductVariant, pick: SelectedOption): boolean {
+  return variant.selectedOptions.some(
+    (option) => same(option.name, pick.name) && same(option.value, pick.value),
+  );
+}
+
 function preselect(
   variants: ProductVariant[],
   picks: SelectedOption[] = [],
 ): SelectedOption[] | undefined {
-  if (!picks.length) return undefined;
+  const offered = picks.filter((pick) =>
+    variants.some((variant) => has(variant, pick)),
+  );
+  if (!offered.length) return undefined;
   const matching = variants.filter((variant) =>
-    picks.every((pick) =>
-      variant.selectedOptions.some(
-        (option) =>
-          same(option.name, pick.name) && same(option.value, pick.value),
-      ),
-    ),
+    offered.every((pick) => has(variant, pick)),
   );
   return (matching.find((variant) => variant.available) ?? matching[0])
     ?.selectedOptions;

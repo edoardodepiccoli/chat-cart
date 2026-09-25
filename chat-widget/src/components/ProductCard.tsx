@@ -3,6 +3,7 @@ import { useState } from "react";
 import { variantNumber } from "../cart";
 import { CartCheckIcon, CartIcon } from "../icons";
 import { formatMoney } from "./money";
+import ProductMedia from "./ProductMedia";
 import {
   defaultSelectedOptions,
   findVariant,
@@ -25,11 +26,14 @@ export type ProductVariant = {
   imageUrl: string | null;
 };
 
+export type ProductImage = { url: string; alt: string | null };
+
 export type ProductCardProps = {
   handle: string;
   title: string;
   imageUrl: string | null;
   imageAlt: string | null;
+  images: ProductImage[];
   options: ProductOption[];
   variants: ProductVariant[];
   selectedOptions?: SelectedOption[];
@@ -76,6 +80,7 @@ export default function ProductCard({
   title,
   imageUrl,
   imageAlt,
+  images,
   options,
   variants,
   selectedOptions,
@@ -94,6 +99,10 @@ export default function ProductCard({
   const selectedVariant = findVariant(variants, picks);
   const shownVariant = selectedVariant ?? variants[0];
   const shownImageUrl = shownVariant.imageUrl ?? imageUrl;
+  const shownImages =
+    images?.length || shownImageUrl === null
+      ? (images ?? [])
+      : [{ url: shownImageUrl, alt: imageAlt }];
   const hasChoice = variants.length > 1;
   const canAddToCart = selectedVariant !== null && selectedVariant.available;
   const inCart =
@@ -124,18 +133,12 @@ export default function ProductCard({
 
   return (
     <div className="cc-card">
-      <a className="cc-card__media" href={productUrl}>
-        {shownImageUrl === null ? (
-          <div className="cc-card__image-placeholder" aria-hidden="true" />
-        ) : (
-          <img
-            className="cc-card__image"
-            src={shownImageUrl}
-            alt={imageAlt ?? title}
-            loading="lazy"
-          />
-        )}
-      </a>
+      <ProductMedia
+        images={shownImages}
+        title={title}
+        productUrl={productUrl}
+        activeUrl={shownImageUrl}
+      />
 
       <div className="cc-card__body">
         <a className="cc-card__title" href={productUrl}>

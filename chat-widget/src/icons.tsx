@@ -50,3 +50,11 @@ export function CartCheckIcon({ className }: { className?: string }) {
     />
   );
 }
+
+export function ChevronLeftIcon({ className }: { className?: string }) {
+  return <Icon className={className} d="M15 18L9 12L15 6" />;
+}
+
+export function ChevronRightIcon({ className }: { className?: string }) {
+  return <Icon className={className} d="M9 18L15 12L9 6" />;
+}

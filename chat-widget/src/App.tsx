@@ -3,7 +3,7 @@ import { DefaultChatTransport } from "ai";
 import { Fragment, useEffect, useRef, useState } from "react";
 
 import { addToCart, getCart, type Cart } from "./cart";
-import { renderPart, withIntros } from "./components";
+import { renderPart } from "./components";
 import type {
   ProductCardProps,
   ProductVariant,
@@ -144,7 +144,7 @@ export default function App({ shopDomain }: { shopDomain: string }) {
         <div className="cc-log" ref={logRef} onScroll={track}>
           <div className="cc-log__content">
             {messages.map((message) => {
-              const parts = withIntros(message.parts).map((part, index) => {
+              const parts = message.parts.map((part, index) => {
                 const node = renderPart(
                   part,
                   like,

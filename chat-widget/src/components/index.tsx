@@ -9,6 +9,19 @@ import ProductCards from "./ProductCards";
 import TextMessage from "./TextMessage";
 import type { ChatPart } from "./types";
 
+export function withIntros(parts: ChatPart[]): ChatPart[] {
+  return parts.flatMap((part): ChatPart[] => {
+    const intro =
+      part.type === "tool-showProductCard" ||
+      part.type === "tool-showProductCards" ||
+      part.type === "tool-showFaqCard" ||
+      part.type === "tool-showCart"
+        ? part.input?.intro
+        : undefined;
+    return intro ? [{ type: "text", text: intro }, part] : [part];
+  });
+}
+
 export function renderPart(
   part: ChatPart,
   like: (product: ProductCardProps) => void,

@@ -15,13 +15,16 @@ const GREETING: ChatMessage = {
   id: "greeting",
   role: "assistant",
   parts: [
-    { type: "text", text: "Hi! Ask me anything about this store." },
+    {
+      type: "text",
+      text: "Hi! I'm your personal AI shopping assistant. I can find the right product for you, check sizes and stock, and answer questions about shipping and returns. What are you looking for today?",
+    },
     {
       type: "data-suggestions",
       data: [
         "What do you sell?",
         "Help me find a gift",
-        "What are your best sellers?",
+        "How long does shipping take?",
       ],
     },
   ],

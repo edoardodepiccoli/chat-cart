@@ -42,16 +42,17 @@ const SYSTEM = `You are the shopping assistant of an online store, chatting with
 Be very concise: reply in the shopper's language, in at most 2 short sentences of plain text, with no markdown and no filler.
 All you know comes from your tools: the store's product catalog (which products exist, their descriptions, tags, prices, sale prices, sizes, colors and other options, and what's in stock), and the store's policies and info pages. You can show the shopper their cart, but you can't see what's in it or its total: never list or total it in text.
 Never invent products, prices, stock or details: check with your tools before answering. What your tools returned earlier in this conversation still holds: don't fetch it again. Use listProducts to browse, filter by price, type or availability, and find similar products by their tags; use getProduct for a specific product, size or color.
-For questions about the store itself, like shipping, delivery times, returns, payments, contact or policies, use listStorePages to find the right page, then getStorePage to read it, then show the answer with showFaqCard, in 1 or 2 short sentences taken only from what the page says. Don't repeat the answer in text: use your sentence to take the shopper back to shopping. If no page covers it, say you can't check that here.
+For questions about the store itself, like shipping, delivery times, returns, payments, contact or policies, use listStorePages to find the right page, then getStorePage to read it, then show the answer with showFaqCard, in 1 or 2 short sentences taken only from what the page says. Don't repeat the answer in its intro: use the intro to take the shopper back to shopping. If no page covers it, say you can't check that here.
 You can't see orders, discount codes or reviews: if asked, say you can't check that here.
 Every reply should bring the shopper one step closer to buying.
 Whenever your reply is about specific products, including whether the store has something, its price, sizes, colors or stock, show them: one product with showProductCard, two or more with a single showProductCards call holding all of them (up to 6), never several showProductCard calls.
-When you show products, always follow this exact order: first, if you don't already have them from earlier in this conversation, look them up with your tools without writing anything; then write one short sentence introducing them and show them right after it, in the same turn. Every product reply is exactly that: one intro sentence, then the products.
+Whenever you show something, its intro is your one sentence for that reply, shown to the shopper right above it: write no text of your own in that reply, not before, while or after looking things up.
+When you show products, first, if you don't already have them from earlier in this conversation, look them up with your tools; then show them with one short intro sentence.
 Don't repeat in the intro what the products already show, like price or stock: use it to help them pick, like the size or color that matches what they asked for.
-When the shopper says they like a product, write one short upbeat intro sentence, then show it with showProductCard so they can pick size and color and add it to the cart.
+When the shopper says they like a product, show it with showProductCard and one short upbeat intro sentence, so they can pick size and color and add it to the cart.
 When you show one product with showProductCard, pass the size, color or other options the shopper asked for anywhere in the conversation, plus the size they picked for anything they added to their cart, so they're already picked on it.
 You can't add to or change the cart yourself: the shopper adds from the product card and checks out from their cart. If they want to remove something or change a quantity, tell them they can do it on the cart page.
-When the shopper tells you they added something to their cart, or asks what's in it, what it comes to or how to check out, write one short sentence, then show their cart with showCart, then stop. That reply shows no products.
+When the shopper tells you they added something to their cart, or asks what's in it, what it comes to or how to check out, show their cart with showCart and one short intro sentence. That reply shows no products.
 If a few products could fit, show them rather than asking. Only if the request is too vague to pick any, ask one short question about what they need.
 The shopper just wants to shop: talk in everyday shopping words, and never mention cards, tools, tags, handles, variants, the catalog or anything else about how this chat works.
 If the message has nothing to do with this store or shopping in it, politely steer back to it.`;
@@ -115,6 +116,12 @@ async function productCard(
   };
 }
 
+const intro = z
+  .string()
+  .describe(
+    "Your one short sentence for this reply, shown to the shopper right above it.",
+  );
+
 function tools(storefront: StorefrontApiContext) {
   return {
     listProducts: tool({
@@ -145,6 +152,7 @@ function tools(storefront: StorefrontApiContext) {
       description:
         "Show the shopper a product card by its handle from listProducts, where they can pick size and color and add it to the cart.",
       inputSchema: z.object({
+        intro,
         handle: z.string(),
         options: z
           .array(z.object({ name: z.string(), value: z.string() }))
@@ -158,7 +166,10 @@ function tools(storefront: StorefrontApiContext) {
     showProductCards: tool({
       description:
         "Show the shopper two or more products side by side, by their handles from listProducts, each with its photo, price and a button to say they like it.",
-      inputSchema: z.object({ handles: z.array(z.string()).min(2).max(6) }),
+      inputSchema: z.object({
+        intro,
+        handles: z.array(z.string()).min(2).max(6),
+      }),
       execute: async ({ handles }): Promise<ProductCardsProps> => ({
         products: await Promise.all(
           handles.map((handle) => productCard(storefront, handle)),
@@ -168,7 +179,11 @@ function tools(storefront: StorefrontApiContext) {
     showFaqCard: tool({
       description:
         "Show the shopper the answer to their store question, with a link to the store page it comes from, by its handle from listStorePages.",
-      inputSchema: z.object({ handle: z.string(), answer: z.string() }),
+      inputSchema: z.object({
+        intro,
+        handle: z.string(),
+        answer: z.string(),
+      }),
       execute: async ({ handle, answer }): Promise<FaqCardProps> => {
         const page = await getStorePage(storefront, handle);
         if (!page) throw new Error(`No store page with handle ${handle}`);
@@ -178,7 +193,7 @@ function tools(storefront: StorefrontApiContext) {
     showCart: tool({
       description:
         "Show the shopper their cart, with what's in it, the total and a button to check out.",
-      inputSchema: z.object({}),
+      inputSchema: z.object({ intro }),
       execute: async (): Promise<CartSummaryProps> => ({}),
     }),
   };

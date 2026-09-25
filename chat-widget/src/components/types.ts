@@ -14,19 +14,19 @@ export type ChatMessage = UIMessage<
     listStorePages: { input: Record<string, never>; output: unknown };
     getStorePage: { input: { handle: string }; output: unknown };
     showProductCard: {
-      input: { handle: string; options: SelectedOption[] };
+      input: { intro: string; handle: string; options: SelectedOption[] };
       output: ProductCardProps;
     };
     showProductCards: {
-      input: { handles: string[] };
+      input: { intro: string; handles: string[] };
       output: ProductCardsProps;
     };
     showFaqCard: {
-      input: { handle: string; answer: string };
+      input: { intro: string; handle: string; answer: string };
       output: FaqCardProps;
     };
     showCart: {
-      input: Record<string, never>;
+      input: { intro: string };
       output: CartSummaryProps;
     };
   }

@@ -149,6 +149,7 @@
   flex: 1 1 auto;
   padding: 16px;
   overflow-y: auto;
+  overscroll-behavior: contain;
   transition: padding-top 480ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
@@ -161,6 +162,10 @@
 }
 
 @media (max-width: 480px) {
+  html:has(.cc-panel[data-open="true"][data-size="l"]) {
+    overflow: hidden;
+  }
+
   .cc-panel[data-size="l"] {
     right: 0;
     bottom: 0;

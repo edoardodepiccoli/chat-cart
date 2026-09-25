@@ -9,7 +9,12 @@ import type {
   ProductVariant,
 } from "./components/ProductCard";
 import type { ChatMessage } from "./components/types";
-import { openConversation, type Conversation } from "./conversation";
+import {
+  openConversation,
+  sendEvent,
+  type Conversation,
+} from "./conversation";
+import type { ChatEvent } from "./events";
 
 const GREETING: ChatMessage = {
   id: "greeting",
@@ -124,6 +129,20 @@ export default function App({ shopDomain }: { shopDomain: string }) {
     lastTop.current = log.scrollTop;
   }
 
+  function record(event: ChatEvent) {
+    if (conversation) sendEvent(conversation.id, event);
+  }
+
+  function recordLink(event: React.MouseEvent) {
+    const href = (event.target as Element).closest("a")?.getAttribute("href");
+    if (!href) return;
+    record(
+      href === "/checkout"
+        ? { type: "checkout_clicked" }
+        : { type: "link_clicked", data: { url: href } },
+    );
+  }
+
   function submit(event: React.FormEvent) {
     event.preventDefault();
     send(draft.trim());
@@ -141,7 +160,9 @@ export default function App({ shopDomain }: { shopDomain: string }) {
     sendMessage({ text });
   }
 
-  function like({ title }: { title: string }) {
+  function like({ handle, title }: { handle: string; title: string }) {
+    if (busy || !conversation) return;
+    record({ type: "product_liked", data: { handle } });
     pinned.current = true;
     send(`I like ${title}, tell me more about it.`);
   }
@@ -149,6 +170,10 @@ export default function App({ shopDomain }: { shopDomain: string }) {
   async function add(product: ProductCardProps, variant: ProductVariant) {
     if (busy || !conversation) return;
     await addToCart(variant.id);
+    record({
+      type: "added_to_cart",
+      data: { handle: product.handle, variantId: variant.id },
+    });
     setCart(await getCart());
     const label =
       product.variants.length > 1
@@ -168,7 +193,12 @@ export default function App({ shopDomain }: { shopDomain: string }) {
         aria-hidden={!open}
         data-shop-domain={shopDomain}
       >
-        <div className="cc-log" ref={logRef} onScroll={track}>
+        <div
+          className="cc-log"
+          ref={logRef}
+          onScroll={track}
+          onClickCapture={recordLink}
+        >
           <div className="cc-log__content">
             {messages.map((message) => {
               const parts = message.parts.map((part, index) => {
@@ -213,7 +243,13 @@ export default function App({ shopDomain }: { shopDomain: string }) {
                           type="button"
                           className="cc-suggestion"
                           style={{ "--cc-i": index } as React.CSSProperties}
-                          onClick={() => send(suggestion)}
+                          onClick={() => {
+                            record({
+                              type: "suggestion_clicked",
+                              data: { text: suggestion },
+                            });
+                            send(suggestion);
+                          }}
                         >
                           {suggestion}
                         </button>
@@ -274,7 +310,10 @@ export default function App({ shopDomain }: { shopDomain: string }) {
         aria-expanded={open}
         aria-controls="cc-panel"
         aria-label={open ? "Close chat" : "Open chat"}
-        onClick={() => setOpen((value) => !value)}
+        onClick={() => {
+          if (!open) record({ type: "widget_opened" });
+          setOpen(!open);
+        }}
       >
         <svg
           className="cc-launcher__icon cc-launcher__icon--chat"

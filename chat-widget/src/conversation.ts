@@ -1,4 +1,5 @@
 import type { ChatMessage } from "./components/types";
+import type { ChatEvent } from "./events";
 
 export type Conversation = { id: string; messages: ChatMessage[] };
 
@@ -37,4 +38,16 @@ export async function openConversation(): Promise<Conversation> {
   });
   writeId(conversation.id);
   return conversation;
+}
+
+export function sendEvent(conversationId: string, event: ChatEvent) {
+  fetch("/apps/chat-cart/events", {
+    method: "POST",
+    keepalive: true,
+    headers: {
+      "Content-Type": "application/json",
+      "ngrok-skip-browser-warning": "true",
+    },
+    body: JSON.stringify({ conversationId, ...event }),
+  }).catch(() => {});
 }

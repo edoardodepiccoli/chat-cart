@@ -8,12 +8,12 @@ export const chatEventSchema = z.discriminatedUnion("type", [
   }),
   z.object({
     type: z.literal("product_liked"),
-    data: z.object({ productId: z.string().max(200) }),
+    data: z.object({ handle: z.string().max(200) }),
   }),
   z.object({
     type: z.literal("added_to_cart"),
     data: z.object({
-      productId: z.string().max(200),
+      handle: z.string().max(200),
       variantId: z.string().max(200),
     }),
   }),

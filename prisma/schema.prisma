@@ -38,6 +38,7 @@ model Conversation {
   shop      String
   createdAt DateTime  @default(now())
   messages  Message[]
+  events    Event[]
 }
 
 model Message {
@@ -49,4 +50,15 @@ model Message {
   createdAt      DateTime     @default(now())
 
   @@index([conversationId, createdAt])
+}
+
+model Event {
+  id             String       @id @default(uuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  type           String
+  data           Json?
+  createdAt      DateTime     @default(now())
+
+  @@index([type, createdAt])
 }

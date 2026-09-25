@@ -83,6 +83,11 @@ export default function App({ shopDomain }: { shopDomain: string }) {
   }, []);
 
   useEffect(() => {
+    if (open && conversation)
+      sendEvent(conversation.id, { type: "widget_opened" });
+  }, [open, conversation]);
+
+  useEffect(() => {
     const log = logRef.current;
     const content = log?.firstElementChild;
     if (!log || !content) return;
@@ -310,10 +315,7 @@ export default function App({ shopDomain }: { shopDomain: string }) {
         aria-expanded={open}
         aria-controls="cc-panel"
         aria-label={open ? "Close chat" : "Open chat"}
-        onClick={() => {
-          if (!open) record({ type: "widget_opened" });
-          setOpen(!open);
-        }}
+        onClick={() => setOpen(!open)}
       >
         <svg
           className="cc-launcher__icon cc-launcher__icon--chat"

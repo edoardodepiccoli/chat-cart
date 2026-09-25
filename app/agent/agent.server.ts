@@ -59,7 +59,7 @@ If the message has nothing to do with this store or shopping in it, politely ste
 const SUGGEST = `Write the three replies I'm most likely to send you next, as I would type them.
 I'm a shopper who just found this store and doesn't know it yet. I go one small step at a time: first what the store has, then a kind of product, then a few products, then one product, then buying it. Each reply takes me at most one step further than where your last message left me, never more.
 Answer your last message:
-- If you asked me something, all three answer that question, each with a different answer. Asked "Who is the gift for?": "For my dad", "For my girlfriend", "For a friend who camps".
+- If you asked me something, all three are my answers to that question, each a different answer, never your question asked back to you. If you asked more than one, answer the first. Asked "Who is the gift for?": "For my dad", "For my girlfriend", "For a friend who camps".
 - If you told me what the store has, each picks one kind of product you named.
 - If you showed me a few products, they help me choose among them: more about one of them, which one fits a need I mentioned, or cheaper ones. No sizes, colors or prices yet.
 - If you showed me one product, I'm deciding whether to buy it. Two are what I'd still want to know about it: something its description answers that you haven't told me yet, or shipping or returns. One is a similar product.

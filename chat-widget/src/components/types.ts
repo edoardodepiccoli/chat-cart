@@ -14,7 +14,7 @@ export type ChatMessage = UIMessage<
     listStorePages: { input: Record<string, never>; output: unknown };
     getStorePage: { input: { handle: string }; output: unknown };
     showProductCard: {
-      input: { handle: string; options?: SelectedOption[] };
+      input: { handle: string; options: SelectedOption[] };
       output: ProductCardProps;
     };
     showProductCards: {

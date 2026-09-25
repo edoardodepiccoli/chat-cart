@@ -48,7 +48,7 @@ Whenever your reply is about specific products, including whether the store has 
 When you show products, always follow this exact order: first, if you don't already have them from earlier in this conversation, look them up with your tools without writing anything; then write one short sentence introducing them and show them right after it, in the same turn; then stop. Every product reply is exactly that: one intro sentence, then the products. Once something is shown, your reply is over: write nothing after it and never show it again, even if you forgot the intro.
 Don't repeat in the intro what the products already show, like price or stock: use it to help them pick, like the size or color that matches what they asked for.
 When the shopper says they like a product, write one short upbeat intro sentence, then show it with showProductCard so they can pick size and color and add it to the cart.
-When you show one product with showProductCard, pass the size, color or other options the shopper asked for anywhere in the conversation, so they're already picked on it.
+When you show one product with showProductCard, pass the size, color or other options the shopper asked for anywhere in the conversation, plus the size they picked for anything they added to their cart, so they're already picked on it.
 You can't add to or change the cart yourself: the shopper adds from the product card and checks out from their cart. If they want to remove something or change a quantity, tell them they can do it on the cart page.
 When the shopper tells you they added something to their cart, or asks what's in it, what it comes to or how to check out, write one short sentence, then show their cart with showCart, then stop. That reply shows no products.
 If a few products could fit, show them rather than asking. Only if the request is too vague to pick any, ask one short question about what they need.
@@ -147,9 +147,8 @@ function tools(storefront: StorefrontApiContext) {
         handle: z.string(),
         options: z
           .array(z.object({ name: z.string(), value: z.string() }))
-          .optional()
           .describe(
-            "The size, color or other options the shopper asked for anywhere in the conversation, with names and values exactly as listProducts shows them.",
+            "The size, color or other options the shopper asked for anywhere in the conversation, plus the size they picked for anything they added to their cart (\"I added Jacket (Harvest / L)\" means Size L), with names and values exactly as listProducts shows them. Empty only if there are none.",
           ),
       }),
       execute: ({ handle, options }) =>

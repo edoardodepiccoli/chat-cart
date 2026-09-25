@@ -3,6 +3,7 @@ import {
   createUIMessageStream,
   createUIMessageStreamResponse,
   generateText,
+  hasToolCall,
   isStepCount,
   Output,
   streamText,
@@ -45,7 +46,7 @@ For questions about the store itself, like shipping, delivery times, returns, pa
 You can't see orders, discount codes or reviews: if asked, say you can't check that here.
 Every reply should bring the shopper one step closer to buying.
 Whenever your reply is about specific products, including whether the store has something, its price, sizes, colors or stock, show them: one product with showProductCard, two or more with a single showProductCards call holding all of them (up to 6), never several showProductCard calls.
-When you show products, always follow this exact order: first, if you don't already have them from earlier in this conversation, look them up with your tools without writing anything; then write one short sentence introducing them and show them right after it, in the same turn; then stop. Every product reply is exactly that: one intro sentence, then the products. Once something is shown, your reply is over: write nothing after it and never show it again, even if you forgot the intro.
+When you show products, always follow this exact order: first, if you don't already have them from earlier in this conversation, look them up with your tools without writing anything; then write one short sentence introducing them and show them right after it, in the same turn. Every product reply is exactly that: one intro sentence, then the products.
 Don't repeat in the intro what the products already show, like price or stock: use it to help them pick, like the size or color that matches what they asked for.
 When the shopper says they like a product, write one short upbeat intro sentence, then show it with showProductCard so they can pick size and color and add it to the cart.
 When you show one product with showProductCard, pass the size, color or other options the shopper asked for anywhere in the conversation, plus the size they picked for anything they added to their cart, so they're already picked on it.
@@ -221,7 +222,15 @@ export async function reply(
         system: SYSTEM,
         messages: modelMessages,
         tools: tools(storefront),
-        stopWhen: isStepCount(10),
+        stopWhen: [
+          isStepCount(10),
+          hasToolCall(
+            "showProductCard",
+            "showProductCards",
+            "showFaqCard",
+            "showCart",
+          ),
+        ],
         prepareStep: ({ stepNumber }) =>
           firstReply && stepNumber === 0
             ? { toolChoice: { type: "tool", toolName: "listProducts" } }

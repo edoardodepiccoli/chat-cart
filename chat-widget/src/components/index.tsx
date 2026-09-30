@@ -12,10 +12,17 @@ import TextMessage from "./TextMessage";
 
 export function renderPart(
   part: ChatPart,
-  like: (product: ProductCardProps) => void,
-  add: (product: ProductCardProps, variant: ProductVariant) => Promise<void>,
-  cart: Cart | undefined,
-  streaming: boolean,
+  {
+    cart,
+    streaming,
+    onLike,
+    onAdd,
+  }: {
+    cart: Cart | undefined;
+    streaming: boolean;
+    onLike: (product: ProductCardProps) => void;
+    onAdd: (product: ProductCardProps, variant: ProductVariant) => Promise<void>;
+  },
 ) {
   switch (part.type) {
     case "text":
@@ -27,12 +34,12 @@ export function renderPart(
         <ProductCard
           {...part.output}
           cartVariantIds={cart?.items.map((item) => item.variant_id) ?? []}
-          onAdd={(variant) => add(part.output, variant)}
+          onAdd={(variant) => onAdd(part.output, variant)}
         />
       ) : null;
     case "tool-showProductCards":
       return part.state === "output-available" ? (
-        <ProductCards {...part.output} onLike={like} />
+        <ProductCards {...part.output} onLike={onLike} />
       ) : null;
     case "tool-showFaqCard":
       return part.state === "output-available" ? (

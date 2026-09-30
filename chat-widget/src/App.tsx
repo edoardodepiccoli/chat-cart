@@ -9,6 +9,9 @@ import {
 } from "./api";
 import { addToCart, getCart, type Cart } from "./cart";
 import { renderPart } from "./components";
+import Suggestions, { type ShownSuggestions } from "./components/Suggestions";
+import { useIosKeyboard, useStickToBottom } from "./hooks";
+import { ChatIcon, CloseIcon } from "./icons";
 import type {
   ChatMessage,
   ProductCardProps,
@@ -35,8 +38,6 @@ const GREETING: ChatMessage = {
   ],
 };
 
-type Suggestions = { id: string; items: string[]; top?: number };
-
 export default function App() {
   const [conversation, setConversation] = useState<Conversation>();
   const [loadFailed, setLoadFailed] = useState(false);
@@ -48,11 +49,11 @@ export default function App() {
   });
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState("");
-  const [leaving, setLeaving] = useState<Suggestions>();
+  const [leaving, setLeaving] = useState<ShownSuggestions>();
   const logRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const pinned = useRef(true);
-  const lastTop = useRef(0);
+  const { track, pin } = useStickToBottom(logRef);
+  useIosKeyboard(inputRef);
   const last = messages.at(-1);
   const loading = !conversation && !loadFailed;
   const busy = loading || status === "submitted" || status === "streaming";
@@ -61,7 +62,7 @@ export default function App() {
     status === "ready" && last?.role === "assistant"
       ? last.parts.find((part) => part.type === "data-suggestions")?.data
       : undefined;
-  const live: Suggestions | undefined =
+  const live: ShownSuggestions | undefined =
     last && items ? { id: last.id, items } : undefined;
   const suggestions = live ?? leaving;
 
@@ -78,53 +79,6 @@ export default function App() {
     if (open && conversation)
       sendEvent(conversation.id, { type: "widget_opened" });
   }, [open, conversation]);
-
-  useEffect(() => {
-    const log = logRef.current;
-    const content = log?.firstElementChild;
-    if (!log || !content) return;
-    const observer = new ResizeObserver(() => {
-      if (pinned.current)
-        log.scrollTo({ top: log.scrollHeight, behavior: "smooth" });
-    });
-    observer.observe(content);
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    const viewport = window.visualViewport;
-    const root = document.getElementById("chat-cart-root");
-    if (!viewport || !root || !CSS.supports("-webkit-touch-callout", "none"))
-      return;
-    const update = () => {
-      if (document.activeElement !== inputRef.current) {
-        root.style.removeProperty("--cc-keyboard");
-        root.style.removeProperty("--cc-viewport-height");
-        return;
-      }
-      const keyboard = Math.max(
-        0,
-        window.innerHeight - viewport.height - viewport.offsetTop,
-      );
-      root.style.setProperty("--cc-keyboard", `${keyboard}px`);
-      root.style.setProperty("--cc-viewport-height", `${viewport.height}px`);
-    };
-    viewport.addEventListener("resize", update);
-    viewport.addEventListener("scroll", update);
-    return () => {
-      viewport.removeEventListener("resize", update);
-      viewport.removeEventListener("scroll", update);
-    };
-  }, []);
-
-  function track() {
-    const log = logRef.current;
-    if (!log) return;
-    if (log.scrollHeight - log.scrollTop - log.clientHeight < 24)
-      pinned.current = true;
-    else if (log.scrollTop < lastTop.current) pinned.current = false;
-    lastTop.current = log.scrollTop;
-  }
 
   function record(event: ChatEvent) {
     if (conversation) sendEvent(conversation.id, event);
@@ -157,10 +111,15 @@ export default function App() {
     sendMessage({ text });
   }
 
+  function pick(text: string) {
+    record({ type: "suggestion_clicked", data: { text } });
+    send(text);
+  }
+
   function like({ handle, title }: { handle: string; title: string }) {
     if (busy || !conversation) return;
     record({ type: "product_liked", data: { handle } });
-    pinned.current = true;
+    pin();
     send(`I like ${title}, tell me more about it.`);
   }
 
@@ -176,7 +135,7 @@ export default function App() {
       product.variants.length > 1
         ? ` (${variant.selectedOptions.map((option) => option.value).join(" / ")})`
         : "";
-    pinned.current = true;
+    pin();
     send(`I added ${product.title}${label} to my cart.`);
   }
 
@@ -198,13 +157,12 @@ export default function App() {
           <div className="cc-log__content">
             {messages.map((message) => {
               const parts = message.parts.map((part, index) => {
-                const node = renderPart(
-                  part,
-                  like,
-                  add,
+                const node = renderPart(part, {
                   cart,
-                  status === "streaming" && message === last,
-                );
+                  streaming: status === "streaming" && message === last,
+                  onLike: like,
+                  onAdd: add,
+                });
                 return (
                   node && (
                     <div
@@ -224,33 +182,12 @@ export default function App() {
                     </div>
                   )}
                   {suggestions?.id === message.id && (
-                    <div
-                      className="cc-suggestions"
-                      data-leaving={suggestions === leaving}
-                      style={{ top: suggestions.top }}
-                      onAnimationEnd={(event) => {
-                        if (event.target === event.currentTarget)
-                          setLeaving(undefined);
-                      }}
-                    >
-                      {suggestions.items.map((suggestion, index) => (
-                        <button
-                          key={suggestion}
-                          type="button"
-                          className="cc-suggestion"
-                          style={{ "--cc-i": index } as React.CSSProperties}
-                          onClick={() => {
-                            record({
-                              type: "suggestion_clicked",
-                              data: { text: suggestion },
-                            });
-                            send(suggestion);
-                          }}
-                        >
-                          {suggestion}
-                        </button>
-                      ))}
-                    </div>
+                    <Suggestions
+                      {...suggestions}
+                      leaving={suggestions === leaving}
+                      onPick={pick}
+                      onLeft={() => setLeaving(undefined)}
+                    />
                   )}
                 </Fragment>
               );
@@ -308,30 +245,8 @@ export default function App() {
         aria-label={open ? "Close chat" : "Open chat"}
         onClick={() => setOpen(!open)}
       >
-        <svg
-          className="cc-launcher__icon cc-launcher__icon--chat"
-          viewBox="0 0 24 24"
-          aria-hidden="true"
-        >
-          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-          <circle
-            className="cc-launcher__spark-cut"
-            cx="20.5"
-            cy="3.5"
-            r="5"
-          />
-          <path
-            className="cc-launcher__spark"
-            d="M20.5 0Q20.5 3.5 24 3.5Q20.5 3.5 20.5 7Q20.5 3.5 17 3.5Q20.5 3.5 20.5 0Z"
-          />
-        </svg>
-        <svg
-          className="cc-launcher__icon cc-launcher__icon--close"
-          viewBox="0 0 24 24"
-          aria-hidden="true"
-        >
-          <path d="M6 6l12 12M18 6L6 18" />
-        </svg>
+        <ChatIcon className="cc-launcher__icon cc-launcher__icon--chat" />
+        <CloseIcon className="cc-launcher__icon cc-launcher__icon--close" />
       </button>
     </>
   );

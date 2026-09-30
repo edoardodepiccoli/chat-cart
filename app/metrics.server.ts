@@ -1,5 +1,27 @@
 import { COMPONENT_TOOLS } from "../shared/chat";
+import type { ChatEvent } from "../shared/events";
 import prisma from "./db.server";
+
+export async function saveEvent(
+  shop: string,
+  conversationId: string,
+  event: ChatEvent,
+): Promise<boolean> {
+  const conversation = await prisma.conversation.findFirst({
+    where: { id: conversationId, shop },
+    select: { id: true },
+  });
+  if (!conversation) return false;
+
+  await prisma.event.create({
+    data: {
+      conversationId,
+      type: event.type,
+      data: "data" in event ? event.data : undefined,
+    },
+  });
+  return true;
+}
 
 export async function getStats(shop: string) {
   const conversationsWithEvent = (type: string) =>

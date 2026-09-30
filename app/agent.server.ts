@@ -50,8 +50,6 @@ async function productCard(
   return {
     handle: product.handle,
     title: product.title,
-    imageUrl: product.imageUrl,
-    imageAlt: product.imageAlt,
     images: product.images,
     options: product.options,
     variants: product.variants,

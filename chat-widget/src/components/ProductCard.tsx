@@ -45,8 +45,6 @@ export function ProductPrice({
 export default function ProductCard({
   handle,
   title,
-  imageUrl,
-  imageAlt,
   images,
   options,
   variants,
@@ -63,11 +61,7 @@ export default function ProductCard({
 
   const selectedVariant = findVariant(variants, picks);
   const shownVariant = selectedVariant ?? variants[0];
-  const shownImageUrl = shownVariant.imageUrl ?? imageUrl;
-  const shownImages =
-    images?.length || shownImageUrl === null
-      ? (images ?? [])
-      : [{ url: shownImageUrl, alt: imageAlt }];
+  const shownImageUrl = shownVariant.imageUrl ?? images[0]?.url ?? null;
   const hasChoice = variants.length > 1;
   const canAddToCart = selectedVariant?.available ?? false;
   const inCart =
@@ -99,7 +93,7 @@ export default function ProductCard({
   return (
     <div className="cc-card">
       <ProductMedia
-        images={shownImages}
+        images={images}
         title={title}
         productUrl={productUrl}
         activeUrl={shownImageUrl}

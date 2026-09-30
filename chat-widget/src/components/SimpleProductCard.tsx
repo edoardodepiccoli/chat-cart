@@ -6,14 +6,13 @@ import { ProductPrice } from "./ProductCard";
 export default function SimpleProductCard({
   handle,
   title,
-  imageUrl,
-  imageAlt,
+  images,
   variants,
   selectedOptions,
   onLike,
 }: ProductCardProps & { onLike: () => void }) {
   const shownVariant = findVariant(variants, selectedOptions) ?? variants[0];
-  const shownImageUrl = shownVariant.imageUrl ?? imageUrl;
+  const shownImageUrl = shownVariant.imageUrl ?? images[0]?.url ?? null;
   const productUrl = `/products/${handle}`;
 
   return (
@@ -25,7 +24,7 @@ export default function SimpleProductCard({
           <img
             className="cc-card__image"
             src={shownImageUrl}
-            alt={imageAlt ?? title}
+            alt={images[0]?.alt ?? title}
             loading="lazy"
           />
         )}

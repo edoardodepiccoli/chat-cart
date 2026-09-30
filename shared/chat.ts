@@ -20,8 +20,6 @@ export type ProductImage = { url: string; alt: string | null };
 export type ProductCardProps = {
   handle: string;
   title: string;
-  imageUrl: string | null;
-  imageAlt: string | null;
   images: ProductImage[];
   options: ProductOption[];
   variants: ProductVariant[];

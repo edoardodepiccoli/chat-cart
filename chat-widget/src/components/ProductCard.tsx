@@ -122,7 +122,7 @@ export default function ProductCard({
         )}
 
         <button
-          className="cc-card__add"
+          className="cc-btn"
           type="button"
           disabled={!canAddToCart || adding || inCart}
           data-added={inCart}
@@ -136,7 +136,7 @@ export default function ProductCard({
           {addLabel()}
         </button>
 
-        <a className="cc-card__view" href={productUrl}>
+        <a className="cc-btn cc-btn--secondary" href={productUrl}>
           See product page
         </a>
       </div>

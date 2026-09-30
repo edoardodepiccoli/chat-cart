@@ -49,7 +49,7 @@ export default function CartSummary({ cart }: { cart: Cart | undefined }) {
           ))}
         </div>
 
-        <a className="cc-card__add cc-cart__checkout" href="/checkout">
+        <a className="cc-btn cc-cart__checkout" href="/checkout">
           <CartIcon className="cc-icon" />
           Checkout · {formatMoney(cart.total_price / 100, cart.currency)}
         </a>

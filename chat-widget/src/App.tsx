@@ -226,7 +226,7 @@ export default function App() {
             disabled={busy || !conversation}
           />
           <button
-            className="cc-send"
+            className="cc-btn"
             type="submit"
             disabled={busy || !conversation}
           >

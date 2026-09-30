@@ -1,25 +1,17 @@
 #chat-cart-root {
-  --cc-font-family:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --cc-font-size: 14px;
-  --cc-font-size-sm: 13px;
-  --cc-font-size-xs: 12px;
+  --cc-font-size-sm: 12px;
   --cc-font-weight-strong: 600;
 
   --cc-color-bg: #ffffff;
   --cc-color-surface: #f1f1f1;
   --cc-color-text: #1a1a1a;
   --cc-color-text-muted: #616161;
-  --cc-color-text-subtle: #8a8a8a;
   --cc-color-border: #e3e3e3;
-  --cc-color-border-strong: #d0d0d0;
   --cc-color-primary: #1a1a1a;
-  --cc-color-primary-hover: #333333;
   --cc-color-on-primary: #ffffff;
 
-  --cc-radius-lg: 12px;
-  --cc-radius-md: 8px;
-  --cc-radius-full: 999px;
+  --cc-radius: 12px;
 
   --cc-shadow-panel: 0 8px 32px rgba(0, 0, 0, 0.16);
   --cc-shadow-launcher: 0 8px 24px rgba(0, 0, 0, 0.24);

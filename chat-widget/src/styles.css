@@ -1,7 +1,7 @@
 #chat-cart-root {
   all: initial;
   -webkit-text-size-adjust: 100%;
-  font-family: var(--cc-font-family);
+  font-family: inherit;
 }
 
 #chat-cart-root *,
@@ -23,7 +23,7 @@
   max-height: calc(var(--cc-viewport-height, 100dvh) - 108px);
   overflow: hidden;
   border: 1px solid var(--cc-color-border);
-  border-radius: var(--cc-radius-lg);
+  border-radius: var(--cc-radius);
   background: var(--cc-color-bg);
   box-shadow: var(--cc-shadow-panel);
   color: var(--cc-color-text);
@@ -82,7 +82,7 @@
   height: 56px;
   padding: 0;
   border: 0;
-  border-radius: var(--cc-radius-full);
+  border-radius: 999px;
   background: var(--cc-color-primary);
   color: var(--cc-color-on-primary);
   box-shadow: var(--cc-shadow-launcher);
@@ -220,7 +220,7 @@
 .cc-part--text,
 .cc-typing {
   padding: 8px 12px;
-  border-radius: var(--cc-radius-lg);
+  border-radius: var(--cc-radius);
   white-space: pre-wrap;
 }
 
@@ -258,8 +258,8 @@
 
 .cc-suggestion {
   padding: 6px 12px;
-  border: 1px solid var(--cc-color-border-strong);
-  border-radius: var(--cc-radius-full);
+  border: 1px solid var(--cc-color-border);
+  border-radius: 999px;
   background: var(--cc-color-bg);
   color: inherit;
   font: inherit;
@@ -295,8 +295,8 @@
 
 .cc-control {
   padding: 8px 12px;
-  border: 1px solid var(--cc-color-border-strong);
-  border-radius: var(--cc-radius-md);
+  border: 1px solid var(--cc-color-border);
+  border-radius: var(--cc-radius);
   background: var(--cc-color-bg);
   color: inherit;
   font: inherit;
@@ -319,7 +319,7 @@
   gap: 6px;
   padding: 10px 16px;
   border: 0;
-  border-radius: var(--cc-radius-md);
+  border-radius: var(--cc-radius);
   background: var(--cc-color-primary);
   color: var(--cc-color-on-primary);
   font: inherit;
@@ -330,17 +330,18 @@
 }
 
 .cc-btn--secondary {
-  border: 1px solid var(--cc-color-border-strong);
+  border: 1px solid var(--cc-color-border);
   background: var(--cc-color-bg);
   color: inherit;
 }
 
 @media (hover: hover) and (pointer: fine) {
   .cc-btn:not(:disabled):hover {
-    background: var(--cc-color-primary-hover);
+    opacity: 0.85;
   }
 
   .cc-btn--secondary:not(:disabled):hover {
+    opacity: 1;
     background: var(--cc-color-surface);
   }
 }
@@ -363,7 +364,7 @@
 .cc-card {
   overflow: hidden;
   border: 1px solid var(--cc-color-border);
-  border-radius: var(--cc-radius-lg);
+  border-radius: var(--cc-radius);
   background: var(--cc-color-bg);
 }
 
@@ -405,8 +406,8 @@
 }
 
 .cc-card__price--was {
-  font-size: var(--cc-font-size-xs);
-  color: var(--cc-color-text-subtle);
+  font-size: var(--cc-font-size-sm);
+  color: var(--cc-color-text-muted);
 }
 
 .cc-card__image-placeholder {
@@ -483,7 +484,7 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--cc-color-border-strong);
+  background: var(--cc-color-border);
   transition: background 200ms ease;
 }
 
@@ -506,7 +507,7 @@
 }
 
 .cc-select option:disabled {
-  color: var(--cc-color-text-subtle);
+  color: var(--cc-color-text-muted);
 }
 
 .cc-card__options {
@@ -525,7 +526,7 @@
 
 .cc-field__label {
   color: var(--cc-color-text-muted);
-  font-size: var(--cc-font-size-xs);
+  font-size: var(--cc-font-size-sm);
 }
 
 .cc-select {
@@ -556,7 +557,7 @@
   flex: none;
   width: 56px;
   height: 56px;
-  border-radius: var(--cc-radius-md);
+  border-radius: var(--cc-radius);
   background: var(--cc-color-surface);
   object-fit: cover;
 }
@@ -580,7 +581,7 @@
 
 .cc-cart__options {
   color: var(--cc-color-text-muted);
-  font-size: var(--cc-font-size-xs);
+  font-size: var(--cc-font-size-sm);
 }
 
 .cc-cart__checkout {

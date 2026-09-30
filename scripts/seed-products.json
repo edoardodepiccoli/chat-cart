@@ -1,0 +1,884 @@
+[
+  {
+    "handle": "redwing-iron-ranger",
+    "title": "Red Wing Iron Ranger Boot",
+    "images": [
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/boot.jpg?v=1790077073",
+        "alt": null
+      },
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/boot-3.jpg?v=1790077073",
+        "alt": null
+      },
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/boot-2.jpg?v=1790077073",
+        "alt": null
+      }
+    ],
+    "options": [
+      {
+        "name": "Size",
+        "values": [
+          "7",
+          "7.5",
+          "8",
+          "8.5",
+          "9",
+          "9.5",
+          "10",
+          "10.5",
+          "11",
+          "11.5",
+          "12"
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "id": "gid://shopify/ProductVariant/47960963809457",
+        "selectedOptions": [
+          {
+            "name": "Size",
+            "value": "7"
+          }
+        ],
+        "price": {
+          "amount": "310.0",
+          "currencyCode": "USD"
+        },
+        "compareAtPrice": null,
+        "available": true,
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/boot.jpg?v=1790077073"
+      },
+      {
+        "id": "gid://shopify/ProductVariant/47960963842225",
+        "selectedOptions": [
+          {
+            "name": "Size",
+            "value": "7.5"
+          }
+        ],
+        "price": {
+          "amount": "310.0",
+          "currencyCode": "USD"
+        },
+        "compareAtPrice": null,
+        "available": true,
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/boot.jpg?v=1790077073"
+      },
+      {
+        "id": "gid://shopify/ProductVariant/47960963874993",
+        "selectedOptions": [
+          {
+            "name": "Size",
+            "value": "8"
+          }
+        ],
+        "price": {
+          "amount": "310.0",
+          "currencyCode": "USD"
+        },
+        "compareAtPrice": null,
+        "available": true,
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/boot.jpg?v=1790077073"
+      },
+      {
+        "id": "gid://shopify/ProductVariant/47960963907761",
+        "selectedOptions": [
+          {
+            "name": "Size",
+            "value": "8.5"
+          }
+        ],
+        "price": {
+          "amount": "310.0",
+          "currencyCode": "USD"
+        },
+        "compareAtPrice": null,
+        "available": false,
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/boot.jpg?v=1790077073"
+      },
+      {
+        "id": "gid://shopify/ProductVariant/47960963940529",
+        "selectedOptions": [
+          {
+            "name": "Size",
+            "value": "9"
+          }
+        ],
+        "price": {
+          "amount": "310.0",
+          "currencyCode": "USD"
+        },
+        "compareAtPrice": null,
+        "available": true,
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/boot.jpg?v=1790077073"
+      },
+      {
+        "id": "gid://shopify/ProductVariant/47960963973297",
+        "selectedOptions": [
+          {
+            "name": "Size",
+            "value": "9.5"
+          }
+        ],
+        "price": {
+          "amount": "310.0",
+          "currencyCode": "USD"
+        },
+        "compareAtPrice": null,
+        "available": false,
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/boot.jpg?v=1790077073"
+      },
+      {
+        "id": "gid://shopify/ProductVariant/47960964006065",
+        "selectedOptions": [
+          {
+            "name": "Size",
+            "value": "10"
+          }
+        ],
+        "price": {
+          "amount": "310.0",
+          "currencyCode": "USD"
+        },
+        "compareAtPrice": null,
+        "available": false,
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/boot.jpg?v=1790077073"
+      },
+      {
+        "id": "gid://shopify/ProductVariant/47960964038833",
+        "selectedOptions": [
+          {
+            "name": "Size",
+            "value": "10.5"
+          }
+        ],
+        "price": {
+          "amount": "310.0",
+          "currencyCode": "USD"
+        },
+        "compareAtPrice": null,
+        "available": false,
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/boot.jpg?v=1790077073"
+      },
+      {
+        "id": "gid://shopify/ProductVariant/47960964071601",
+        "selectedOptions": [
+          {
+            "name": "Size",
+            "value": "11"
+          }
+        ],
+        "price": {
+          "amount": "310.0",
+          "currencyCode": "USD"
+        },
+        "compareAtPrice": null,
+        "available": true,
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/boot.jpg?v=1790077073"
+      },
+      {
+        "id": "gid://shopify/ProductVariant/47960964104369",
+        "selectedOptions": [
+          {
+            "name": "Size",
+            "value": "11.5"
+          }
+        ],
+        "price": {
+          "amount": "310.0",
+          "currencyCode": "USD"
+        },
+        "compareAtPrice": null,
+        "available": false,
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/boot.jpg?v=1790077073"
+      },
+      {
+        "id": "gid://shopify/ProductVariant/47960964137137",
+        "selectedOptions": [
+          {
+            "name": "Size",
+            "value": "12"
+          }
+        ],
+        "price": {
+          "amount": "310.0",
+          "currencyCode": "USD"
+        },
+        "compareAtPrice": null,
+        "available": false,
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/boot.jpg?v=1790077073"
+      }
+    ]
+  },
+  {
+    "handle": "foraker-canvas-coat",
+    "title": "Duckworth Woolfill Jacket",
+    "images": [
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/woolfill-jacket_6c39ae23-c0c8-4821-85f4-4b5d64333c62.jpg?v=1790077069",
+        "alt": null
+      },
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/product_lifestyle-27.jpg?v=1790077070",
+        "alt": null
+      },
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/product_lifestyle-2_47ab1045-a452-44fd-878d-0861f1d1e076.jpg?v=1790077070",
+        "alt": null
+      }
+    ],
+    "options": [
+      {
+        "name": "Color",
+        "values": [
+          "Harvest",
+          "Navy"
+        ]
+      },
+      {
+        "name": "Size",
+        "values": [
+          "S",
+          "M",
+          "L",
+          "XL"
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "id": "gid://shopify/ProductVariant/47960963252401",
+        "selectedOptions": [
+          {
+            "name": "Color",
+            "value": "Harvest"
+          },
+          {
+            "name": "Size",
+            "value": "S"
+          }
+        ],
+        "price": {
+          "amount": "188.0",
+          "currencyCode": "USD"
+        },
+        "compareAtPrice": {
+          "amount": "218.0",
+          "currencyCode": "USD"
+        },
+        "available": true,
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/woolfill-jacket_6c39ae23-c0c8-4821-85f4-4b5d64333c62.jpg?v=1790077069"
+      },
+      {
+        "id": "gid://shopify/ProductVariant/47960963285169",
+        "selectedOptions": [
+          {
+            "name": "Color",
+            "value": "Harvest"
+          },
+          {
+            "name": "Size",
+            "value": "M"
+          }
+        ],
+        "price": {
+          "amount": "188.0",
+          "currencyCode": "USD"
+        },
+        "compareAtPrice": {
+          "amount": "218.0",
+          "currencyCode": "USD"
+        },
+        "available": true,
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/woolfill-jacket_6c39ae23-c0c8-4821-85f4-4b5d64333c62.jpg?v=1790077069"
+      },
+      {
+        "id": "gid://shopify/ProductVariant/47960963317937",
+        "selectedOptions": [
+          {
+            "name": "Color",
+            "value": "Harvest"
+          },
+          {
+            "name": "Size",
+            "value": "L"
+          }
+        ],
+        "price": {
+          "amount": "188.0",
+          "currencyCode": "USD"
+        },
+        "compareAtPrice": {
+          "amount": "218.0",
+          "currencyCode": "USD"
+        },
+        "available": true,
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/woolfill-jacket_6c39ae23-c0c8-4821-85f4-4b5d64333c62.jpg?v=1790077069"
+      },
+      {
+        "id": "gid://shopify/ProductVariant/47960963350705",
+        "selectedOptions": [
+          {
+            "name": "Color",
+            "value": "Harvest"
+          },
+          {
+            "name": "Size",
+            "value": "XL"
+          }
+        ],
+        "price": {
+          "amount": "188.0",
+          "currencyCode": "USD"
+        },
+        "compareAtPrice": {
+          "amount": "218.0",
+          "currencyCode": "USD"
+        },
+        "available": true,
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/woolfill-jacket_6c39ae23-c0c8-4821-85f4-4b5d64333c62.jpg?v=1790077069"
+      },
+      {
+        "id": "gid://shopify/ProductVariant/47960963383473",
+        "selectedOptions": [
+          {
+            "name": "Color",
+            "value": "Navy"
+          },
+          {
+            "name": "Size",
+            "value": "S"
+          }
+        ],
+        "price": {
+          "amount": "188.0",
+          "currencyCode": "USD"
+        },
+        "compareAtPrice": {
+          "amount": "218.0",
+          "currencyCode": "USD"
+        },
+        "available": true,
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/woolfill-jacket_6c39ae23-c0c8-4821-85f4-4b5d64333c62.jpg?v=1790077069"
+      },
+      {
+        "id": "gid://shopify/ProductVariant/47960963416241",
+        "selectedOptions": [
+          {
+            "name": "Color",
+            "value": "Navy"
+          },
+          {
+            "name": "Size",
+            "value": "M"
+          }
+        ],
+        "price": {
+          "amount": "188.0",
+          "currencyCode": "USD"
+        },
+        "compareAtPrice": {
+          "amount": "218.0",
+          "currencyCode": "USD"
+        },
+        "available": true,
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/woolfill-jacket_6c39ae23-c0c8-4821-85f4-4b5d64333c62.jpg?v=1790077069"
+      },
+      {
+        "id": "gid://shopify/ProductVariant/47960963449009",
+        "selectedOptions": [
+          {
+            "name": "Color",
+            "value": "Navy"
+          },
+          {
+            "name": "Size",
+            "value": "L"
+          }
+        ],
+        "price": {
+          "amount": "188.0",
+          "currencyCode": "USD"
+        },
+        "compareAtPrice": {
+          "amount": "218.0",
+          "currencyCode": "USD"
+        },
+        "available": true,
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/woolfill-jacket_6c39ae23-c0c8-4821-85f4-4b5d64333c62.jpg?v=1790077069"
+      },
+      {
+        "id": "gid://shopify/ProductVariant/47960963481777",
+        "selectedOptions": [
+          {
+            "name": "Color",
+            "value": "Navy"
+          },
+          {
+            "name": "Size",
+            "value": "XL"
+          }
+        ],
+        "price": {
+          "amount": "188.0",
+          "currencyCode": "USD"
+        },
+        "compareAtPrice": {
+          "amount": "218.0",
+          "currencyCode": "USD"
+        },
+        "available": false,
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/woolfill-jacket_6c39ae23-c0c8-4821-85f4-4b5d64333c62.jpg?v=1790077069"
+      }
+    ]
+  },
+  {
+    "handle": "scout-backpack",
+    "title": "Scout Backpack",
+    "images": [
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/scout-backpack_a035275d-8975-4a05-8456-5e1ec35f020f.jpg?v=1790077071",
+        "alt": null
+      },
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/Scout_Moss_Snap.jpg?v=1790077071",
+        "alt": null
+      },
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/product_lifestyle-59.jpg?v=1790077071",
+        "alt": null
+      }
+    ],
+    "options": [
+      {
+        "name": "Color",
+        "values": [
+          "Khaki",
+          "Navy Blue",
+          "Moss",
+          "Nutmeg"
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "id": "gid://shopify/ProductVariant/47960963514545",
+        "selectedOptions": [
+          {
+            "name": "Color",
+            "value": "Khaki"
+          }
+        ],
+        "price": {
+          "amount": "128.0",
+          "currencyCode": "USD"
+        },
+        "compareAtPrice": null,
+        "available": false,
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/scout-backpack_a035275d-8975-4a05-8456-5e1ec35f020f.jpg?v=1790077071"
+      },
+      {
+        "id": "gid://shopify/ProductVariant/47960963547313",
+        "selectedOptions": [
+          {
+            "name": "Color",
+            "value": "Navy Blue"
+          }
+        ],
+        "price": {
+          "amount": "128.0",
+          "currencyCode": "USD"
+        },
+        "compareAtPrice": null,
+        "available": true,
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/scout-backpack_a035275d-8975-4a05-8456-5e1ec35f020f.jpg?v=1790077071"
+      },
+      {
+        "id": "gid://shopify/ProductVariant/47960963580081",
+        "selectedOptions": [
+          {
+            "name": "Color",
+            "value": "Moss"
+          }
+        ],
+        "price": {
+          "amount": "128.0",
+          "currencyCode": "USD"
+        },
+        "compareAtPrice": null,
+        "available": true,
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/scout-backpack_a035275d-8975-4a05-8456-5e1ec35f020f.jpg?v=1790077071"
+      },
+      {
+        "id": "gid://shopify/ProductVariant/47960963612849",
+        "selectedOptions": [
+          {
+            "name": "Color",
+            "value": "Nutmeg"
+          }
+        ],
+        "price": {
+          "amount": "128.0",
+          "currencyCode": "USD"
+        },
+        "compareAtPrice": null,
+        "available": true,
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/scout-backpack_a035275d-8975-4a05-8456-5e1ec35f020f.jpg?v=1790077071"
+      }
+    ]
+  },
+  {
+    "handle": "snow-peak-mola-headlamp",
+    "title": "Mola Headlamp",
+    "images": [
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/snowpeak_headlamp_458e50f4-a354-423e-ad48-a83c47878792.jpg?v=1790077076",
+        "alt": null
+      }
+    ],
+    "options": [
+      {
+        "name": "Title",
+        "values": [
+          "Olive"
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "id": "gid://shopify/ProductVariant/47960964497585",
+        "selectedOptions": [
+          {
+            "name": "Title",
+            "value": "Olive"
+          }
+        ],
+        "price": {
+          "amount": "45.0",
+          "currencyCode": "USD"
+        },
+        "compareAtPrice": null,
+        "available": true,
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/snowpeak_headlamp_458e50f4-a354-423e-ad48-a83c47878792.jpg?v=1790077076"
+      }
+    ]
+  },
+  {
+    "handle": "hudderton-backpack",
+    "title": "Hudderton Backpack",
+    "images": [
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/hudderton-backpack_dc8afb13-448b-49d9-a042-5a163a97de8f.jpg?v=1790077081",
+        "alt": null
+      },
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/product_lifestyle-28.jpg?v=1790077081",
+        "alt": null
+      }
+    ],
+    "options": [
+      {
+        "name": "Color",
+        "values": [
+          "Khaki",
+          "Moss",
+          "Nutmeg",
+          "Navy Blue"
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "id": "gid://shopify/ProductVariant/47960964628657",
+        "selectedOptions": [
+          {
+            "name": "Color",
+            "value": "Khaki"
+          }
+        ],
+        "price": {
+          "amount": "98.0",
+          "currencyCode": "USD"
+        },
+        "compareAtPrice": null,
+        "available": true,
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/hudderton-backpack_dc8afb13-448b-49d9-a042-5a163a97de8f.jpg?v=1790077081"
+      },
+      {
+        "id": "gid://shopify/ProductVariant/47960964661425",
+        "selectedOptions": [
+          {
+            "name": "Color",
+            "value": "Moss"
+          }
+        ],
+        "price": {
+          "amount": "98.0",
+          "currencyCode": "USD"
+        },
+        "compareAtPrice": null,
+        "available": true,
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/hudderton-backpack_dc8afb13-448b-49d9-a042-5a163a97de8f.jpg?v=1790077081"
+      },
+      {
+        "id": "gid://shopify/ProductVariant/47960964694193",
+        "selectedOptions": [
+          {
+            "name": "Color",
+            "value": "Nutmeg"
+          }
+        ],
+        "price": {
+          "amount": "98.0",
+          "currencyCode": "USD"
+        },
+        "compareAtPrice": null,
+        "available": true,
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/hudderton-backpack_dc8afb13-448b-49d9-a042-5a163a97de8f.jpg?v=1790077081"
+      },
+      {
+        "id": "gid://shopify/ProductVariant/47960964726961",
+        "selectedOptions": [
+          {
+            "name": "Color",
+            "value": "Navy Blue"
+          }
+        ],
+        "price": {
+          "amount": "98.0",
+          "currencyCode": "USD"
+        },
+        "compareAtPrice": null,
+        "available": false,
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/hudderton-backpack_dc8afb13-448b-49d9-a042-5a163a97de8f.jpg?v=1790077081"
+      }
+    ]
+  },
+  {
+    "handle": "derby-tier-backpack",
+    "title": "Derby Tier Backpack",
+    "images": [
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/derbytier_nutmeg_810294de-9152-4bf7-b5e0-b88fc94a1ff8.jpg?v=1790077061",
+        "alt": null
+      },
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/derbytier_moss_drawstring.jpg?v=1790077061",
+        "alt": null
+      },
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/product_lifestyle-58.jpg?v=1790077061",
+        "alt": null
+      }
+    ],
+    "options": [
+      {
+        "name": "Color",
+        "values": [
+          "Nutmeg"
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "id": "gid://shopify/ProductVariant/47960962465969",
+        "selectedOptions": [
+          {
+            "name": "Color",
+            "value": "Nutmeg"
+          }
+        ],
+        "price": {
+          "amount": "148.0",
+          "currencyCode": "USD"
+        },
+        "compareAtPrice": {
+          "amount": "165.0",
+          "currencyCode": "USD"
+        },
+        "available": true,
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/derbytier_nutmeg_810294de-9152-4bf7-b5e0-b88fc94a1ff8.jpg?v=1790077061"
+      }
+    ]
+  },
+  {
+    "handle": "canvas-lunch-bag",
+    "title": "Canvas Lunch Bag",
+    "images": [
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/Lunchbag_Khaki_Front_8ae0e1f4-407d-4ac0-89e6-961b306ef351.jpg?v=1790077068",
+        "alt": null
+      },
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/Lunchbag_Moss_Front_c5dfe951-8bdc-4fff-8c8a-9a87cc02736d.jpg?v=1790077068",
+        "alt": null
+      },
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/Lunchbag_Nutmeg_Front_37c94fbb-6fd7-43ed-abcf-291220a69686.jpg?v=1790077068",
+        "alt": null
+      },
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/Lunchbag_Chocolate_Logo.jpg?v=1790077068",
+        "alt": null
+      },
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/product_lifestyle-16.jpg?v=1790077068",
+        "alt": null
+      }
+    ],
+    "options": [
+      {
+        "name": "Color",
+        "values": [
+          "Khaki",
+          "Moss",
+          "Nutmeg"
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "id": "gid://shopify/ProductVariant/47960963154097",
+        "selectedOptions": [
+          {
+            "name": "Color",
+            "value": "Khaki"
+          }
+        ],
+        "price": {
+          "amount": "32.0",
+          "currencyCode": "USD"
+        },
+        "compareAtPrice": null,
+        "available": true,
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/Lunchbag_Khaki_Front_8ae0e1f4-407d-4ac0-89e6-961b306ef351.jpg?v=1790077068"
+      },
+      {
+        "id": "gid://shopify/ProductVariant/47960963186865",
+        "selectedOptions": [
+          {
+            "name": "Color",
+            "value": "Moss"
+          }
+        ],
+        "price": {
+          "amount": "32.0",
+          "currencyCode": "USD"
+        },
+        "compareAtPrice": null,
+        "available": false,
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/Lunchbag_Moss_Front_c5dfe951-8bdc-4fff-8c8a-9a87cc02736d.jpg?v=1790077068"
+      },
+      {
+        "id": "gid://shopify/ProductVariant/47960963219633",
+        "selectedOptions": [
+          {
+            "name": "Color",
+            "value": "Nutmeg"
+          }
+        ],
+        "price": {
+          "amount": "32.0",
+          "currencyCode": "USD"
+        },
+        "compareAtPrice": null,
+        "available": true,
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/Lunchbag_Nutmeg_Front_37c94fbb-6fd7-43ed-abcf-291220a69686.jpg?v=1790077068"
+      }
+    ]
+  },
+  {
+    "handle": "5-panel-hat",
+    "title": "5 Panel Camp Cap",
+    "images": [
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/5-panel-hat_4ee20a27-8d5a-490e-a2fc-1f9c3beb7bf5.jpg?v=1790077066",
+        "alt": null
+      },
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/0010untitledAug2014.jpg?v=1790077066",
+        "alt": "5 Panel Camp Cap | United By Blue"
+      }
+    ],
+    "options": [
+      {
+        "name": "Color",
+        "values": [
+          "Heather Green",
+          "Burnt Orange",
+          "Slate Grey",
+          "Navy Blue"
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "id": "gid://shopify/ProductVariant/47960962990257",
+        "selectedOptions": [
+          {
+            "name": "Color",
+            "value": "Heather Green"
+          }
+        ],
+        "price": {
+          "amount": "48.0",
+          "currencyCode": "USD"
+        },
+        "compareAtPrice": null,
+        "available": true,
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/5-panel-hat_4ee20a27-8d5a-490e-a2fc-1f9c3beb7bf5.jpg?v=1790077066"
+      },
+      {
+        "id": "gid://shopify/ProductVariant/47960963023025",
+        "selectedOptions": [
+          {
+            "name": "Color",
+            "value": "Burnt Orange"
+          }
+        ],
+        "price": {
+          "amount": "48.0",
+          "currencyCode": "USD"
+        },
+        "compareAtPrice": null,
+        "available": true,
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/5-panel-hat_4ee20a27-8d5a-490e-a2fc-1f9c3beb7bf5.jpg?v=1790077066"
+      },
+      {
+        "id": "gid://shopify/ProductVariant/47960963055793",
+        "selectedOptions": [
+          {
+            "name": "Color",
+            "value": "Slate Grey"
+          }
+        ],
+        "price": {
+          "amount": "48.0",
+          "currencyCode": "USD"
+        },
+        "compareAtPrice": null,
+        "available": true,
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/5-panel-hat_4ee20a27-8d5a-490e-a2fc-1f9c3beb7bf5.jpg?v=1790077066"
+      },
+      {
+        "id": "gid://shopify/ProductVariant/47960963088561",
+        "selectedOptions": [
+          {
+            "name": "Color",
+            "value": "Navy Blue"
+          }
+        ],
+        "price": {
+          "amount": "48.0",
+          "currencyCode": "USD"
+        },
+        "compareAtPrice": null,
+        "available": true,
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/5-panel-hat_4ee20a27-8d5a-490e-a2fc-1f9c3beb7bf5.jpg?v=1790077066"
+      }
+    ]
+  }
+]

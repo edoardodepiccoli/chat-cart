@@ -45,6 +45,7 @@ export default function Preview({ theme }: { theme: PreviewTheme }) {
   return (
     <div
       id="chat-cart-root"
+      className="cc-preview"
       style={style}
       onClickCapture={(event) => {
         if ((event.target as Element).closest("a")) event.preventDefault();

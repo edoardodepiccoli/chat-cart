@@ -16,10 +16,12 @@ import type { Theme } from "../theme.server";
 import Preview from "../../chat-widget/src/Preview";
 import widgetTokens from "../../chat-widget/src/tokens.css?url";
 import widgetStyles from "../../chat-widget/src/styles.css?url";
+import previewStyles from "../../chat-widget/src/preview.css?url";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: widgetTokens },
   { rel: "stylesheet", href: widgetStyles },
+  { rel: "stylesheet", href: previewStyles },
 ];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {

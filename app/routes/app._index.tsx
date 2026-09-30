@@ -1,7 +1,8 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import type {
   ActionFunctionArgs,
   HeadersFunction,
+  LinksFunction,
   LoaderFunctionArgs,
 } from "react-router";
 import { useFetcher, useLoaderData } from "react-router";
@@ -12,6 +13,14 @@ import { authenticate } from "../shopify.server";
 import { getStats } from "../metrics.server";
 import { getTheme, saveTheme, themeSchema } from "../theme.server";
 import type { Theme } from "../theme.server";
+import Preview from "../../chat-widget/src/Preview";
+import widgetTokens from "../../chat-widget/src/tokens.css?url";
+import widgetStyles from "../../chat-widget/src/styles.css?url";
+
+export const links: LinksFunction = () => [
+  { rel: "stylesheet", href: widgetTokens },
+  { rel: "stylesheet", href: widgetStyles },
+];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { admin, session } = await authenticate.admin(request);
@@ -69,58 +78,94 @@ function Tiles({ children }: { children: React.ReactNode }) {
   );
 }
 
+function fieldValue(event: Event) {
+  return (event.currentTarget as HTMLInputElement).value;
+}
+
 function WidgetLook({ theme }: { theme: Theme }) {
   const fetcher = useFetcher<typeof action>();
   const shopify = useAppBridge();
+  const [draft, setDraft] = useState(theme);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
 
   useEffect(() => {
     if (fetcher.data?.ok) shopify.toast.show("Widget look saved");
   }, [fetcher.data, shopify]);
 
   return (
-    <form
-      data-save-bar
-      onSubmit={(event) => {
-        event.preventDefault();
-        fetcher.submit(event.currentTarget, { method: "post" });
-      }}
+    <s-grid
+      gridTemplateColumns="repeat(auto-fit, minmax(min(100%, 400px), 1fr))"
+      gap="base"
     >
-      <s-stack gap="base">
-        {fetcher.data?.ok === false && (
-          <s-banner tone="critical">
-            Some values are invalid. Check the fields and try again.
-          </s-banner>
-        )}
-        <s-grid
-          gridTemplateColumns="repeat(auto-fill, minmax(220px, 1fr))"
-          gap="base"
-        >
-          <s-color-field
-            label="Primary color"
-            name="primary"
-            value={theme.primary}
-            details="Buttons, customer messages and the launcher"
-            required
-          ></s-color-field>
-          <s-color-field
-            label="Text on primary"
-            name="onPrimary"
-            value={theme.onPrimary}
-            required
-          ></s-color-field>
-          <s-number-field
-            label="Corner radius"
-            name="radius"
-            value={String(theme.radius)}
-            min={0}
-            max={24}
-            step={1}
-            suffix="px"
-            required
-          ></s-number-field>
-        </s-grid>
-      </s-stack>
-    </form>
+      <form
+        data-save-bar
+        onSubmit={(event) => {
+          event.preventDefault();
+          fetcher.submit(event.currentTarget, { method: "post" });
+        }}
+        onReset={() => setDraft(theme)}
+      >
+        <s-stack gap="base">
+          {fetcher.data?.ok === false && (
+            <s-banner tone="critical">
+              Some values are invalid. Check the fields and try again.
+            </s-banner>
+          )}
+          <s-grid
+            gridTemplateColumns="repeat(auto-fill, minmax(220px, 1fr))"
+            gap="base"
+          >
+            <s-color-field
+              label="Primary color"
+              name="primary"
+              value={theme.primary}
+              details="Buttons, customer messages and the launcher"
+              required
+              onInput={(event) =>
+                setDraft({ ...draft, primary: fieldValue(event) })
+              }
+            ></s-color-field>
+            <s-color-field
+              label="Text on primary"
+              name="onPrimary"
+              value={theme.onPrimary}
+              required
+              onInput={(event) =>
+                setDraft({ ...draft, onPrimary: fieldValue(event) })
+              }
+            ></s-color-field>
+            <s-number-field
+              label="Corner radius"
+              name="radius"
+              value={String(theme.radius)}
+              min={0}
+              max={24}
+              step={1}
+              suffix="px"
+              required
+              onInput={(event) =>
+                setDraft({ ...draft, radius: Number(fieldValue(event)) })
+              }
+            ></s-number-field>
+          </s-grid>
+        </s-stack>
+      </form>
+
+      <div
+        style={{
+          position: "relative",
+          height: 740,
+          overflow: "hidden",
+          transform: "translateZ(0)",
+          borderRadius: 12,
+          background: "#f1f2f4",
+        }}
+      >
+        {mounted && <Preview theme={draft} />}
+      </div>
+    </s-grid>
   );
 }
 

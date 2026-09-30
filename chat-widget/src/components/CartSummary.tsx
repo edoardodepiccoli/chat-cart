@@ -1,6 +1,6 @@
 import type { Cart } from "../cart";
 import { CartIcon } from "../icons";
-import { formatMoney } from "./money";
+import { formatMoney } from "./Price";
 
 export default function CartSummary({ cart }: { cart: Cart | undefined }) {
   if (cart === undefined) return null;

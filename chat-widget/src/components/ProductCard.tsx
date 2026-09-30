@@ -1,46 +1,19 @@
 import { useState } from "react";
 
 import type {
-  Money,
   ProductCardProps,
   ProductVariant,
   SelectedOption,
 } from "../../../shared/chat";
 import { variantNumber } from "../cart";
 import { CartCheckIcon, CartIcon } from "../icons";
-import { formatMoney } from "./money";
+import { ProductPrice } from "./Price";
 import ProductMedia from "./ProductMedia";
 import {
   findVariant,
   isOptionValueAvailable,
   replacePick,
 } from "../../../shared/variants";
-
-export function ProductPrice({
-  price,
-  compareAtPrice,
-}: {
-  price: Money;
-  compareAtPrice: Money | null;
-}) {
-  const isOnSale =
-    compareAtPrice !== null &&
-    Number(compareAtPrice.amount) > Number(price.amount);
-
-  return (
-    <div className="cc-card__price">
-      <span>{formatMoney(Number(price.amount), price.currencyCode)}</span>
-      {isOnSale && (
-        <s className="cc-card__price--was">
-          {formatMoney(
-            Number(compareAtPrice.amount),
-            compareAtPrice.currencyCode,
-          )}
-        </s>
-      )}
-    </div>
-  );
-}
 
 export default function ProductCard({
   handle,

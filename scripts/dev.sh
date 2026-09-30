@@ -12,6 +12,11 @@ if [[ "$reset" == [yY] ]]; then
   npm run reset
 fi
 
+read -rp "Seed demo conversations? [y/N] " seed
+if [[ "$seed" == [yY] ]]; then
+  npm run seed
+fi
+
 npm run widget:dev &
 widget_pid=$!
 trap 'kill "$widget_pid" 2>/dev/null || true' EXIT

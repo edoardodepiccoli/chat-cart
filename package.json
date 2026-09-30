@@ -12,6 +12,7 @@
     "start": "react-router-serve ./build/server/index.js",
     "setup": "prisma generate && prisma migrate deploy",
     "reset": "echo 'DELETE FROM \"Event\"; DELETE FROM \"Message\"; DELETE FROM \"Conversation\";' | prisma db execute --stdin --schema prisma/schema.prisma",
+    "seed": "node scripts/seed.ts",
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
     "typecheck": "react-router typegen && tsc --noEmit"
   },

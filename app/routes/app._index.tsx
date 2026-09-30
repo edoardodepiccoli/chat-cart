@@ -249,13 +249,6 @@ export default function Index() {
       <s-section heading="Widget look">
         <WidgetLook theme={theme} />
       </s-section>
-
-      <s-section>
-        <s-paragraph>
-          Turn the chat widget on from the theme editor, under App embeds → Chat
-          Cart.
-        </s-paragraph>
-      </s-section>
     </s-page>
   );
 }

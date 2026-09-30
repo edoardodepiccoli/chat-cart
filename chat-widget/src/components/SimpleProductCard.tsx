@@ -1,5 +1,6 @@
 import { HeartIcon } from "../icons";
 import type { ProductCardProps } from "../../../shared/chat";
+import { findVariant } from "../../../shared/variants";
 import { ProductPrice } from "./ProductCard";
 
 export default function SimpleProductCard({
@@ -8,10 +9,10 @@ export default function SimpleProductCard({
   imageUrl,
   imageAlt,
   variants,
+  selectedOptions,
   onLike,
 }: ProductCardProps & { onLike: () => void }) {
-  const shownVariant =
-    variants.find((variant) => variant.available) ?? variants[0];
+  const shownVariant = findVariant(variants, selectedOptions) ?? variants[0];
   const shownImageUrl = shownVariant.imageUrl ?? imageUrl;
   const productUrl = `/products/${handle}`;
 

@@ -133,6 +133,7 @@ function WidgetLook({ theme }: { theme: Theme }) {
               label="Text on primary"
               name="onPrimary"
               value={theme.onPrimary}
+              details="Text and icons on the primary color. Pick one that stays readable"
               required
               onInput={(event) =>
                 setDraft({ ...draft, onPrimary: fieldValue(event) })
@@ -142,6 +143,7 @@ function WidgetLook({ theme }: { theme: Theme }) {
               label="Corner radius"
               name="radius"
               value={String(theme.radius)}
+              details="Roundness of the panel, messages, cards, buttons and fields. 0 is square"
               min={0}
               max={24}
               step={1}

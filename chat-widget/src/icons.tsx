@@ -58,3 +58,24 @@ export function ChevronLeftIcon({ className }: { className?: string }) {
 export function ChevronRightIcon({ className }: { className?: string }) {
   return <Icon className={className} d="M9 18L15 12L9 6" />;
 }
+
+export function ChatIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+      <circle className="cc-launcher__spark-cut" cx="20.5" cy="3.5" r="5" />
+      <path
+        className="cc-launcher__spark"
+        d="M20.5 0Q20.5 3.5 24 3.5Q20.5 3.5 20.5 7Q20.5 3.5 17 3.5Q20.5 3.5 20.5 0Z"
+      />
+    </svg>
+  );
+}
+
+export function CloseIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M6 6l12 12M18 6L6 18" />
+    </svg>
+  );
+}

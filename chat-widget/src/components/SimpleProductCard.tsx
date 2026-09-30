@@ -1,5 +1,6 @@
 import { HeartIcon } from "../icons";
-import { ProductPrice, type ProductCardProps } from "./ProductCard";
+import type { ProductCardProps } from "../../../shared/chat";
+import { ProductPrice } from "./ProductCard";
 
 export default function SimpleProductCard({
   handle,

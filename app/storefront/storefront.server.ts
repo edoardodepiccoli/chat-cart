@@ -1,9 +1,6 @@
 import type { StorefrontApiContext } from "@shopify/shopify-app-react-router/server";
 
-import type {
-  ProductCardProps,
-  ProductOption,
-} from "../../chat-widget/src/components/ProductCard";
+import type { ProductCardProps, ProductOption } from "../../shared/chat";
 
 const PRODUCTS_QUERY = `#graphql
   query Products {

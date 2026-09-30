@@ -1,4 +1,4 @@
-import type { ProductVariant, SelectedOption } from "./ProductCard";
+import type { ProductVariant, SelectedOption } from "../../../shared/chat";
 
 function hasOption(variant: ProductVariant, pick: SelectedOption): boolean {
   return variant.selectedOptions.some((option) => {

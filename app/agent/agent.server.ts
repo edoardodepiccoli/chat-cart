@@ -15,15 +15,16 @@ import type { StorefrontApiContext } from "@shopify/shopify-app-react-router/ser
 import { existsSync } from "node:fs";
 import { z } from "zod";
 
-import type { CartSummaryProps } from "../../chat-widget/src/components/CartSummary";
-import type { ChatMessage } from "../../chat-widget/src/components/types";
-import type { FaqCardProps } from "../../chat-widget/src/components/FaqCard";
-import type {
-  ProductCardProps,
-  ProductVariant,
-  SelectedOption,
-} from "../../chat-widget/src/components/ProductCard";
-import type { ProductCardsProps } from "../../chat-widget/src/components/ProductCards";
+import {
+  COMPONENT_TOOLS,
+  type CartSummaryProps,
+  type ChatMessage,
+  type FaqCardProps,
+  type ProductCardProps,
+  type ProductCardsProps,
+  type ProductVariant,
+  type SelectedOption,
+} from "../../shared/chat";
 import {
   getProduct,
   getStorePage,
@@ -240,15 +241,7 @@ export async function reply(
         system: SYSTEM,
         messages: modelMessages,
         tools: tools(storefront),
-        stopWhen: [
-          isStepCount(10),
-          hasToolCall(
-            "showProductCard",
-            "showProductCards",
-            "showFaqCard",
-            "showCart",
-          ),
-        ],
+        stopWhen: [isStepCount(10), hasToolCall(...COMPONENT_TOOLS)],
         prepareStep: ({ stepNumber }) =>
           firstReply && stepNumber === 0
             ? { toolChoice: { type: "tool", toolName: "listProducts" } }

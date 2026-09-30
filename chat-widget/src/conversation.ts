@@ -1,5 +1,5 @@
-import type { ChatMessage } from "./components/types";
-import type { ChatEvent } from "./events";
+import type { ChatMessage } from "../../shared/chat";
+import type { ChatEvent } from "../../shared/events";
 
 export type Conversation = { id: string; messages: ChatMessage[] };
 

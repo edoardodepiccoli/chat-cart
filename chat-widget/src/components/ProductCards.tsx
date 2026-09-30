@@ -1,7 +1,5 @@
-import type { ProductCardProps } from "./ProductCard";
+import type { ProductCardProps, ProductCardsProps } from "../../../shared/chat";
 import SimpleProductCard from "./SimpleProductCard";
-
-export type ProductCardsProps = { products: ProductCardProps[] };
 
 export default function ProductCards({
   products,

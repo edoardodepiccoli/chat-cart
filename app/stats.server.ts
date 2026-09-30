@@ -1,11 +1,5 @@
+import { COMPONENT_TOOLS } from "../shared/chat";
 import prisma from "./db.server";
-
-const componentTools = [
-  "showProductCard",
-  "showProductCards",
-  "showFaqCard",
-  "showCart",
-] as const;
 
 export async function getStats(shop: string) {
   const conversationsWithEvent = (type: string) =>
@@ -52,8 +46,8 @@ export async function getStats(shop: string) {
     eventsByType.find((row) => row.type === type)?._count ?? 0;
 
   const components = Object.fromEntries(
-    componentTools.map((name) => [name, 0]),
-  ) as Record<(typeof componentTools)[number], number>;
+    COMPONENT_TOOLS.map((name) => [name, 0]),
+  ) as Record<(typeof COMPONENT_TOOLS)[number], number>;
   for (const message of assistantMessages) {
     for (const part of message.parts as { type: string }[]) {
       const name = part.type.replace(/^tool-/, "");

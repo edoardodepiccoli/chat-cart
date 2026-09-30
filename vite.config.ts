@@ -40,7 +40,7 @@ export default defineConfig({
     port: Number(process.env.PORT || 3000),
     hmr: hmrConfig,
     fs: {
-      allow: ["app", "node_modules"],
+      allow: ["app", "chat-widget", "shared", "node_modules"],
     },
   },
   plugins: [

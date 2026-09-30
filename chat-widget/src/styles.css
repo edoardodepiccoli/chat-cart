@@ -309,28 +309,52 @@
   outline-offset: -1px;
 }
 
-.cc-send {
-  flex: 0 0 auto;
-  padding: 8px 16px;
+.cc-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 16px;
   border: 0;
   border-radius: var(--cc-radius-md);
   background: var(--cc-color-primary);
   color: var(--cc-color-on-primary);
   font: inherit;
   font-weight: var(--cc-font-weight-strong);
+  text-align: center;
+  text-decoration: none;
   cursor: pointer;
 }
 
+.cc-btn--secondary {
+  border: 1px solid var(--cc-color-border-strong);
+  background: var(--cc-color-bg);
+  color: inherit;
+}
+
 @media (hover: hover) and (pointer: fine) {
-  .cc-send:hover {
+  .cc-btn:not(:disabled):hover {
     background: var(--cc-color-primary-hover);
+  }
+
+  .cc-btn--secondary:not(:disabled):hover {
+    background: var(--cc-color-surface);
   }
 }
 
 .cc-input:disabled,
-.cc-send:disabled {
+.cc-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.cc-btn[data-added="true"]:disabled {
+  opacity: 1;
+  cursor: default;
+}
+
+.cc-composer .cc-btn {
+  padding: 8px 16px;
 }
 
 .cc-card {
@@ -511,59 +535,6 @@
   font: inherit;
 }
 
-.cc-card__add {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 10px 16px;
-  border: 0;
-  border-radius: var(--cc-radius-md);
-  background: var(--cc-color-primary);
-  color: var(--cc-color-on-primary);
-  font: inherit;
-  font-weight: var(--cc-font-weight-strong);
-  cursor: pointer;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .cc-card__add:hover {
-    background: var(--cc-color-primary-hover);
-  }
-}
-
-.cc-card__add:disabled {
-  background: var(--cc-color-primary);
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.cc-card__add[data-added="true"]:disabled {
-  opacity: 1;
-  cursor: default;
-}
-
-.cc-card__view {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 10px 16px;
-  border: 1px solid var(--cc-color-border-strong);
-  border-radius: var(--cc-radius-md);
-  background: var(--cc-color-bg);
-  color: inherit;
-  font-weight: var(--cc-font-weight-strong);
-  text-align: center;
-  text-decoration: none;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .cc-card__view:hover {
-    background: var(--cc-color-surface);
-  }
-}
-
 .cc-cart__items {
   display: flex;
   flex-direction: column;
@@ -616,7 +587,6 @@
 
 .cc-cart__checkout {
   margin-top: 4px;
-  text-decoration: none;
 }
 
 .cc-icon {
@@ -657,25 +627,8 @@
   margin-top: auto;
 }
 
-.cc-card__like {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
+.cc-carousel .cc-btn {
   padding: 6px 8px;
-  border: 0;
-  border-radius: var(--cc-radius-md);
-  background: var(--cc-color-primary);
-  color: var(--cc-color-on-primary);
-  font: inherit;
-  font-weight: var(--cc-font-weight-strong);
-  cursor: pointer;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .cc-card__like:hover {
-    background: var(--cc-color-primary-hover);
-  }
 }
 
 @keyframes cc-rise {
@@ -796,12 +749,9 @@
   }
 
   .cc-suggestion,
-  .cc-card__like,
-  .cc-send,
+  .cc-btn,
   .cc-input,
-  .cc-select,
-  .cc-card__add,
-  .cc-card__view {
+  .cc-select {
     min-height: 44px;
   }
 

@@ -11,7 +11,7 @@ export default function FaqCard({ title, answer, url }: FaqCardProps) {
 
         <div>{answer}</div>
 
-        <a className="cc-card__view" href={url}>
+        <a className="cc-btn cc-btn--secondary" href={url}>
           <ListIcon className="cc-icon" />
           Read full page
         </a>

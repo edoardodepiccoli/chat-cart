@@ -40,7 +40,7 @@ function SimpleProductCard({
           compareAtPrice={shownVariant.compareAtPrice}
         />
 
-        <button className="cc-card__like" type="button" onClick={onLike}>
+        <button className="cc-btn" type="button" onClick={onLike}>
           <HeartIcon className="cc-icon" />
           I like this
         </button>

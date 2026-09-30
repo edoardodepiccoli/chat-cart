@@ -1,14 +1,39 @@
-import type { HeadersFunction, LoaderFunctionArgs } from "react-router";
-import { useLoaderData } from "react-router";
+import { useEffect } from "react";
+import type {
+  ActionFunctionArgs,
+  HeadersFunction,
+  LoaderFunctionArgs,
+} from "react-router";
+import { useFetcher, useLoaderData } from "react-router";
+import { useAppBridge } from "@shopify/app-bridge-react";
 import { boundary } from "@shopify/shopify-app-react-router/server";
 
 import { authenticate } from "../shopify.server";
 import { getStats } from "../metrics.server";
+import { getTheme, saveTheme, themeSchema } from "../theme.server";
+import type { Theme } from "../theme.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { session } = await authenticate.admin(request);
+  const { admin, session } = await authenticate.admin(request);
 
-  return getStats(session.shop);
+  const [stats, theme] = await Promise.all([
+    getStats(session.shop),
+    getTheme(admin.graphql),
+  ]);
+
+  return { ...stats, theme };
+};
+
+export const action = async ({ request }: ActionFunctionArgs) => {
+  const { admin } = await authenticate.admin(request);
+
+  const parsed = themeSchema.safeParse(
+    Object.fromEntries(await request.formData()),
+  );
+  if (!parsed.success) return { ok: false };
+
+  await saveTheme(admin.graphql, parsed.data);
+  return { ok: true };
 };
 
 function rate(part: number, total: number) {
@@ -44,8 +69,63 @@ function Tiles({ children }: { children: React.ReactNode }) {
   );
 }
 
+function WidgetLook({ theme }: { theme: Theme }) {
+  const fetcher = useFetcher<typeof action>();
+  const shopify = useAppBridge();
+
+  useEffect(() => {
+    if (fetcher.data?.ok) shopify.toast.show("Widget look saved");
+  }, [fetcher.data, shopify]);
+
+  return (
+    <form
+      data-save-bar
+      onSubmit={(event) => {
+        event.preventDefault();
+        fetcher.submit(event.currentTarget, { method: "post" });
+      }}
+    >
+      <s-stack gap="base">
+        {fetcher.data?.ok === false && (
+          <s-banner tone="critical">
+            Some values are invalid. Check the fields and try again.
+          </s-banner>
+        )}
+        <s-grid
+          gridTemplateColumns="repeat(auto-fill, minmax(220px, 1fr))"
+          gap="base"
+        >
+          <s-color-field
+            label="Primary color"
+            name="primary"
+            value={theme.primary}
+            details="Buttons, customer messages and the launcher"
+            required
+          ></s-color-field>
+          <s-color-field
+            label="Text on primary"
+            name="onPrimary"
+            value={theme.onPrimary}
+            required
+          ></s-color-field>
+          <s-number-field
+            label="Corner radius"
+            name="radius"
+            value={String(theme.radius)}
+            min={0}
+            max={24}
+            step={1}
+            suffix="px"
+            required
+          ></s-number-field>
+        </s-grid>
+      </s-stack>
+    </form>
+  );
+}
+
 export default function Index() {
-  const { funnel, messages, components, events } =
+  const { funnel, messages, components, events, theme } =
     useLoaderData<typeof loader>();
 
   return (
@@ -117,6 +197,10 @@ export default function Index() {
           <Tile label="Checkout clicks" value={events.checkoutClicked} />
           <Tile label="Link clicks" value={events.linkClicked} />
         </Tiles>
+      </s-section>
+
+      <s-section heading="Widget look">
+        <WidgetLook theme={theme} />
       </s-section>
 
       <s-section>

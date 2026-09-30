@@ -45,7 +45,7 @@ const transport = new DefaultChatTransport<ChatMessage>({
   }),
 });
 
-export default function App({ shopDomain }: { shopDomain: string }) {
+export default function App() {
   const [conversation, setConversation] = useState<Conversation>();
   const [loadFailed, setLoadFailed] = useState(false);
   const [cart, setCart] = useState<Cart>();
@@ -196,7 +196,6 @@ export default function App({ shopDomain }: { shopDomain: string }) {
         data-open={open}
         data-size={size}
         aria-hidden={!open}
-        data-shop-domain={shopDomain}
       >
         <div
           className="cc-log"

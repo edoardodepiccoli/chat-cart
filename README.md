@@ -17,10 +17,6 @@ npm install
 npm run dev
 ```
 
-In a second terminal, rebuild the widget on change:
-
-```bash
-npm run widget:dev
-```
+`npm run dev` asks which tunnel to use (Cloudflare or ngrok) and whether to reset conversations, then runs the app and the widget watcher together.
 
 Turn the widget on in the theme editor, under App embeds → Chat Cart.

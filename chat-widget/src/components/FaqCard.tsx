@@ -1,10 +1,5 @@
+import type { FaqCardProps } from "../../../shared/chat";
 import { ListIcon } from "../icons";
-
-export type FaqCardProps = {
-  title: string;
-  answer: string;
-  url: string;
-};
 
 export default function FaqCard({ title, answer, url }: FaqCardProps) {
   return (

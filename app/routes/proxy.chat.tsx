@@ -1,6 +1,6 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 
-import type { ChatMessage } from "../../chat-widget/src/components/types";
+import type { ChatMessage } from "../../shared/chat";
 import { reply } from "../agent/agent.server";
 import {
   loadMessages,

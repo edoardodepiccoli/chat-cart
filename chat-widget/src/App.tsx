@@ -5,16 +5,12 @@ import { Fragment, useEffect, useRef, useState } from "react";
 import { addToCart, getCart, type Cart } from "./cart";
 import { renderPart } from "./components";
 import type {
+  ChatMessage,
   ProductCardProps,
   ProductVariant,
-} from "./components/ProductCard";
-import type { ChatMessage } from "./components/types";
-import {
-  openConversation,
-  sendEvent,
-  type Conversation,
-} from "./conversation";
-import type { ChatEvent } from "./events";
+} from "../../shared/chat";
+import type { ChatEvent } from "../../shared/events";
+import { openConversation, sendEvent, type Conversation } from "./conversation";
 
 const GREETING: ChatMessage = {
   id: "greeting",

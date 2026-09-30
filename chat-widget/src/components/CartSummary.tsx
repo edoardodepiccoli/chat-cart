@@ -2,8 +2,6 @@ import type { Cart } from "../cart";
 import { CartIcon } from "../icons";
 import { formatMoney } from "./money";
 
-export type CartSummaryProps = Record<string, never>;
-
 export default function CartSummary({ cart }: { cart: Cart | undefined }) {
   if (cart === undefined) return null;
 

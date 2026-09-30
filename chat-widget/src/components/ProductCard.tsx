@@ -1,5 +1,11 @@
 import { useState } from "react";
 
+import type {
+  Money,
+  ProductCardProps,
+  ProductVariant,
+  SelectedOption,
+} from "../../../shared/chat";
 import { variantNumber } from "../cart";
 import { CartCheckIcon, CartIcon } from "../icons";
 import { formatMoney } from "./money";
@@ -10,34 +16,6 @@ import {
   isOptionValueAvailable,
   replacePick,
 } from "./variants";
-
-export type Money = { amount: string; currencyCode: string };
-
-export type ProductOption = { name: string; values: string[] };
-
-export type SelectedOption = { name: string; value: string };
-
-export type ProductVariant = {
-  id: string;
-  selectedOptions: SelectedOption[];
-  price: Money;
-  compareAtPrice: Money | null;
-  available: boolean;
-  imageUrl: string | null;
-};
-
-export type ProductImage = { url: string; alt: string | null };
-
-export type ProductCardProps = {
-  handle: string;
-  title: string;
-  imageUrl: string | null;
-  imageAlt: string | null;
-  images: ProductImage[];
-  options: ProductOption[];
-  variants: ProductVariant[];
-  selectedOptions?: SelectedOption[];
-};
 
 function pickedValue(picks: SelectedOption[], optionName: string): string {
   const pick = picks.find((candidate) => candidate.name === optionName);

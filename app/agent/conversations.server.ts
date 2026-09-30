@@ -1,7 +1,7 @@
 import type { Message, Prisma } from "@prisma/client";
 
-import type { ChatMessage } from "../../chat-widget/src/components/types";
-import type { ChatEvent } from "../../chat-widget/src/events";
+import type { ChatMessage } from "../../shared/chat";
+import type { ChatEvent } from "../../shared/events";
 import prisma from "../db.server";
 
 function toChatMessage(message: Message): ChatMessage {

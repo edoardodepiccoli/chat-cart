@@ -1,13 +1,14 @@
 import type { Cart } from "../cart";
 import CartSummary from "./CartSummary";
 import FaqCard from "./FaqCard";
-import ProductCard, {
-  type ProductCardProps,
-  type ProductVariant,
-} from "./ProductCard";
+import type {
+  ChatPart,
+  ProductCardProps,
+  ProductVariant,
+} from "../../../shared/chat";
+import ProductCard from "./ProductCard";
 import ProductCards from "./ProductCards";
 import TextMessage from "./TextMessage";
-import type { ChatPart } from "./types";
 
 export function renderPart(
   part: ChatPart,

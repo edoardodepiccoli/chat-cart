@@ -8,6 +8,16 @@ import type {
 import { useFetcher, useLoaderData } from "react-router";
 import { useAppBridge } from "@shopify/app-bridge-react";
 import { boundary } from "@shopify/shopify-app-react-router/server";
+import {
+  Bar,
+  BarChart,
+  Cell,
+  LabelList,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 
 import { authenticate } from "../shopify.server";
 import { getStats } from "../metrics.server";
@@ -87,50 +97,77 @@ function FunnelChart({
 }: {
   funnel: Awaited<ReturnType<typeof getStats>>["funnel"];
 }) {
-  const steps = [
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
+
+  const counts = [
     { label: "Widget loads", count: funnel.loads },
     { label: "Opened", count: funnel.opened },
     { label: "Engaged", count: funnel.engaged },
     { label: "Added to cart", count: funnel.addedToCart },
     { label: "Checkout", count: funnel.checkout },
   ];
+  const steps = counts.map((step, index) => ({
+    ...step,
+    previous: index > 0 ? counts[index - 1].count : null,
+  }));
+  const height = steps.length * 48;
+
+  if (!mounted) return <div style={{ height }} />;
 
   return (
-    <div role="list" style={{ display: "grid", gap: 12 }}>
-      {steps.map((step, index) => (
-        <div
-          key={step.label}
-          role="listitem"
-          style={{
-            display: "grid",
-            gridTemplateColumns: "minmax(100px, 140px) 1fr",
-            gap: 16,
-            alignItems: "center",
+    <ResponsiveContainer width="100%" height={height}>
+      <BarChart
+        layout="vertical"
+        data={steps}
+        margin={{ top: 0, right: 48, bottom: 0, left: 0 }}
+      >
+        <XAxis type="number" hide domain={[0, "dataMax"]} />
+        <YAxis
+          type="category"
+          dataKey="label"
+          width={140}
+          axisLine={false}
+          tickLine={false}
+          tick={({ x, y, payload }) => {
+            const step = steps.find((item) => item.label === payload.value);
+            return (
+              <text x={x} y={y} textAnchor="end" fontSize={13}>
+                <tspan
+                  x={x}
+                  dy={step?.previous == null ? 4 : -3}
+                  fill="#303030"
+                >
+                  {payload.value}
+                </tspan>
+                {step?.previous != null && (
+                  <tspan x={x} dy={16} fill="#616161">
+                    {rate(step.count, step.previous)} of previous
+                  </tspan>
+                )}
+              </text>
+            );
           }}
-        >
-          <s-stack>
-            <s-text>{step.label}</s-text>
-            {index > 0 && (
-              <s-text color="subdued">
-                {rate(step.count, steps[index - 1].count)} of previous
-              </s-text>
-            )}
-          </s-stack>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <div
-              style={{
-                width: `calc((100% - 56px) * ${funnel.loads === 0 ? 0 : step.count / funnel.loads})`,
-                minWidth: step.count > 0 ? 2 : 0,
-                height: 24,
-                borderRadius: "0 4px 4px 0",
-                background: FUNNEL_COLORS[index],
-              }}
-            />
-            <s-text type="strong">{step.count}</s-text>
-          </div>
-        </div>
-      ))}
-    </div>
+        />
+        <Tooltip
+          cursor={{ fill: "#f1f2f4" }}
+          formatter={(value) => [value, "Conversations"]}
+        />
+        <Bar dataKey="count" barSize={24} radius={[0, 4, 4, 0]}>
+          {steps.map((step, index) => (
+            <Cell key={step.label} fill={FUNNEL_COLORS[index]} />
+          ))}
+          <LabelList
+            dataKey="count"
+            position="right"
+            fill="#303030"
+            fontSize={13}
+            fontWeight={600}
+          />
+        </Bar>
+      </BarChart>
+    </ResponsiveContainer>
   );
 }
 

@@ -80,6 +80,60 @@ function Tiles({ children }: { children: React.ReactNode }) {
   );
 }
 
+const FUNNEL_COLORS = ["#86b6ef", "#5598e7", "#2a78d6", "#1c5cab", "#104281"];
+
+function FunnelChart({
+  funnel,
+}: {
+  funnel: Awaited<ReturnType<typeof getStats>>["funnel"];
+}) {
+  const steps = [
+    { label: "Widget loads", count: funnel.loads },
+    { label: "Opened", count: funnel.opened },
+    { label: "Engaged", count: funnel.engaged },
+    { label: "Added to cart", count: funnel.addedToCart },
+    { label: "Checkout", count: funnel.checkout },
+  ];
+
+  return (
+    <div role="list" style={{ display: "grid", gap: 12 }}>
+      {steps.map((step, index) => (
+        <div
+          key={step.label}
+          role="listitem"
+          style={{
+            display: "grid",
+            gridTemplateColumns: "minmax(100px, 140px) 1fr",
+            gap: 16,
+            alignItems: "center",
+          }}
+        >
+          <s-stack>
+            <s-text>{step.label}</s-text>
+            {index > 0 && (
+              <s-text color="subdued">
+                {rate(step.count, steps[index - 1].count)} of previous
+              </s-text>
+            )}
+          </s-stack>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div
+              style={{
+                width: `calc((100% - 56px) * ${funnel.loads === 0 ? 0 : step.count / funnel.loads})`,
+                minWidth: step.count > 0 ? 2 : 0,
+                height: 24,
+                borderRadius: "0 4px 4px 0",
+                background: FUNNEL_COLORS[index],
+              }}
+            />
+            <s-text type="strong">{step.count}</s-text>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function fieldValue(event: Event) {
   return (event.currentTarget as HTMLInputElement).value;
 }
@@ -180,33 +234,13 @@ export default function Index() {
   return (
     <s-page heading="ChatCart">
       <s-section heading="Funnel">
-        <s-paragraph>
-          Conversations reaching each step. Opened is out of loads, engaged out
-          of opened, cart and checkout out of engaged.
-        </s-paragraph>
-        <Tiles>
-          <Tile label="Widget loads" value={funnel.loads} />
-          <Tile
-            label="Opened"
-            value={funnel.opened}
-            note={rate(funnel.opened, funnel.loads)}
-          />
-          <Tile
-            label="Engaged"
-            value={funnel.engaged}
-            note={rate(funnel.engaged, funnel.opened)}
-          />
-          <Tile
-            label="Added to cart"
-            value={funnel.addedToCart}
-            note={rate(funnel.addedToCart, funnel.engaged)}
-          />
-          <Tile
-            label="Checkout"
-            value={funnel.checkout}
-            note={rate(funnel.checkout, funnel.engaged)}
-          />
-        </Tiles>
+        <s-stack gap="base">
+          <s-paragraph>
+            {rate(funnel.checkout, funnel.loads)} of widget loads reach
+            checkout.
+          </s-paragraph>
+          <FunnelChart funnel={funnel} />
+        </s-stack>
       </s-section>
 
       <s-section heading="Messages">

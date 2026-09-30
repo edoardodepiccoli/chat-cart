@@ -22,9 +22,9 @@ import {
   type FaqCardProps,
   type ProductCardProps,
   type ProductCardsProps,
-  type ProductVariant,
   type SelectedOption,
 } from "../shared/chat";
+import { pickOptions } from "../shared/variants";
 import { saveMessage } from "./conversations.server";
 import { SUGGEST, SYSTEM } from "./prompts";
 import {
@@ -39,31 +39,6 @@ if (existsSync(".env")) process.loadEnvFile();
 const gateway = createGateway({ apiKey: process.env.AI_GATEWAY_API_KEY });
 
 const DEEPSEEK = gateway("deepseek/deepseek-v4.1-flash");
-
-function same(a: string, b: string): boolean {
-  return a.trim().toLowerCase() === b.trim().toLowerCase();
-}
-
-function has(variant: ProductVariant, pick: SelectedOption): boolean {
-  return variant.selectedOptions.some(
-    (option) => same(option.name, pick.name) && same(option.value, pick.value),
-  );
-}
-
-function preselect(
-  variants: ProductVariant[],
-  picks: SelectedOption[] = [],
-): SelectedOption[] | undefined {
-  const offered = picks.filter((pick) =>
-    variants.some((variant) => has(variant, pick)),
-  );
-  if (!offered.length) return undefined;
-  const matching = variants.filter((variant) =>
-    offered.every((pick) => has(variant, pick)),
-  );
-  return (matching.find((variant) => variant.available) ?? matching[0])
-    ?.selectedOptions;
-}
 
 async function productCard(
   storefront: StorefrontApiContext,
@@ -80,7 +55,7 @@ async function productCard(
     images: product.images,
     options: product.options,
     variants: product.variants,
-    selectedOptions: preselect(product.variants, picks),
+    selectedOptions: pickOptions(product.variants, picks),
   };
 }
 

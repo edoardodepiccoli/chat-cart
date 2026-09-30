@@ -146,7 +146,7 @@ type ProductSummary = {
   options: ProductOption[];
 };
 
-type ProductDetails = ProductCardProps & {
+type ProductDetails = Omit<ProductCardProps, "selectedOptions"> & {
   description: string;
   tags: string[];
 };

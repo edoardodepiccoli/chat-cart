@@ -25,7 +25,7 @@ export type ProductCardProps = {
   images: ProductImage[];
   options: ProductOption[];
   variants: ProductVariant[];
-  selectedOptions?: SelectedOption[];
+  selectedOptions: SelectedOption[];
 };
 
 export type ProductCardsProps = { products: ProductCardProps[] };

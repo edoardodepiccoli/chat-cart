@@ -11,21 +11,10 @@ import { CartCheckIcon, CartIcon } from "../icons";
 import { formatMoney } from "./money";
 import ProductMedia from "./ProductMedia";
 import {
-  defaultSelectedOptions,
   findVariant,
   isOptionValueAvailable,
   replacePick,
-} from "./variants";
-
-function pickedValue(picks: SelectedOption[], optionName: string): string {
-  const pick = picks.find((candidate) => candidate.name === optionName);
-
-  if (pick === undefined) {
-    return "";
-  }
-
-  return pick.value;
-}
+} from "../../../shared/variants";
 
 export function ProductPrice({
   price,
@@ -68,9 +57,7 @@ export default function ProductCard({
   cartVariantIds: number[];
   onAdd: (variant: ProductVariant) => Promise<void>;
 }) {
-  const [picks, setPicks] = useState<SelectedOption[]>(
-    () => selectedOptions ?? defaultSelectedOptions(variants),
-  );
+  const [picks, setPicks] = useState<SelectedOption[]>(selectedOptions);
   const [adding, setAdding] = useState(false);
   const [failed, setFailed] = useState(false);
 
@@ -82,14 +69,14 @@ export default function ProductCard({
       ? (images ?? [])
       : [{ url: shownImageUrl, alt: imageAlt }];
   const hasChoice = variants.length > 1;
-  const canAddToCart = selectedVariant !== null && selectedVariant.available;
+  const canAddToCart = selectedVariant?.available ?? false;
   const inCart =
-    selectedVariant !== null &&
+    selectedVariant !== undefined &&
     cartVariantIds.includes(variantNumber(selectedVariant.id));
   const productUrl = `/products/${handle}`;
 
   async function add() {
-    if (selectedVariant === null) return;
+    if (selectedVariant === undefined) return;
     setAdding(true);
     setFailed(false);
     try {
@@ -135,7 +122,10 @@ export default function ProductCard({
                 <span className="cc-field__label">{option.name}</span>
                 <select
                   className="cc-select"
-                  value={pickedValue(picks, option.name)}
+                  value={
+                    picks.find((pick) => pick.name === option.name)?.value ??
+                    ""
+                  }
                   onChange={(event) =>
                     setPicks((current) =>
                       replacePick(current, option.name, event.target.value),

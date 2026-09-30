@@ -88,7 +88,7 @@ export default function ProductCard({
               <label className="cc-field" key={option.name}>
                 <span className="cc-field__label">{option.name}</span>
                 <select
-                  className="cc-select"
+                  className="cc-control cc-select"
                   value={
                     picks.find((pick) => pick.name === option.name)?.value ??
                     ""

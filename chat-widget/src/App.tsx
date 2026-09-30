@@ -217,7 +217,7 @@ export default function App() {
         <form className="cc-composer" onSubmit={submit}>
           <input
             ref={inputRef}
-            className="cc-input"
+            className="cc-control cc-input"
             enterKeyHint="send"
             value={draft}
             onChange={(event) => setDraft(event.target.value)}

@@ -1,7 +1,12 @@
 import { useChat } from "@ai-sdk/react";
-import { DefaultChatTransport } from "ai";
 import { Fragment, useEffect, useRef, useState } from "react";
 
+import {
+  openConversation,
+  sendEvent,
+  transport,
+  type Conversation,
+} from "./api";
 import { addToCart, getCart, type Cart } from "./cart";
 import { renderPart } from "./components";
 import type {
@@ -10,7 +15,6 @@ import type {
   ProductVariant,
 } from "../../shared/chat";
 import type { ChatEvent } from "../../shared/events";
-import { openConversation, sendEvent, type Conversation } from "./conversation";
 
 const GREETING: ChatMessage = {
   id: "greeting",
@@ -32,14 +36,6 @@ const GREETING: ChatMessage = {
 };
 
 type Suggestions = { id: string; items: string[]; top?: number };
-
-const transport = new DefaultChatTransport<ChatMessage>({
-  api: "/apps/chat-cart/chat",
-  headers: { "ngrok-skip-browser-warning": "true" },
-  prepareSendMessagesRequest: ({ id, messages }) => ({
-    body: { id, message: messages.at(-1) },
-  }),
-});
 
 export default function App() {
   const [conversation, setConversation] = useState<Conversation>();

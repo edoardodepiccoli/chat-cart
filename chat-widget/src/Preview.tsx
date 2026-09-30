@@ -43,7 +43,13 @@ export default function Preview({ theme }: { theme: PreviewTheme }) {
   } as React.CSSProperties;
 
   return (
-    <div id="chat-cart-root" style={style}>
+    <div
+      id="chat-cart-root"
+      style={style}
+      onClickCapture={(event) => {
+        if ((event.target as Element).closest("a")) event.preventDefault();
+      }}
+    >
       <div className="cc-panel" data-open="true" data-size="l">
         <div className="cc-log">
           <div className="cc-log__content">

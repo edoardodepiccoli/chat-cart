@@ -27,7 +27,6 @@ const PRODUCT_QUERY = `#graphql
       title
       description
       tags
-      featuredImage { url altText }
       images(first: 20) { nodes { url altText } }
       options { name optionValues { name } }
       variants(first: 250) {
@@ -81,7 +80,6 @@ type ProductResponse = {
     title: string;
     description: string;
     tags: string[];
-    featuredImage: { url: string; altText: string | null } | null;
     images: { nodes: { url: string; altText: string | null }[] };
     options: OptionNode[];
     variants: {
@@ -201,8 +199,6 @@ export async function getProduct(
     title: product.title,
     description: product.description,
     tags: product.tags,
-    imageUrl: product.featuredImage?.url ?? null,
-    imageAlt: product.featuredImage?.altText ?? null,
     images: product.images.nodes.map(({ url, altText }) => ({
       url,
       alt: altText,

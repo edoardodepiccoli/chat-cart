@@ -1,4 +1,10 @@
-<div id="chat-cart-root"></div>
+{%- assign widget_theme = app.metafields.chat_cart.theme.value -%}
+<div
+  id="chat-cart-root"
+  {% if widget_theme %}
+    style="--cc-color-primary: {{ widget_theme.primary | escape }}; --cc-color-on-primary: {{ widget_theme.onPrimary | escape }}; --cc-radius: {{ widget_theme.radius | escape }}px;"
+  {% endif %}
+></div>
 
 <link rel="stylesheet" href="{{ 'chat-widget.css' | asset_url }}">
 <script src="{{ 'chat-widget.js' | asset_url }}" defer></script>

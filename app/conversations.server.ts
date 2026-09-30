@@ -1,8 +1,7 @@
 import type { Message, Prisma } from "@prisma/client";
 
-import type { ChatMessage } from "../../shared/chat";
-import type { ChatEvent } from "../../shared/events";
-import prisma from "../db.server";
+import type { ChatMessage } from "../shared/chat";
+import prisma from "./db.server";
 
 function toChatMessage(message: Message): ChatMessage {
   return {
@@ -53,25 +52,4 @@ export async function saveMessage(conversationId: string, message: ChatMessage) 
       parts: message.parts as Prisma.InputJsonValue,
     },
   });
-}
-
-export async function saveEvent(
-  shop: string,
-  conversationId: string,
-  event: ChatEvent,
-): Promise<boolean> {
-  const conversation = await prisma.conversation.findFirst({
-    where: { id: conversationId, shop },
-    select: { id: true },
-  });
-  if (!conversation) return false;
-
-  await prisma.event.create({
-    data: {
-      conversationId,
-      type: event.type,
-      data: "data" in event ? event.data : undefined,
-    },
-  });
-  return true;
 }

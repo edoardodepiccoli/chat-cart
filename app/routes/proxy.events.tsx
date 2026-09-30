@@ -2,7 +2,7 @@ import type { ActionFunctionArgs } from "react-router";
 import { z } from "zod";
 
 import { chatEventSchema } from "../../shared/events";
-import { saveEvent } from "../agent/conversations.server";
+import { saveEvent } from "../metrics.server";
 import { authenticate } from "../shopify.server";
 
 const bodySchema = z

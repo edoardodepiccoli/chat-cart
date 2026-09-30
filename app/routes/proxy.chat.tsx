@@ -1,12 +1,12 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 
 import type { ChatMessage } from "../../shared/chat";
-import { reply } from "../agent/agent.server";
+import { reply } from "../agent.server";
 import {
   loadMessages,
   openConversation,
   saveMessage,
-} from "../agent/conversations.server";
+} from "../conversations.server";
 import { authenticate } from "../shopify.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {

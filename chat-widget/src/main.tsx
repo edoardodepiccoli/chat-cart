@@ -6,7 +6,7 @@ import "./styles.css";
 function mount() {
   const el = document.getElementById("chat-cart-root");
   if (!el) return;
-  createRoot(el).render(<App shopDomain={el.dataset.shopDomain ?? ""} />);
+  createRoot(el).render(<App />);
 }
 
 if (document.readyState === "loading") {

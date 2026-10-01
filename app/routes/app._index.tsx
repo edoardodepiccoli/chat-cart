@@ -21,8 +21,8 @@ import {
 
 import { authenticate } from "../shopify.server";
 import { getStats } from "../metrics.server";
-import { getTheme, saveTheme, themeSchema } from "../theme.server";
-import type { Theme } from "../theme.server";
+import { getTheme, saveTheme } from "../theme.server";
+import { themeSchema, type Theme } from "../../shared/theme";
 import Preview from "../../chat-widget/src/Preview";
 import widgetTokens from "../../chat-widget/src/tokens.css?url";
 import widgetStyles from "../../chat-widget/src/styles.css?url";

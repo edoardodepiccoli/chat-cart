@@ -31,7 +31,7 @@
 }
 
 .cc-theme-card__font {
-  color: var(--cc-color-primary);
+  color: var(--cc-color-text-muted);
   font-size: 10px;
 }
 

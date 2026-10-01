@@ -11,7 +11,7 @@ import { boundary } from "@shopify/shopify-app-react-router/server";
 
 import { authenticate } from "../shopify.server";
 import { getTheme, saveTheme } from "../theme.server";
-import { themeSchema, type Theme } from "../../shared/theme";
+import { THEME_PRESETS, themeSchema, type Theme } from "../../shared/theme";
 import Preview from "../../chat-widget/src/Preview";
 import widgetTokens from "../../chat-widget/src/tokens.css?url";
 import widgetStyles from "../../chat-widget/src/styles.css?url";
@@ -41,8 +41,18 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   return { ok: true };
 };
 
-function fieldValue(event: Event) {
-  return (event.currentTarget as HTMLInputElement).value;
+function readTheme(form: HTMLFormElement) {
+  return themeSchema.safeParse(Object.fromEntries(new FormData(form)));
+}
+
+function applyPreset(form: HTMLFormElement, theme: Theme) {
+  for (const [name, value] of Object.entries(theme)) {
+    const field = form.querySelector<HTMLInputElement>(`[name="${name}"]`);
+    if (!field) continue;
+    field.value = String(value);
+    field.dispatchEvent(new Event("input", { bubbles: true }));
+    field.dispatchEvent(new Event("change", { bubbles: true }));
+  }
 }
 
 function WidgetLook({ theme }: { theme: Theme }) {
@@ -69,6 +79,10 @@ function WidgetLook({ theme }: { theme: Theme }) {
           fetcher.submit(event.currentTarget, { method: "post" });
         }}
         onReset={() => setDraft(theme)}
+        onInput={(event) => {
+          const parsed = readTheme(event.currentTarget);
+          if (parsed.success) setDraft(parsed.data);
+        }}
       >
         <s-stack gap="base">
           {fetcher.data?.ok === false && (
@@ -76,6 +90,25 @@ function WidgetLook({ theme }: { theme: Theme }) {
               Some values are invalid. Check the fields and try again.
             </s-banner>
           )}
+          <s-select
+            label="Preset"
+            placeholder="Choose a preset"
+            details="Fills the fields below. You can still change them before saving"
+            onChange={(event) => {
+              const select = event.currentTarget;
+              const preset = THEME_PRESETS.find(
+                (item) => item.name === select.value,
+              );
+              const form = select.closest("form");
+              if (preset && form) applyPreset(form, preset.theme);
+            }}
+          >
+            {THEME_PRESETS.map((preset) => (
+              <s-option key={preset.name} value={preset.name}>
+                {preset.name}
+              </s-option>
+            ))}
+          </s-select>
           <s-grid
             gridTemplateColumns="repeat(auto-fill, minmax(220px, 1fr))"
             gap="base"
@@ -86,9 +119,6 @@ function WidgetLook({ theme }: { theme: Theme }) {
               value={theme.primary}
               details="Buttons, customer messages and the launcher"
               required
-              onInput={(event) =>
-                setDraft({ ...draft, primary: fieldValue(event) })
-              }
             ></s-color-field>
             <s-color-field
               label="Text on primary"
@@ -96,9 +126,6 @@ function WidgetLook({ theme }: { theme: Theme }) {
               value={theme.onPrimary}
               details="Text and icons on the primary color. Pick one that stays readable"
               required
-              onInput={(event) =>
-                setDraft({ ...draft, onPrimary: fieldValue(event) })
-              }
             ></s-color-field>
             <s-number-field
               label="Corner radius"
@@ -110,9 +137,6 @@ function WidgetLook({ theme }: { theme: Theme }) {
               step={1}
               suffix="px"
               required
-              onInput={(event) =>
-                setDraft({ ...draft, radius: Number(fieldValue(event)) })
-              }
             ></s-number-field>
           </s-grid>
         </s-stack>

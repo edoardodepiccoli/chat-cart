@@ -16,6 +16,22 @@ export const DEFAULT_THEME: Theme = {
   radius: 12,
 };
 
+export const THEME_PRESETS: { name: string; theme: Theme }[] = [
+  { name: "Minimal", theme: DEFAULT_THEME },
+  {
+    name: "Ocean",
+    theme: { primary: "#1d4ed8", onPrimary: "#ffffff", radius: 16 },
+  },
+  {
+    name: "Forest",
+    theme: { primary: "#166534", onPrimary: "#ffffff", radius: 8 },
+  },
+  {
+    name: "Ember",
+    theme: { primary: "#c2410c", onPrimary: "#ffffff", radius: 20 },
+  },
+];
+
 export function themeVars(theme: Theme): Record<string, string> {
   return {
     "--cc-color-primary": theme.primary,

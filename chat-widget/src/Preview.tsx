@@ -1,8 +1,10 @@
-import type { ProductCardProps } from "../../shared/chat";
+import type { ChatMessage, ProductCardProps } from "../../shared/chat";
 import { themeVars, type Theme } from "../../shared/theme";
-import ProductCard from "./components/ProductCard";
+import type { PartContext } from "./components";
+import Composer from "./components/Composer";
+import Launcher from "./components/Launcher";
+import Message from "./components/Message";
 import Suggestions from "./components/Suggestions";
-import { ChatIcon, CloseIcon } from "./icons";
 
 function variant(size: string, available: boolean) {
   return {
@@ -24,11 +26,43 @@ const PRODUCT: ProductCardProps = {
   selectedOptions: [{ name: "Size", value: "M" }],
 };
 
+const MESSAGES: ChatMessage[] = [
+  {
+    id: "preview-user",
+    role: "user",
+    parts: [{ type: "text", text: "I need a gift for a friend" }],
+  },
+  {
+    id: "preview-assistant",
+    role: "assistant",
+    parts: [
+      {
+        type: "text",
+        text: "This linen shirt is on sale and makes a great gift.",
+      },
+      {
+        type: "tool-showProductCard",
+        toolCallId: "preview",
+        state: "output-available",
+        input: { handle: PRODUCT.handle, options: PRODUCT.selectedOptions },
+        output: PRODUCT,
+      },
+    ],
+  },
+];
+
 const SUGGESTIONS = ["Show me more", "What sizes are there?", "Any discounts?"];
 
 function noop() {}
 
 async function noopAsync() {}
+
+const CONTEXT: PartContext = {
+  cart: undefined,
+  streaming: false,
+  onLike: noop,
+  onAdd: noopAsync,
+};
 
 export default function Preview({ theme }: { theme: Theme }) {
   return (
@@ -43,23 +77,9 @@ export default function Preview({ theme }: { theme: Theme }) {
       <div className="cc-panel" data-open="true" data-size="l">
         <div className="cc-log">
           <div className="cc-log__content">
-            <div className="cc-message cc-message--user">
-              <div className="cc-part cc-part--text">
-                I need a gift for a friend
-              </div>
-            </div>
-            <div className="cc-message cc-message--assistant">
-              <div className="cc-part cc-part--text">
-                This linen shirt is on sale and makes a great gift.
-              </div>
-              <div className="cc-part cc-part--tool-showProductCard">
-                <ProductCard
-                  {...PRODUCT}
-                  cartVariantIds={[]}
-                  onAdd={noopAsync}
-                />
-              </div>
-            </div>
+            {MESSAGES.map((message) => (
+              <Message key={message.id} message={message} context={CONTEXT} />
+            ))}
             <Suggestions
               id="preview"
               items={SUGGESTIONS}
@@ -70,30 +90,14 @@ export default function Preview({ theme }: { theme: Theme }) {
           </div>
         </div>
 
-        <form
-          className="cc-composer"
+        <Composer
+          value=""
+          onChange={noop}
           onSubmit={(event) => event.preventDefault()}
-        >
-          <input
-            className="cc-control cc-input"
-            placeholder="Type a message"
-            aria-label="Message"
-          />
-          <button className="cc-btn" type="submit">
-            Send
-          </button>
-        </form>
+        />
       </div>
 
-      <button
-        type="button"
-        className="cc-launcher"
-        data-open="true"
-        aria-label="Close chat"
-      >
-        <ChatIcon className="cc-launcher__icon cc-launcher__icon--chat" />
-        <CloseIcon className="cc-launcher__icon cc-launcher__icon--close" />
-      </button>
+      <Launcher open />
     </div>
   );
 }

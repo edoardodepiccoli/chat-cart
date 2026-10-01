@@ -1,6 +1,11 @@
 import type { AdminGraphqlClient } from "@shopify/shopify-app-react-router/server";
 
-import { DEFAULT_THEME, themeSchema, type Theme } from "../shared/theme";
+import {
+  DEFAULT_THEME,
+  themeSchema,
+  themeStyle,
+  type Theme,
+} from "../shared/theme";
 
 const METAFIELD = { namespace: "chat_cart", key: "theme" };
 
@@ -45,7 +50,12 @@ export async function saveTheme(graphql: AdminGraphqlClient, theme: Theme) {
   const response = await graphql(SET_THEME_MUTATION, {
     variables: {
       metafields: [
-        { ownerId, ...METAFIELD, type: "json", value: JSON.stringify(theme) },
+        {
+          ownerId,
+          ...METAFIELD,
+          type: "json",
+          value: JSON.stringify({ ...theme, style: themeStyle(theme) }),
+        },
       ],
     },
   });

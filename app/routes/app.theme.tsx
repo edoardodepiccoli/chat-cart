@@ -283,26 +283,45 @@ function WidgetLook({ theme }: { theme: Theme }) {
               })}
             </s-grid>
           </s-stack>
-          {COLOR_GROUPS.map((group) => (
-            <s-stack key={group.heading} gap="small">
-              <s-heading>{group.heading}</s-heading>
-              <s-grid
-                gridTemplateColumns="repeat(auto-fill, minmax(220px, 1fr))"
-                gap="base"
-              >
-                {group.fields.map((field) => (
-                  <s-color-field
-                    key={field.name}
-                    label={field.label}
-                    name={field.name}
-                    value={theme[field.name]}
-                    details={field.details}
-                    required
-                  ></s-color-field>
-                ))}
-              </s-grid>
-            </s-stack>
-          ))}
+          {COLOR_GROUPS.map((group) => {
+            const warnings = lowContrast.filter((pair) =>
+              group.fields.some((field) => field.name === pair.text),
+            );
+            return (
+              <s-stack key={group.heading} gap="small">
+                <s-heading>{group.heading}</s-heading>
+                <s-grid
+                  gridTemplateColumns="repeat(auto-fill, minmax(220px, 1fr))"
+                  gap="base"
+                >
+                  {group.fields.map((field) => (
+                    <s-color-field
+                      key={field.name}
+                      label={field.label}
+                      name={field.name}
+                      value={theme[field.name]}
+                      details={field.details}
+                      required
+                    ></s-color-field>
+                  ))}
+                </s-grid>
+                {warnings.length > 0 && (
+                  <s-banner tone="warning">
+                    <s-paragraph>
+                      Below the 4.5:1 contrast recommended for readable text:
+                    </s-paragraph>
+                    <s-unordered-list>
+                      {warnings.map((pair) => (
+                        <s-list-item key={pair.label}>
+                          {pair.label} ({pair.ratio.toFixed(1)}:1)
+                        </s-list-item>
+                      ))}
+                    </s-unordered-list>
+                  </s-banner>
+                )}
+              </s-stack>
+            );
+          })}
           <s-stack gap="small">
             <s-heading>Font</s-heading>
             <s-grid
@@ -377,35 +396,18 @@ function WidgetLook({ theme }: { theme: Theme }) {
         </s-stack>
       </form>
 
-      <s-stack gap="base">
-        {lowContrast.length > 0 && (
-          <s-banner tone="warning" heading="Some text may be hard to read">
-            <s-paragraph>
-              These colors are below the 4.5:1 contrast recommended for
-              readable text:
-            </s-paragraph>
-            <s-unordered-list>
-              {lowContrast.map((pair) => (
-                <s-list-item key={pair.label}>
-                  {pair.label} ({pair.ratio.toFixed(1)}:1)
-                </s-list-item>
-              ))}
-            </s-unordered-list>
-          </s-banner>
-        )}
-        <div
-          style={{
-            position: "relative",
-            height: 740,
-            overflow: "hidden",
-            transform: "translateZ(0)",
-            borderRadius: 12,
-            background: "#f1f2f4",
-          }}
-        >
-          {mounted && <Preview theme={draft} />}
-        </div>
-      </s-stack>
+      <div
+        style={{
+          position: "relative",
+          height: 740,
+          overflow: "hidden",
+          transform: "translateZ(0)",
+          borderRadius: 12,
+          background: "#f1f2f4",
+        }}
+      >
+        {mounted && <Preview theme={draft} />}
+      </div>
     </s-grid>
   );
 }

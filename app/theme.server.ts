@@ -2,6 +2,7 @@ import type { AdminGraphqlClient } from "@shopify/shopify-app-react-router/serve
 
 import {
   DEFAULT_THEME,
+  fontUrl,
   themeSchema,
   themeStyle,
   type Theme,
@@ -54,7 +55,11 @@ export async function saveTheme(graphql: AdminGraphqlClient, theme: Theme) {
           ownerId,
           ...METAFIELD,
           type: "json",
-          value: JSON.stringify({ ...theme, style: themeStyle(theme) }),
+          value: JSON.stringify({
+            ...theme,
+            style: themeStyle(theme),
+            fontUrl: fontUrl([theme.fontFamily]),
+          }),
         },
       ],
     },

@@ -12,6 +12,7 @@ import { boundary } from "@shopify/shopify-app-react-router/server";
 import { authenticate } from "../shopify.server";
 import { getTheme, saveTheme } from "../theme.server";
 import {
+  contrast,
   FONTS,
   fontUrl,
   THEME_PRESETS,
@@ -164,6 +165,38 @@ function applyPreset(form: HTMLFormElement, theme: Theme) {
   }
 }
 
+const CONTRAST_PAIRS: {
+  text: ThemeColor;
+  background: ThemeColor;
+  label: string;
+}[] = [
+  { text: "text", background: "background", label: "Text on background" },
+  { text: "text", background: "surface", label: "Text on surface" },
+  {
+    text: "textMuted",
+    background: "background",
+    label: "Muted text on background",
+  },
+  { text: "textMuted", background: "surface", label: "Muted text on surface" },
+  { text: "onPrimary", background: "primary", label: "Text on primary" },
+  {
+    text: "onPrimaryHover",
+    background: "primaryHover",
+    label: "Text on primary hover",
+  },
+  { text: "onSecondary", background: "secondary", label: "Text on secondary" },
+  {
+    text: "onSecondaryHover",
+    background: "secondaryHover",
+    label: "Text on secondary hover",
+  },
+  {
+    text: "onUserBubble",
+    background: "userBubble",
+    label: "Text on customer messages",
+  },
+];
+
 function sameTheme(a: Theme, b: Theme) {
   return (Object.keys(a) as (keyof Theme)[]).every((key) => a[key] === b[key]);
 }
@@ -176,6 +209,10 @@ function WidgetLook({ theme }: { theme: Theme }) {
   const current = THEME_PRESETS.find((preset) =>
     sameTheme(preset.theme, draft),
   );
+  const lowContrast = CONTRAST_PAIRS.map((pair) => ({
+    ...pair,
+    ratio: contrast(draft[pair.text], draft[pair.background]),
+  })).filter((pair) => pair.ratio < 4.5);
 
   useEffect(() => setMounted(true), []);
 
@@ -340,18 +377,35 @@ function WidgetLook({ theme }: { theme: Theme }) {
         </s-stack>
       </form>
 
-      <div
-        style={{
-          position: "relative",
-          height: 740,
-          overflow: "hidden",
-          transform: "translateZ(0)",
-          borderRadius: 12,
-          background: "#f1f2f4",
-        }}
-      >
-        {mounted && <Preview theme={draft} />}
-      </div>
+      <s-stack gap="base">
+        {lowContrast.length > 0 && (
+          <s-banner tone="warning" heading="Some text may be hard to read">
+            <s-paragraph>
+              These colors are below the 4.5:1 contrast recommended for
+              readable text:
+            </s-paragraph>
+            <s-unordered-list>
+              {lowContrast.map((pair) => (
+                <s-list-item key={pair.label}>
+                  {pair.label} ({pair.ratio.toFixed(1)}:1)
+                </s-list-item>
+              ))}
+            </s-unordered-list>
+          </s-banner>
+        )}
+        <div
+          style={{
+            position: "relative",
+            height: 740,
+            overflow: "hidden",
+            transform: "translateZ(0)",
+            borderRadius: 12,
+            background: "#f1f2f4",
+          }}
+        >
+          {mounted && <Preview theme={draft} />}
+        </div>
+      </s-stack>
     </s-grid>
   );
 }

@@ -232,7 +232,7 @@ function WidgetLook({ theme }: { theme: Theme }) {
             </s-stack>
           ))}
           <s-stack gap="small">
-            <s-heading>Shape</s-heading>
+            <s-heading>Shape and depth</s-heading>
             <s-grid
               gridTemplateColumns="repeat(auto-fill, minmax(220px, 1fr))"
               gap="base"
@@ -241,13 +241,45 @@ function WidgetLook({ theme }: { theme: Theme }) {
                 label="Corner radius"
                 name="radius"
                 value={String(theme.radius)}
-                details="Roundness of the panel, messages, cards, buttons and fields. 0 is square"
+                details="Roundness of the panel, messages, cards, fields and rounded buttons. 0 is square"
                 min={0}
                 max={24}
                 step={1}
                 suffix="px"
                 required
               ></s-number-field>
+              <s-number-field
+                label="Border width"
+                name="borderWidth"
+                value={String(theme.borderWidth)}
+                details="Lines around the panel, cards, fields and buttons. 0 hides them"
+                min={0}
+                max={2}
+                step={1}
+                suffix="px"
+                required
+              ></s-number-field>
+              <s-select
+                label="Button shape"
+                name="buttonShape"
+                value={theme.buttonShape}
+                details="Suggested replies are always pills"
+              >
+                <s-option value="rounded">
+                  Rounded, follows corner radius
+                </s-option>
+                <s-option value="pill">Pill</s-option>
+              </s-select>
+              <s-select
+                label="Shadow"
+                name="shadow"
+                value={theme.shadow}
+                details="Depth under the chat panel and the launcher"
+              >
+                <s-option value="none">None</s-option>
+                <s-option value="soft">Soft</s-option>
+                <s-option value="strong">Strong</s-option>
+              </s-select>
             </s-grid>
           </s-stack>
         </s-stack>

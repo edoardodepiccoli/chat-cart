@@ -1,4 +1,5 @@
-#chat-cart-root {
+#chat-cart-root,
+.cc-theme {
   --cc-font-size: 14px;
   --cc-font-size-sm: 12px;
 

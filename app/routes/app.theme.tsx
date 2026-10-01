@@ -11,7 +11,12 @@ import { boundary } from "@shopify/shopify-app-react-router/server";
 
 import { authenticate } from "../shopify.server";
 import { getTheme, saveTheme } from "../theme.server";
-import { THEME_PRESETS, themeSchema, type Theme } from "../../shared/theme";
+import {
+  THEME_PRESETS,
+  themeSchema,
+  type Theme,
+  type ThemeColor,
+} from "../../shared/theme";
 import Preview from "../../chat-widget/src/Preview";
 import widgetTokens from "../../chat-widget/src/tokens.css?url";
 import widgetStyles from "../../chat-widget/src/styles.css?url";
@@ -40,6 +45,103 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   await saveTheme(admin.graphql, parsed.data);
   return { ok: true };
 };
+
+const COLOR_GROUPS: {
+  heading: string;
+  fields: { name: ThemeColor; label: string; details: string }[];
+}[] = [
+  {
+    heading: "Primary",
+    fields: [
+      {
+        name: "primary",
+        label: "Primary color",
+        details: "Main buttons, the launcher and focus rings",
+      },
+      {
+        name: "onPrimary",
+        label: "Text on primary",
+        details: "Text and icons on main buttons and the launcher",
+      },
+      {
+        name: "primaryHover",
+        label: "Primary hover",
+        details: "Main buttons under the pointer",
+      },
+      {
+        name: "onPrimaryHover",
+        label: "Text on primary hover",
+        details: "Text on hovered main buttons",
+      },
+    ],
+  },
+  {
+    heading: "Secondary",
+    fields: [
+      {
+        name: "secondary",
+        label: "Secondary color",
+        details: "Product and FAQ links, suggested replies",
+      },
+      {
+        name: "onSecondary",
+        label: "Text on secondary",
+        details: "Text on secondary buttons and suggested replies",
+      },
+      {
+        name: "secondaryHover",
+        label: "Secondary hover",
+        details: "Secondary buttons and suggested replies under the pointer",
+      },
+      {
+        name: "onSecondaryHover",
+        label: "Text on secondary hover",
+        details: "Text on hovered secondary buttons and suggested replies",
+      },
+    ],
+  },
+  {
+    heading: "Surfaces",
+    fields: [
+      {
+        name: "background",
+        label: "Background",
+        details: "Chat panel, cards and the message field",
+      },
+      {
+        name: "surface",
+        label: "Surface",
+        details: "Assistant messages, typing indicator and image placeholders",
+      },
+      {
+        name: "userBubble",
+        label: "Customer messages",
+        details: "Messages the shopper sends",
+      },
+      {
+        name: "onUserBubble",
+        label: "Text on customer messages",
+        details: "Text in messages the shopper sends",
+      },
+    ],
+  },
+  {
+    heading: "Text and lines",
+    fields: [
+      { name: "text", label: "Text", details: "Main text" },
+      {
+        name: "textMuted",
+        label: "Muted text",
+        details: "Prices, labels and hints",
+      },
+      {
+        name: "border",
+        label: "Borders",
+        details: "Lines around the panel, cards, fields and buttons",
+      },
+    ],
+  },
+];
 
 function readTheme(form: HTMLFormElement) {
   return themeSchema.safeParse(Object.fromEntries(new FormData(form)));
@@ -109,36 +211,45 @@ function WidgetLook({ theme }: { theme: Theme }) {
               </s-option>
             ))}
           </s-select>
-          <s-grid
-            gridTemplateColumns="repeat(auto-fill, minmax(220px, 1fr))"
-            gap="base"
-          >
-            <s-color-field
-              label="Primary color"
-              name="primary"
-              value={theme.primary}
-              details="Buttons, customer messages and the launcher"
-              required
-            ></s-color-field>
-            <s-color-field
-              label="Text on primary"
-              name="onPrimary"
-              value={theme.onPrimary}
-              details="Text and icons on the primary color. Pick one that stays readable"
-              required
-            ></s-color-field>
-            <s-number-field
-              label="Corner radius"
-              name="radius"
-              value={String(theme.radius)}
-              details="Roundness of the panel, messages, cards, buttons and fields. 0 is square"
-              min={0}
-              max={24}
-              step={1}
-              suffix="px"
-              required
-            ></s-number-field>
-          </s-grid>
+          {COLOR_GROUPS.map((group) => (
+            <s-stack key={group.heading} gap="small">
+              <s-heading>{group.heading}</s-heading>
+              <s-grid
+                gridTemplateColumns="repeat(auto-fill, minmax(220px, 1fr))"
+                gap="base"
+              >
+                {group.fields.map((field) => (
+                  <s-color-field
+                    key={field.name}
+                    label={field.label}
+                    name={field.name}
+                    value={theme[field.name]}
+                    details={field.details}
+                    required
+                  ></s-color-field>
+                ))}
+              </s-grid>
+            </s-stack>
+          ))}
+          <s-stack gap="small">
+            <s-heading>Shape</s-heading>
+            <s-grid
+              gridTemplateColumns="repeat(auto-fill, minmax(220px, 1fr))"
+              gap="base"
+            >
+              <s-number-field
+                label="Corner radius"
+                name="radius"
+                value={String(theme.radius)}
+                details="Roundness of the panel, messages, cards, buttons and fields. 0 is square"
+                min={0}
+                max={24}
+                step={1}
+                suffix="px"
+                required
+              ></s-number-field>
+            </s-grid>
+          </s-stack>
         </s-stack>
       </form>
 

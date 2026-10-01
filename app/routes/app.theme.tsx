@@ -21,6 +21,7 @@ import {
   type ThemeColor,
 } from "../../shared/theme";
 import Preview from "../../chat-widget/src/Preview";
+import ThemeCard from "../../chat-widget/src/ThemeCard";
 import widgetTokens from "../../chat-widget/src/tokens.css?url";
 import widgetStyles from "../../chat-widget/src/styles.css?url";
 import previewStyles from "../../chat-widget/src/preview.css?url";
@@ -163,11 +164,18 @@ function applyPreset(form: HTMLFormElement, theme: Theme) {
   }
 }
 
+function sameTheme(a: Theme, b: Theme) {
+  return (Object.keys(a) as (keyof Theme)[]).every((key) => a[key] === b[key]);
+}
+
 function WidgetLook({ theme }: { theme: Theme }) {
   const fetcher = useFetcher<typeof action>();
   const shopify = useAppBridge();
   const [draft, setDraft] = useState(theme);
   const [mounted, setMounted] = useState(false);
+  const current = THEME_PRESETS.find((preset) =>
+    sameTheme(preset.theme, draft),
+  );
 
   useEffect(() => setMounted(true), []);
 
@@ -198,25 +206,46 @@ function WidgetLook({ theme }: { theme: Theme }) {
               Some values are invalid. Check the fields and try again.
             </s-banner>
           )}
-          <s-select
-            label="Preset"
-            placeholder="Choose a preset"
-            details="Fills the fields below. You can still change them before saving"
-            onChange={(event) => {
-              const select = event.currentTarget;
-              const preset = THEME_PRESETS.find(
-                (item) => item.name === select.value,
-              );
-              const form = select.closest("form");
-              if (preset && form) applyPreset(form, preset.theme);
-            }}
-          >
-            {THEME_PRESETS.map((preset) => (
-              <s-option key={preset.name} value={preset.name}>
-                {preset.name}
-              </s-option>
-            ))}
-          </s-select>
+          <s-stack gap="small">
+            <s-heading>Presets</s-heading>
+            <s-paragraph color="subdued">
+              Pick one to fill the fields below. You can still change them
+              before saving.
+            </s-paragraph>
+            <s-grid
+              gridTemplateColumns="repeat(auto-fill, minmax(160px, 1fr))"
+              gap="base"
+            >
+              {THEME_PRESETS.map((preset) => {
+                const selected = preset === current;
+                return (
+                  <s-clickable
+                    key={preset.name}
+                    type="button"
+                    padding="small"
+                    borderRadius="base"
+                    border={selected ? "large strong" : "base"}
+                    accessibilityLabel={
+                      selected
+                        ? `${preset.name}, current look`
+                        : `Use the ${preset.name} preset`
+                    }
+                    onClick={(event) => {
+                      const form = event.currentTarget.closest("form");
+                      if (form) applyPreset(form, preset.theme);
+                    }}
+                  >
+                    <s-stack gap="small">
+                      <ThemeCard theme={preset.theme} />
+                      <s-text type={selected ? "strong" : "generic"}>
+                        {preset.name}
+                      </s-text>
+                    </s-stack>
+                  </s-clickable>
+                );
+              })}
+            </s-grid>
+          </s-stack>
           {COLOR_GROUPS.map((group) => (
             <s-stack key={group.heading} gap="small">
               <s-heading>{group.heading}</s-heading>

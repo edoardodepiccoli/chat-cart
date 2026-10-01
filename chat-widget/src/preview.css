@@ -16,3 +16,31 @@
 .cc-preview .cc-log:hover::-webkit-scrollbar-thumb {
   background-color: rgba(0, 0, 0, 0.4);
 }
+
+.cc-theme-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border: var(--cc-border-width) solid var(--cc-color-border);
+  border-radius: var(--cc-radius);
+  background: var(--cc-color-bg);
+  color: var(--cc-color-text);
+  font-size: var(--cc-font-size);
+  line-height: 1.45;
+}
+
+.cc-theme-card__actions {
+  display: flex;
+  gap: 6px;
+}
+
+.cc-theme-card__actions .cc-btn {
+  padding: 6px 10px;
+  font-size: var(--cc-font-size-sm);
+}
+
+.cc-theme-card__font {
+  color: var(--cc-color-text-muted);
+  font-size: var(--cc-font-size-sm);
+}

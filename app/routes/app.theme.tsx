@@ -398,8 +398,10 @@ function WidgetLook({ theme }: { theme: Theme }) {
 
       <div
         style={{
-          position: "relative",
-          height: 740,
+          position: "sticky",
+          top: 16,
+          alignSelf: "start",
+          height: "min(740px, calc(100vh - 32px))",
           overflow: "hidden",
           transform: "translateZ(0)",
           borderRadius: 12,

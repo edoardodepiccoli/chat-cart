@@ -2,6 +2,74 @@ import { z } from "zod";
 
 const hex = z.string().regex(/^#[0-9a-f]{6}$/i);
 
+type Font = { label: string; stack?: string; google?: string };
+
+export const FONTS = {
+  store: { label: "Store font" },
+  system: {
+    label: "System sans",
+    stack: 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
+  },
+  serif: { label: "Serif", stack: 'Georgia, "Times New Roman", serif' },
+  mono: {
+    label: "Mono",
+    stack: 'ui-monospace, "SF Mono", Menlo, Consolas, monospace',
+  },
+  inter: {
+    label: "Inter",
+    stack: '"Inter", sans-serif',
+    google: "Inter:wght@400;600",
+  },
+  poppins: {
+    label: "Poppins",
+    stack: '"Poppins", sans-serif',
+    google: "Poppins:wght@400;600",
+  },
+  dmSans: {
+    label: "DM Sans",
+    stack: '"DM Sans", sans-serif',
+    google: "DM+Sans:wght@400;600",
+  },
+  nunito: {
+    label: "Nunito",
+    stack: '"Nunito", sans-serif',
+    google: "Nunito:wght@400;600",
+  },
+  spaceGrotesk: {
+    label: "Space Grotesk",
+    stack: '"Space Grotesk", sans-serif',
+    google: "Space+Grotesk:wght@400;600",
+  },
+  lora: {
+    label: "Lora",
+    stack: '"Lora", serif',
+    google: "Lora:wght@400;600",
+  },
+  playfairDisplay: {
+    label: "Playfair Display",
+    stack: '"Playfair Display", serif',
+    google: "Playfair+Display:wght@400;600",
+  },
+  libreBaskerville: {
+    label: "Libre Baskerville",
+    stack: '"Libre Baskerville", serif',
+    google: "Libre+Baskerville:wght@400;700",
+  },
+} satisfies Record<string, Font>;
+
+export type FontKey = keyof typeof FONTS;
+
+function font(key: FontKey): Font {
+  return FONTS[key];
+}
+
+export function fontUrl(keys: FontKey[]): string | null {
+  const families = keys.flatMap((key) => font(key).google ?? []);
+  if (!families.length) return null;
+  const query = families.map((family) => `family=${family}`).join("&");
+  return `https://fonts.googleapis.com/css2?${query}&display=swap`;
+}
+
 export const themeSchema = z.object({
   primary: hex,
   onPrimary: hex,
@@ -22,13 +90,14 @@ export const themeSchema = z.object({
   borderWidth: z.coerce.number().int().min(0).max(2),
   buttonShape: z.enum(["rounded", "pill"]),
   shadow: z.enum(["none", "soft", "strong"]),
+  fontFamily: z.enum(Object.keys(FONTS) as [FontKey, ...FontKey[]]),
 });
 
 export type Theme = z.infer<typeof themeSchema>;
 
 export type ThemeColor = Exclude<
   keyof Theme,
-  "radius" | "borderWidth" | "buttonShape" | "shadow"
+  "radius" | "borderWidth" | "buttonShape" | "shadow" | "fontFamily"
 >;
 
 const SHADOWS: Record<Theme["shadow"], { panel: string; launcher: string }> =
@@ -64,6 +133,7 @@ export const DEFAULT_THEME: Theme = {
   borderWidth: 1,
   buttonShape: "rounded",
   shadow: "soft",
+  fontFamily: "store",
 };
 
 export const THEME_PRESETS: { name: string; theme: Theme }[] = [
@@ -80,6 +150,7 @@ export const THEME_PRESETS: { name: string; theme: Theme }[] = [
       border: "#d6e0f0",
       radius: 16,
       buttonShape: "pill",
+      fontFamily: "dmSans",
     },
   },
   {
@@ -94,6 +165,7 @@ export const THEME_PRESETS: { name: string; theme: Theme }[] = [
       border: "#d5e3d7",
       radius: 8,
       shadow: "none",
+      fontFamily: "lora",
     },
   },
   {
@@ -109,6 +181,7 @@ export const THEME_PRESETS: { name: string; theme: Theme }[] = [
       radius: 20,
       buttonShape: "pill",
       shadow: "strong",
+      fontFamily: "poppins",
     },
   },
   {
@@ -133,11 +206,14 @@ export const THEME_PRESETS: { name: string; theme: Theme }[] = [
       borderWidth: 1,
       buttonShape: "rounded",
       shadow: "strong",
+      fontFamily: "inter",
     },
   },
 ];
 
 export function themeVars(theme: Theme): Record<string, string> {
+  const { stack } = font(theme.fontFamily);
+
   return {
     "--cc-color-primary": theme.primary,
     "--cc-color-on-primary": theme.onPrimary,
@@ -160,6 +236,7 @@ export function themeVars(theme: Theme): Record<string, string> {
       theme.buttonShape === "pill" ? "999px" : `${theme.radius}px`,
     "--cc-shadow-panel": SHADOWS[theme.shadow].panel,
     "--cc-shadow-launcher": SHADOWS[theme.shadow].launcher,
+    ...(stack ? { "--cc-font-family": stack } : {}),
   };
 }
 

@@ -12,8 +12,11 @@ import { boundary } from "@shopify/shopify-app-react-router/server";
 import { authenticate } from "../shopify.server";
 import { getTheme, saveTheme } from "../theme.server";
 import {
+  FONTS,
+  fontUrl,
   THEME_PRESETS,
   themeSchema,
+  type FontKey,
   type Theme,
   type ThemeColor,
 } from "../../shared/theme";
@@ -22,10 +25,13 @@ import widgetTokens from "../../chat-widget/src/tokens.css?url";
 import widgetStyles from "../../chat-widget/src/styles.css?url";
 import previewStyles from "../../chat-widget/src/preview.css?url";
 
+const allFonts = fontUrl(Object.keys(FONTS) as FontKey[]);
+
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: widgetTokens },
   { rel: "stylesheet", href: widgetStyles },
   { rel: "stylesheet", href: previewStyles },
+  ...(allFonts ? [{ rel: "stylesheet", href: allFonts }] : []),
 ];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
@@ -231,6 +237,26 @@ function WidgetLook({ theme }: { theme: Theme }) {
               </s-grid>
             </s-stack>
           ))}
+          <s-stack gap="small">
+            <s-heading>Font</s-heading>
+            <s-grid
+              gridTemplateColumns="repeat(auto-fill, minmax(220px, 1fr))"
+              gap="base"
+            >
+              <s-select
+                label="Font"
+                name="fontFamily"
+                value={theme.fontFamily}
+                details="Store font uses your theme's font. Named fonts load from Google Fonts"
+              >
+                {Object.entries(FONTS).map(([key, font]) => (
+                  <s-option key={key} value={key}>
+                    {font.label}
+                  </s-option>
+                ))}
+              </s-select>
+            </s-grid>
+          </s-stack>
           <s-stack gap="small">
             <s-heading>Shape and depth</s-heading>
             <s-grid

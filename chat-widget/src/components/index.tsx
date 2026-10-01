@@ -10,19 +10,16 @@ import ProductCard from "./ProductCard";
 import ProductCards from "./ProductCards";
 import TextMessage from "./TextMessage";
 
+export type PartContext = {
+  cart: Cart | undefined;
+  streaming: boolean;
+  onLike: (product: ProductCardProps) => void;
+  onAdd: (product: ProductCardProps, variant: ProductVariant) => Promise<void>;
+};
+
 export function renderPart(
   part: ChatPart,
-  {
-    cart,
-    streaming,
-    onLike,
-    onAdd,
-  }: {
-    cart: Cart | undefined;
-    streaming: boolean;
-    onLike: (product: ProductCardProps) => void;
-    onAdd: (product: ProductCardProps, variant: ProductVariant) => Promise<void>;
-  },
+  { cart, streaming, onLike, onAdd }: PartContext,
 ) {
   switch (part.type) {
     case "text":

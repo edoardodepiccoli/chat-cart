@@ -8,10 +8,11 @@ import {
   type Conversation,
 } from "./api";
 import { addToCart, getCart, type Cart } from "./cart";
-import { renderPart } from "./components";
+import Composer from "./components/Composer";
+import Launcher from "./components/Launcher";
+import Message from "./components/Message";
 import Suggestions, { type ShownSuggestions } from "./components/Suggestions";
 import { useIosKeyboard, useStickToBottom } from "./hooks";
-import { ChatIcon, CloseIcon } from "./icons";
 import type {
   ChatMessage,
   ProductCardProps,
@@ -155,43 +156,27 @@ export default function App() {
           onClickCapture={recordLink}
         >
           <div className="cc-log__content">
-            {messages.map((message) => {
-              const parts = message.parts.map((part, index) => {
-                const node = renderPart(part, {
-                  cart,
-                  streaming: status === "streaming" && message === last,
-                  onLike: like,
-                  onAdd: add,
-                });
-                return (
-                  node && (
-                    <div
-                      key={index}
-                      className={`cc-part cc-part--${part.type}`}
-                    >
-                      {node}
-                    </div>
-                  )
-                );
-              });
-              return (
-                <Fragment key={message.id}>
-                  {parts.some(Boolean) && (
-                    <div className={`cc-message cc-message--${message.role}`}>
-                      {parts}
-                    </div>
-                  )}
-                  {suggestions?.id === message.id && (
-                    <Suggestions
-                      {...suggestions}
-                      leaving={suggestions === leaving}
-                      onPick={pick}
-                      onLeft={() => setLeaving(undefined)}
-                    />
-                  )}
-                </Fragment>
-              );
-            })}
+            {messages.map((message) => (
+              <Fragment key={message.id}>
+                <Message
+                  message={message}
+                  context={{
+                    cart,
+                    streaming: status === "streaming" && message === last,
+                    onLike: like,
+                    onAdd: add,
+                  }}
+                />
+                {suggestions?.id === message.id && (
+                  <Suggestions
+                    {...suggestions}
+                    leaving={suggestions === leaving}
+                    onPick={pick}
+                    onLeft={() => setLeaving(undefined)}
+                  />
+                )}
+              </Fragment>
+            ))}
 
             {busy && (
               <div className="cc-message cc-message--assistant">
@@ -214,40 +199,16 @@ export default function App() {
           </div>
         </div>
 
-        <form className="cc-composer" onSubmit={submit}>
-          <input
-            ref={inputRef}
-            className="cc-control cc-input"
-            enterKeyHint="send"
-            value={draft}
-            onChange={(event) => setDraft(event.target.value)}
-            placeholder="Type a message"
-            aria-label="Message"
-            disabled={busy || !conversation}
-          />
-          <button
-            className="cc-btn"
-            type="submit"
-            disabled={busy || !conversation}
-          >
-            Send
-          </button>
-        </form>
+        <Composer
+          value={draft}
+          onChange={setDraft}
+          onSubmit={submit}
+          disabled={busy || !conversation}
+          inputRef={inputRef}
+        />
       </div>
 
-      <button
-        type="button"
-        className="cc-launcher"
-        data-open={open}
-        data-size={size}
-        aria-expanded={open}
-        aria-controls="cc-panel"
-        aria-label={open ? "Close chat" : "Open chat"}
-        onClick={() => setOpen(!open)}
-      >
-        <ChatIcon className="cc-launcher__icon cc-launcher__icon--chat" />
-        <CloseIcon className="cc-launcher__icon cc-launcher__icon--close" />
-      </button>
+      <Launcher open={open} size={size} onClick={() => setOpen(!open)} />
     </>
   );
 }

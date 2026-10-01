@@ -19,11 +19,30 @@ export const themeSchema = z.object({
   textMuted: hex,
   border: hex,
   radius: z.coerce.number().int().min(0).max(24),
+  borderWidth: z.coerce.number().int().min(0).max(2),
+  buttonShape: z.enum(["rounded", "pill"]),
+  shadow: z.enum(["none", "soft", "strong"]),
 });
 
 export type Theme = z.infer<typeof themeSchema>;
 
-export type ThemeColor = Exclude<keyof Theme, "radius">;
+export type ThemeColor = Exclude<
+  keyof Theme,
+  "radius" | "borderWidth" | "buttonShape" | "shadow"
+>;
+
+const SHADOWS: Record<Theme["shadow"], { panel: string; launcher: string }> =
+  {
+    none: { panel: "none", launcher: "none" },
+    soft: {
+      panel: "0 8px 32px rgba(0, 0, 0, 0.16)",
+      launcher: "0 8px 24px rgba(0, 0, 0, 0.24)",
+    },
+    strong: {
+      panel: "0 12px 48px rgba(0, 0, 0, 0.28)",
+      launcher: "0 10px 32px rgba(0, 0, 0, 0.36)",
+    },
+  };
 
 export const DEFAULT_THEME: Theme = {
   primary: "#1a1a1a",
@@ -42,6 +61,9 @@ export const DEFAULT_THEME: Theme = {
   textMuted: "#616161",
   border: "#e3e3e3",
   radius: 12,
+  borderWidth: 1,
+  buttonShape: "rounded",
+  shadow: "soft",
 };
 
 export const THEME_PRESETS: { name: string; theme: Theme }[] = [
@@ -57,6 +79,7 @@ export const THEME_PRESETS: { name: string; theme: Theme }[] = [
       userBubble: "#1d4ed8",
       border: "#d6e0f0",
       radius: 16,
+      buttonShape: "pill",
     },
   },
   {
@@ -70,6 +93,7 @@ export const THEME_PRESETS: { name: string; theme: Theme }[] = [
       userBubble: "#166534",
       border: "#d5e3d7",
       radius: 8,
+      shadow: "none",
     },
   },
   {
@@ -83,6 +107,8 @@ export const THEME_PRESETS: { name: string; theme: Theme }[] = [
       userBubble: "#c2410c",
       border: "#f0dccf",
       radius: 20,
+      buttonShape: "pill",
+      shadow: "strong",
     },
   },
   {
@@ -104,6 +130,9 @@ export const THEME_PRESETS: { name: string; theme: Theme }[] = [
       textMuted: "#a3a3a3",
       border: "#2e2e2e",
       radius: 12,
+      borderWidth: 1,
+      buttonShape: "rounded",
+      shadow: "strong",
     },
   },
 ];
@@ -126,6 +155,11 @@ export function themeVars(theme: Theme): Record<string, string> {
     "--cc-color-text-muted": theme.textMuted,
     "--cc-color-border": theme.border,
     "--cc-radius": `${theme.radius}px`,
+    "--cc-border-width": `${theme.borderWidth}px`,
+    "--cc-radius-button":
+      theme.buttonShape === "pill" ? "999px" : `${theme.radius}px`,
+    "--cc-shadow-panel": SHADOWS[theme.shadow].panel,
+    "--cc-shadow-launcher": SHADOWS[theme.shadow].launcher,
   };
 }
 

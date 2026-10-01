@@ -1,4 +1,5 @@
 import { COMPONENT_TOOLS } from "../shared/chat";
+import type { ProductCardProps, ProductVariant } from "../shared/chat";
 import type { ChatEvent } from "../shared/events";
 import prisma from "./db.server";
 
@@ -23,71 +24,152 @@ export async function saveEvent(
   return true;
 }
 
-export async function getStats(shop: string) {
-  const conversationsWithEvent = (type: string) =>
-    prisma.conversation.count({
-      where: { shop, events: { some: { type } } },
-    });
+const DAY = 86_400_000;
 
-  const [
-    loads,
-    opened,
-    engaged,
-    addedToCart,
-    checkout,
-    messagesByRole,
-    eventsByType,
-    assistantMessages,
-  ] = await Promise.all([
-    prisma.conversation.count({ where: { shop } }),
-    conversationsWithEvent("widget_opened"),
-    prisma.conversation.count({
-      where: { shop, messages: { some: { role: "user" } } },
-    }),
-    conversationsWithEvent("added_to_cart"),
-    conversationsWithEvent("checkout_clicked"),
-    prisma.message.groupBy({
-      by: ["role"],
-      where: { conversation: { shop } },
-      _count: true,
-    }),
-    prisma.event.groupBy({
-      by: ["type"],
-      where: { conversation: { shop } },
-      _count: true,
-    }),
-    prisma.message.findMany({
-      where: { role: "assistant", conversation: { shop } },
-      select: { parts: true },
-    }),
-  ]);
+const COMPONENT_ACTIONS: Record<(typeof COMPONENT_TOOLS)[number], string> = {
+  showProductCard: "added_to_cart",
+  showProductCards: "product_liked",
+  showFaqCard: "link_clicked",
+  showCart: "checkout_clicked",
+};
 
-  const messages = (role: string) =>
-    messagesByRole.find((row) => row.role === role)?._count ?? 0;
-  const events = (type: string) =>
-    eventsByType.find((row) => row.type === type)?._count ?? 0;
+type Part = { type: string; state?: string; output?: unknown };
 
-  const components = Object.fromEntries(
-    COMPONENT_TOOLS.map((name) => [name, 0]),
-  ) as Record<(typeof COMPONENT_TOOLS)[number], number>;
-  for (const message of assistantMessages) {
-    for (const part of message.parts as { type: string }[]) {
-      const name = part.type.replace(/^tool-/, "");
-      if (name in components) components[name as keyof typeof components]++;
-    }
+type Summary = {
+  createdAt: Date;
+  engaged: boolean;
+  opened: boolean;
+  carted: boolean;
+  checkout: boolean;
+  cartValue: number;
+  checkoutValue: number;
+  shown: number;
+  actions: number;
+};
+
+function variantsOf(part: Part): ProductVariant[] {
+  if (part.state !== "output-available") return [];
+  if (part.type === "tool-showProductCard") {
+    return (part.output as ProductCardProps).variants;
   }
+  if (part.type === "tool-showProductCards") {
+    return (part.output as { products: ProductCardProps[] }).products.flatMap(
+      (product) => product.variants,
+    );
+  }
+  return [];
+}
+
+function stats(summaries: Summary[]) {
+  const count = (key: "engaged" | "opened" | "carted" | "checkout") =>
+    summaries.filter((summary) => summary[key]).length;
+  const sum = (key: "cartValue" | "checkoutValue" | "shown" | "actions") =>
+    summaries.reduce((total, summary) => total + summary[key], 0);
 
   return {
-    funnel: { loads, opened, engaged, addedToCart, checkout },
-    messages: { user: messages("user"), assistant: messages("assistant") },
-    components,
-    events: {
-      widgetOpened: events("widget_opened"),
-      suggestionClicked: events("suggestion_clicked"),
-      productLiked: events("product_liked"),
-      addedToCart: events("added_to_cart"),
-      checkoutClicked: events("checkout_clicked"),
-      linkClicked: events("link_clicked"),
+    funnel: {
+      loads: summaries.length,
+      opened: count("opened"),
+      engaged: count("engaged"),
+      carted: count("carted"),
+      checkout: count("checkout"),
     },
+    cartValue: sum("cartValue"),
+    checkoutValue: sum("checkoutValue"),
+    shown: sum("shown"),
+    actions: sum("actions"),
+  };
+}
+
+export async function getStats(shop: string, days: number) {
+  const end = new Date();
+  end.setHours(24, 0, 0, 0);
+  const start = end.getTime() - days * DAY;
+  const previousStart = start - days * DAY;
+
+  const conversations = await prisma.conversation.findMany({
+    where: { shop, createdAt: { gte: new Date(previousStart), lt: end } },
+    select: {
+      createdAt: true,
+      messages: { select: { role: true, parts: true } },
+      events: { select: { type: true, data: true, createdAt: true } },
+    },
+  });
+
+  let currency: string | null = null;
+  const actionTypes = new Set(Object.values(COMPONENT_ACTIONS));
+
+  const summaries: Summary[] = conversations.map((conversation) => {
+    const prices = new Map<string, number>();
+    let shown = 0;
+    for (const message of conversation.messages) {
+      if (message.role !== "assistant") continue;
+      for (const part of message.parts as Part[]) {
+        const name = part.type.replace(/^tool-/, "");
+        if (name in COMPONENT_ACTIONS) shown++;
+        for (const variant of variantsOf(part)) {
+          prices.set(variant.id, Number(variant.price.amount));
+          currency ??= variant.price.currencyCode;
+        }
+      }
+    }
+
+    const events = conversation.events;
+    const has = (type: string) => events.some((event) => event.type === type);
+    const adds = events.filter((event) => event.type === "added_to_cart");
+    const priceOf = (event: (typeof events)[number]) =>
+      prices.get((event.data as { variantId: string }).variantId) ?? 0;
+    const lastCheckout = events
+      .filter((event) => event.type === "checkout_clicked")
+      .reduce<Date | null>(
+        (last, event) =>
+          last && last > event.createdAt ? last : event.createdAt,
+        null,
+      );
+
+    return {
+      createdAt: conversation.createdAt,
+      engaged: conversation.messages.some((message) => message.role === "user"),
+      opened: has("widget_opened"),
+      carted: adds.length > 0,
+      checkout: lastCheckout !== null,
+      cartValue: adds.reduce((total, event) => total + priceOf(event), 0),
+      checkoutValue: lastCheckout
+        ? adds
+            .filter((event) => event.createdAt <= lastCheckout)
+            .reduce((total, event) => total + priceOf(event), 0)
+        : 0,
+      shown,
+      actions: events.filter((event) => actionTypes.has(event.type)).length,
+    };
+  });
+
+  const current = summaries.filter(
+    (summary) => summary.createdAt.getTime() >= start,
+  );
+  const previous = summaries.filter(
+    (summary) => summary.createdAt.getTime() < start,
+  );
+
+  const trend = Array.from({ length: days }, (_, index) => {
+    const dayStart = start + index * DAY;
+    const inDay = current.filter((summary) => {
+      const time = summary.createdAt.getTime();
+      return time >= dayStart && time < dayStart + DAY;
+    });
+    const day = stats(inDay);
+    return {
+      chats: day.funnel.engaged,
+      value: day.cartValue,
+      checkoutValue: day.checkoutValue,
+    };
+  });
+
+  return {
+    days,
+    currency: currency ?? "USD",
+    current: stats(current),
+    previous: previous.length ? stats(previous) : null,
+    trend,
   };
 }

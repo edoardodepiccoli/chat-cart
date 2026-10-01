@@ -1,13 +1,8 @@
 import type { ProductCardProps } from "../../shared/chat";
+import { themeVars, type Theme } from "../../shared/theme";
 import ProductCard from "./components/ProductCard";
 import Suggestions from "./components/Suggestions";
 import { ChatIcon, CloseIcon } from "./icons";
-
-export type PreviewTheme = {
-  primary: string;
-  onPrimary: string;
-  radius: number;
-};
 
 function variant(size: string, available: boolean) {
   return {
@@ -35,18 +30,12 @@ function noop() {}
 
 async function noopAsync() {}
 
-export default function Preview({ theme }: { theme: PreviewTheme }) {
-  const style = {
-    "--cc-color-primary": theme.primary,
-    "--cc-color-on-primary": theme.onPrimary,
-    "--cc-radius": `${theme.radius}px`,
-  } as React.CSSProperties;
-
+export default function Preview({ theme }: { theme: Theme }) {
   return (
     <div
       id="chat-cart-root"
       className="cc-preview"
-      style={style}
+      style={themeVars(theme) as React.CSSProperties}
       onClickCapture={(event) => {
         if ((event.target as Element).closest("a")) event.preventDefault();
       }}

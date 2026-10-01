@@ -1,7 +1,7 @@
 #chat-cart-root {
   all: initial;
   -webkit-text-size-adjust: 100%;
-  font-family: inherit;
+  font-family: var(--cc-font-family, inherit);
 }
 
 #chat-cart-root *,
@@ -22,10 +22,10 @@
   height: 480px;
   max-height: calc(var(--cc-viewport-height, 100dvh) - 108px);
   overflow: hidden;
-  border: 1px solid var(--cc-color-border);
+  border: var(--cc-border-width) solid var(--cc-color-border);
   border-radius: var(--cc-radius);
   background: var(--cc-color-bg);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.16);
+  box-shadow: var(--cc-shadow-panel);
   color: var(--cc-color-text);
   font-size: var(--cc-font-size);
   line-height: 1.45;
@@ -76,7 +76,7 @@
   border-radius: 999px;
   background: var(--cc-color-primary);
   color: var(--cc-color-on-primary);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.24);
+  box-shadow: var(--cc-shadow-launcher);
   cursor: pointer;
   transition:
     transform var(--cc-duration-fast) var(--cc-ease),
@@ -225,8 +225,8 @@
 }
 
 .cc-message--user .cc-part--text {
-  background: var(--cc-color-primary);
-  color: var(--cc-color-on-primary);
+  background: var(--cc-color-user-bubble);
+  color: var(--cc-color-on-user-bubble);
 }
 
 .cc-typing {
@@ -249,10 +249,10 @@
 
 .cc-suggestion {
   padding: 6px 12px;
-  border: 1px solid var(--cc-color-border);
+  border: var(--cc-border-width) solid var(--cc-color-border);
   border-radius: 999px;
-  background: var(--cc-color-bg);
-  color: inherit;
+  background: var(--cc-color-secondary);
+  color: var(--cc-color-on-secondary);
   font: inherit;
   font-size: var(--cc-font-size-sm);
   cursor: pointer;
@@ -260,7 +260,8 @@
 
 @media (hover: hover) and (pointer: fine) {
   .cc-suggestion:hover {
-    background: var(--cc-color-surface);
+    background: var(--cc-color-secondary-hover);
+    color: var(--cc-color-on-secondary-hover);
   }
 }
 
@@ -280,13 +281,13 @@
   display: flex;
   gap: 8px;
   padding: 12px;
-  border-top: 1px solid var(--cc-color-border);
+  border-top: var(--cc-border-width) solid var(--cc-color-border);
   margin: 0;
 }
 
 .cc-control {
   padding: 8px 12px;
-  border: 1px solid var(--cc-color-border);
+  border: var(--cc-border-width) solid var(--cc-color-border);
   border-radius: var(--cc-radius);
   background: var(--cc-color-bg);
   color: inherit;
@@ -310,7 +311,7 @@
   gap: 6px;
   padding: 10px 16px;
   border: 0;
-  border-radius: var(--cc-radius);
+  border-radius: var(--cc-radius-button);
   background: var(--cc-color-primary);
   color: var(--cc-color-on-primary);
   font: inherit;
@@ -321,19 +322,20 @@
 }
 
 .cc-btn--secondary {
-  border: 1px solid var(--cc-color-border);
-  background: var(--cc-color-bg);
-  color: inherit;
+  border: var(--cc-border-width) solid var(--cc-color-border);
+  background: var(--cc-color-secondary);
+  color: var(--cc-color-on-secondary);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .cc-btn:not(:disabled):hover {
-    opacity: 0.85;
+    background: var(--cc-color-primary-hover);
+    color: var(--cc-color-on-primary-hover);
   }
 
   .cc-btn--secondary:not(:disabled):hover {
-    opacity: 1;
-    background: var(--cc-color-surface);
+    background: var(--cc-color-secondary-hover);
+    color: var(--cc-color-on-secondary-hover);
   }
 }
 
@@ -354,7 +356,7 @@
 
 .cc-card {
   overflow: hidden;
-  border: 1px solid var(--cc-color-border);
+  border: var(--cc-border-width) solid var(--cc-color-border);
   border-radius: var(--cc-radius);
   background: var(--cc-color-bg);
 }
@@ -535,7 +537,7 @@
   gap: 10px;
   align-items: center;
   padding: 8px 0;
-  border-bottom: 1px solid var(--cc-color-border);
+  border-bottom: var(--cc-border-width) solid var(--cc-color-border);
   color: inherit;
   text-decoration: none;
 }

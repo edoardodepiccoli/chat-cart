@@ -244,44 +244,72 @@ function WidgetLook({ theme }: { theme: Theme }) {
             </s-banner>
           )}
           <s-stack gap="small">
-            <s-heading>Presets</s-heading>
-            <s-paragraph color="subdued">
-              Pick one to fill the fields below. You can still change them
-              before saving.
-            </s-paragraph>
-            <s-grid
-              gridTemplateColumns="repeat(auto-fill, minmax(160px, 1fr))"
-              gap="base"
+            <s-clickable
+              type="button"
+              commandFor="theme-presets"
+              padding="small"
+              border="base"
+              borderRadius="base"
+              inlineSize="300px"
+              accessibilityLabel={`Current look: ${current?.name ?? "Custom"}. Change preset`}
             >
-              {THEME_PRESETS.map((preset) => {
-                const selected = preset === current;
-                return (
-                  <s-clickable
-                    key={preset.name}
-                    type="button"
-                    padding="small"
-                    borderRadius="base"
-                    border={selected ? "large strong" : "base"}
-                    accessibilityLabel={
-                      selected
-                        ? `${preset.name}, current look`
-                        : `Use the ${preset.name} preset`
-                    }
-                    onClick={(event) => {
-                      const form = event.currentTarget.closest("form");
-                      if (form) applyPreset(form, preset.theme);
-                    }}
-                  >
-                    <s-stack gap="small">
-                      <ThemeCard theme={preset.theme} />
-                      <s-text type={selected ? "strong" : "generic"}>
-                        {preset.name}
-                      </s-text>
-                    </s-stack>
-                  </s-clickable>
-                );
-              })}
-            </s-grid>
+              <s-grid
+                gridTemplateColumns="auto 1fr auto"
+                gap="base"
+                alignItems="center"
+              >
+                <div className="cc-theme-thumb">
+                  <ThemeCard name={current?.name ?? "Custom"} theme={draft} />
+                </div>
+                <s-stack gap="none">
+                  <s-text color="subdued">Preset</s-text>
+                  <s-text type="strong">{current?.name ?? "Custom"}</s-text>
+                </s-stack>
+                <s-icon type="chevron-down"></s-icon>
+              </s-grid>
+            </s-clickable>
+            <s-popover id="theme-presets" inlineSize="640px">
+              <s-box padding="base">
+                <s-stack gap="base">
+                  <s-paragraph color="subdued">
+                    Fills the fields below. You can still change them before
+                    saving.
+                  </s-paragraph>
+                  <s-grid gridTemplateColumns="repeat(2, 1fr)" gap="base">
+                    {THEME_PRESETS.map((preset) => {
+                      const selected = preset === current;
+                      return (
+                        <s-clickable
+                          key={preset.name}
+                          type="button"
+                          commandFor="theme-presets"
+                          command="--hide"
+                          padding="small"
+                          borderRadius="large"
+                          border={selected ? "large strong" : "base"}
+                          accessibilityLabel={
+                            selected
+                              ? `${preset.name}, current look`
+                              : `Use the ${preset.name} preset`
+                          }
+                          onClick={(event) => {
+                            const form = event.currentTarget.closest("form");
+                            if (form) applyPreset(form, preset.theme);
+                          }}
+                        >
+                          <s-stack gap="small">
+                            <ThemeCard name={preset.name} theme={preset.theme} />
+                            <s-box paddingInline="small">
+                              <s-text type="strong">{preset.name}</s-text>
+                            </s-box>
+                          </s-stack>
+                        </s-clickable>
+                      );
+                    })}
+                  </s-grid>
+                </s-stack>
+              </s-box>
+            </s-popover>
           </s-stack>
           {COLOR_GROUPS.map((group) => {
             const warnings = lowContrast.filter((pair) =>

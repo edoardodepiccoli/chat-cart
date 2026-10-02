@@ -29,3 +29,22 @@
   --cc-duration-fast: 200ms;
   --cc-duration: 480ms;
 }
+
+#chat-cart-root[data-mode="automatic"] {
+  --cc-color-primary: var(--cc-brand-primary, #1a1a1a);
+  --cc-color-on-primary: var(--cc-brand-on-primary, #ffffff);
+  --cc-color-primary-hover: color-mix(
+    in srgb,
+    var(--cc-color-primary) 85%,
+    #000000
+  );
+  --cc-color-on-primary-hover: var(--cc-color-on-primary);
+  --cc-color-user-bubble: var(--cc-color-primary);
+  --cc-color-on-user-bubble: var(--cc-color-on-primary);
+  --cc-color-secondary-hover: color-mix(
+    in srgb,
+    var(--cc-brand-secondary, #a0a0a0) 15%,
+    #ffffff
+  );
+  --cc-color-surface: color-mix(in srgb, var(--cc-color-primary) 8%, #ffffff);
+}

@@ -2,6 +2,7 @@ import type {
   AdminGraphqlClient,
   StorefrontApiContext,
 } from "@shopify/shopify-app-react-router/server";
+import { z } from "zod";
 
 import {
   DEFAULT_THEME,
@@ -15,6 +16,11 @@ import {
 } from "../../../shared/theme";
 
 const METAFIELD = { namespace: "chat_cart", key: "theme" };
+
+const savedSchema = z.object({
+  mode: themeModeSchema.optional(),
+  theme: themeSchema.partial().optional(),
+});
 
 const THEME_QUERY = `#graphql
   query Theme($namespace: String!, $key: String!) {
@@ -49,13 +55,11 @@ export async function getTheme(
   graphql: AdminGraphqlClient,
 ): Promise<{ theme: Theme; mode: ThemeMode }> {
   const { metafield } = await readInstallation(graphql);
-  const value = metafield?.jsonValue ?? {};
-  const saved = themeSchema.partial().safeParse(value);
-  const mode = themeModeSchema.safeParse((value as { mode?: unknown }).mode);
+  const saved = savedSchema.safeParse(metafield?.jsonValue);
 
   return {
-    theme: { ...DEFAULT_THEME, ...(saved.success ? saved.data : {}) },
-    mode: mode.success ? mode.data : "custom",
+    theme: { ...DEFAULT_THEME, ...saved.data?.theme },
+    mode: saved.data?.mode ?? "custom",
   };
 }
 
@@ -73,8 +77,8 @@ export async function saveTheme(
           ...METAFIELD,
           type: "json",
           value: JSON.stringify({
-            ...theme,
             mode,
+            theme,
             style: themeStyle(theme, mode),
             fontUrl: fontUrl([theme.fontFamily]),
           }),

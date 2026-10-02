@@ -12,7 +12,7 @@ import {
   type Brand,
   type Theme,
   type ThemeMode,
-} from "../shared/theme";
+} from "../../../shared/theme";
 
 const METAFIELD = { namespace: "chat_cart", key: "theme" };
 

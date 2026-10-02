@@ -269,6 +269,7 @@ export default function Index() {
           {RANGES.map((range) => (
             <s-button
               key={range}
+              slot="secondary-actions"
               variant={range === days ? "primary" : "secondary"}
               onClick={() =>
                 setSearchParams((params) => {

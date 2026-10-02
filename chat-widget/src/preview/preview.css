@@ -16,3 +16,14 @@
 .cc-preview .cc-log:hover::-webkit-scrollbar-thumb {
   background-color: rgba(0, 0, 0, 0.4);
 }
+
+.cc-preview-frame {
+  position: sticky;
+  top: 16px;
+  align-self: start;
+  height: min(740px, calc(100vh - 32px));
+  overflow: hidden;
+  transform: translateZ(0);
+  border-radius: 12px;
+  background: #f1f2f4;
+}

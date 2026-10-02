@@ -1,11 +1,17 @@
-import type { AdminGraphqlClient } from "@shopify/shopify-app-react-router/server";
+import type {
+  AdminGraphqlClient,
+  StorefrontApiContext,
+} from "@shopify/shopify-app-react-router/server";
 
 import {
   DEFAULT_THEME,
   fontUrl,
+  themeModeSchema,
   themeSchema,
   themeStyle,
+  type Brand,
   type Theme,
+  type ThemeMode,
 } from "../shared/theme";
 
 const METAFIELD = { namespace: "chat_cart", key: "theme" };
@@ -39,14 +45,25 @@ async function readInstallation(graphql: AdminGraphqlClient) {
   return data.currentAppInstallation;
 }
 
-export async function getTheme(graphql: AdminGraphqlClient): Promise<Theme> {
+export async function getTheme(
+  graphql: AdminGraphqlClient,
+): Promise<{ theme: Theme; mode: ThemeMode }> {
   const { metafield } = await readInstallation(graphql);
-  const saved = themeSchema.partial().safeParse(metafield?.jsonValue ?? {});
+  const value = metafield?.jsonValue ?? {};
+  const saved = themeSchema.partial().safeParse(value);
+  const mode = themeModeSchema.safeParse((value as { mode?: unknown }).mode);
 
-  return { ...DEFAULT_THEME, ...(saved.success ? saved.data : {}) };
+  return {
+    theme: { ...DEFAULT_THEME, ...(saved.success ? saved.data : {}) },
+    mode: mode.success ? mode.data : "custom",
+  };
 }
 
-export async function saveTheme(graphql: AdminGraphqlClient, theme: Theme) {
+export async function saveTheme(
+  graphql: AdminGraphqlClient,
+  theme: Theme,
+  mode: ThemeMode,
+) {
   const { id: ownerId } = await readInstallation(graphql);
   const response = await graphql(SET_THEME_MUTATION, {
     variables: {
@@ -57,7 +74,8 @@ export async function saveTheme(graphql: AdminGraphqlClient, theme: Theme) {
           type: "json",
           value: JSON.stringify({
             ...theme,
-            style: themeStyle(theme),
+            mode,
+            style: themeStyle(theme, mode),
             fontUrl: fontUrl([theme.fontFamily]),
           }),
         },
@@ -70,4 +88,48 @@ export async function saveTheme(graphql: AdminGraphqlClient, theme: Theme) {
 
   const [error] = data.metafieldsSet.userErrors;
   if (error) throw new Error(error.message);
+}
+
+const BRAND_QUERY = `#graphql
+  query Brand {
+    shop {
+      brand {
+        colors {
+          primary { background foreground }
+          secondary { background foreground }
+        }
+      }
+    }
+  }`;
+
+type BrandColorGroup = { background: string | null; foreground: string | null };
+
+function brandColor(groups: BrandColorGroup[] = []) {
+  const [first] = groups;
+  if (!first?.background || !first.foreground) return null;
+  return { background: first.background, foreground: first.foreground };
+}
+
+export async function getBrand(
+  storefront: StorefrontApiContext,
+): Promise<Brand> {
+  const response = await storefront.graphql(BRAND_QUERY);
+  const { data } = (await response.json()) as {
+    data: {
+      shop: {
+        brand: {
+          colors: {
+            primary: BrandColorGroup[];
+            secondary: BrandColorGroup[];
+          };
+        } | null;
+      };
+    };
+  };
+  const colors = data.shop.brand?.colors;
+
+  return {
+    primary: brandColor(colors?.primary),
+    secondary: brandColor(colors?.secondary),
+  };
 }

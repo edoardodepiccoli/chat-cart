@@ -4,10 +4,22 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="{{ widget_theme.fontUrl | escape }}">
 {%- endif -%}
-<div
-  id="chat-cart-root"
-  style="{{ widget_theme.style | escape }}"
-></div>
+{%- if widget_theme.mode == 'automatic' -%}
+  {%- assign primary = shop.brand.colors.primary[0] -%}
+  {%- assign secondary = shop.brand.colors.secondary[0] -%}
+  <div
+    id="chat-cart-root"
+    data-mode="automatic"
+    style="{{ widget_theme.style | escape }}
+    {%- if primary.background %} --cc-brand-primary: {{ primary.background | escape }}; --cc-brand-on-primary: {{ primary.foreground | escape }};{% endif %}
+    {%- if secondary.background %} --cc-brand-secondary: {{ secondary.background | escape }};{% endif %}"
+  ></div>
+{%- else -%}
+  <div
+    id="chat-cart-root"
+    style="{{ widget_theme.style | escape }}"
+  ></div>
+{%- endif -%}
 
 <link rel="stylesheet" href="{{ 'chat-widget.css' | asset_url }}">
 <script src="{{ 'chat-widget.js' | asset_url }}" defer></script>

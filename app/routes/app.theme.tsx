@@ -9,16 +9,19 @@ import { useFetcher, useLoaderData } from "react-router";
 import { useAppBridge } from "@shopify/app-bridge-react";
 import { boundary } from "@shopify/shopify-app-react-router/server";
 
-import { authenticate } from "../shopify.server";
-import { getTheme, saveTheme } from "../theme.server";
+import shopify, { authenticate } from "../shopify.server";
+import { getBrand, getTheme, saveTheme } from "../theme.server";
 import {
   contrast,
   FONTS,
   fontUrl,
+  themeModeSchema,
   themeSchema,
+  type Brand,
   type FontKey,
   type Theme,
   type ThemeColor,
+  type ThemeMode,
 } from "../../shared/theme";
 import Preview from "../../chat-widget/src/Preview";
 import widgetTokens from "../../chat-widget/src/tokens.css?url";
@@ -35,20 +38,25 @@ export const links: LinksFunction = () => [
 ];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { admin } = await authenticate.admin(request);
+  const { admin, session } = await authenticate.admin(request);
+  const { storefront } = await shopify.unauthenticated.storefront(session.shop);
+  const [{ theme, mode }, brand] = await Promise.all([
+    getTheme(admin.graphql),
+    getBrand(storefront),
+  ]);
 
-  return { theme: await getTheme(admin.graphql) };
+  return { theme, mode, brand };
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const { admin } = await authenticate.admin(request);
 
-  const parsed = themeSchema.safeParse(
-    Object.fromEntries(await request.formData()),
-  );
-  if (!parsed.success) return { ok: false };
+  const values = Object.fromEntries(await request.formData());
+  const parsed = themeSchema.safeParse(values);
+  const mode = themeModeSchema.safeParse(values.mode);
+  if (!parsed.success || !mode.success) return { ok: false };
 
-  await saveTheme(admin.graphql, parsed.data);
+  await saveTheme(admin.graphql, parsed.data, mode.data);
   return { ok: true };
 };
 
@@ -149,8 +157,12 @@ const COLOR_GROUPS: {
   },
 ];
 
-function readTheme(form: HTMLFormElement) {
-  return themeSchema.safeParse(Object.fromEntries(new FormData(form)));
+function readForm(form: HTMLFormElement) {
+  const values = Object.fromEntries(new FormData(form));
+  return {
+    theme: themeSchema.safeParse(values),
+    mode: themeModeSchema.safeParse(values.mode),
+  };
 }
 
 const CONTRAST_PAIRS: {
@@ -185,10 +197,20 @@ const CONTRAST_PAIRS: {
   },
 ];
 
-function WidgetLook({ theme }: { theme: Theme }) {
+function WidgetLook({
+  theme,
+  mode,
+  brand,
+}: {
+  theme: Theme;
+  mode: ThemeMode;
+  brand: Brand;
+}) {
   const fetcher = useFetcher<typeof action>();
   const shopify = useAppBridge();
   const [draft, setDraft] = useState(theme);
+  const [draftMode, setDraftMode] = useState(mode);
+  const automatic = draftMode === "automatic";
   const [mounted, setMounted] = useState(false);
   const lowContrast = CONTRAST_PAIRS.map((pair) => ({
     ...pair,
@@ -212,10 +234,14 @@ function WidgetLook({ theme }: { theme: Theme }) {
           event.preventDefault();
           fetcher.submit(event.currentTarget, { method: "post" });
         }}
-        onReset={() => setDraft(theme)}
+        onReset={() => {
+          setDraft(theme);
+          setDraftMode(mode);
+        }}
         onInput={(event) => {
-          const parsed = readTheme(event.currentTarget);
-          if (parsed.success) setDraft(parsed.data);
+          const parsed = readForm(event.currentTarget);
+          if (parsed.theme.success) setDraft(parsed.theme.data);
+          if (parsed.mode.success) setDraftMode(parsed.mode.data);
         }}
       >
         <s-stack gap="base">
@@ -224,45 +250,70 @@ function WidgetLook({ theme }: { theme: Theme }) {
               Some values are invalid. Check the fields and try again.
             </s-banner>
           )}
-          {COLOR_GROUPS.map((group) => {
-            const warnings = lowContrast.filter((pair) =>
-              group.fields.some((field) => field.name === pair.text),
-            );
-            return (
-              <s-stack key={group.heading} gap="small">
-                <s-heading>{group.heading}</s-heading>
-                <s-grid
-                  gridTemplateColumns="repeat(auto-fill, minmax(220px, 1fr))"
-                  gap="base"
-                >
-                  {group.fields.map((field) => (
-                    <s-color-field
-                      key={field.name}
-                      label={field.label}
-                      name={field.name}
-                      value={theme[field.name]}
-                      details={field.details}
-                      required
-                    ></s-color-field>
-                  ))}
-                </s-grid>
-                {warnings.length > 0 && (
-                  <s-banner tone="warning">
-                    <s-paragraph>
-                      Below the 4.5:1 contrast recommended for readable text:
-                    </s-paragraph>
-                    <s-unordered-list>
-                      {warnings.map((pair) => (
-                        <s-list-item key={pair.label}>
-                          {pair.label} ({pair.ratio.toFixed(1)}:1)
-                        </s-list-item>
+          <s-choice-list label="Colors" name="mode">
+            <s-choice value="automatic" defaultSelected={mode === "automatic"}>
+              Automatic
+              <s-text slot="details">
+                Follows your brand colors from Settings &gt; Brand
+              </s-text>
+            </s-choice>
+            <s-choice value="custom" defaultSelected={mode === "custom"}>
+              Custom
+              <s-text slot="details">Pick every color yourself</s-text>
+            </s-choice>
+          </s-choice-list>
+          {automatic && !brand.primary && (
+            <s-banner tone="warning">
+              Your store has no brand colors yet, so the widget uses the
+              default colors.{" "}
+              <s-link href="shopify://admin/settings/brand">
+                Add brand colors
+              </s-link>
+            </s-banner>
+          )}
+          <s-box display={automatic ? "none" : "auto"}>
+            <s-stack gap="base">
+              {COLOR_GROUPS.map((group) => {
+                const warnings = lowContrast.filter((pair) =>
+                  group.fields.some((field) => field.name === pair.text),
+                );
+                return (
+                  <s-stack key={group.heading} gap="small">
+                    <s-heading>{group.heading}</s-heading>
+                    <s-grid
+                      gridTemplateColumns="repeat(auto-fill, minmax(220px, 1fr))"
+                      gap="base"
+                    >
+                      {group.fields.map((field) => (
+                        <s-color-field
+                          key={field.name}
+                          label={field.label}
+                          name={field.name}
+                          value={theme[field.name]}
+                          details={field.details}
+                          required
+                        ></s-color-field>
                       ))}
-                    </s-unordered-list>
-                  </s-banner>
-                )}
-              </s-stack>
-            );
-          })}
+                    </s-grid>
+                    {warnings.length > 0 && (
+                      <s-banner tone="warning">
+                        <s-paragraph>
+                          Below the 4.5:1 contrast recommended for readable text:
+                        </s-paragraph>
+                        <s-unordered-list>
+                          {warnings.map((pair) => (
+                            <s-list-item key={pair.label}>
+                              {pair.label} ({pair.ratio.toFixed(1)}:1)
+                            </s-list-item>
+                          ))}
+                        </s-unordered-list>
+                      </s-banner>
+                    )}
+                  </s-stack>
+                );
+              })}
+            </s-stack>
+          </s-box>
           <s-stack gap="small">
             <s-heading>Font</s-heading>
             <s-grid
@@ -349,19 +400,21 @@ function WidgetLook({ theme }: { theme: Theme }) {
           background: "#f1f2f4",
         }}
       >
-        {mounted && <Preview theme={draft} />}
+        {mounted && (
+          <Preview theme={draft} mode={draftMode} brand={brand} />
+        )}
       </div>
     </s-grid>
   );
 }
 
 export default function ThemePage() {
-  const { theme } = useLoaderData<typeof loader>();
+  const { theme, mode, brand } = useLoaderData<typeof loader>();
 
   return (
     <s-page heading="Theme">
       <s-section>
-        <WidgetLook theme={theme} />
+        <WidgetLook theme={theme} mode={mode} brand={brand} />
       </s-section>
     </s-page>
   );

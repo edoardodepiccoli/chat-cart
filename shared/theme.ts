@@ -98,14 +98,6 @@ export const themeSchema = colorsSchema.extend({
 
 export type Theme = z.infer<typeof themeSchema>;
 
-export const themeModeSchema = z.enum(["automatic", "custom"]);
-
-export type ThemeMode = z.infer<typeof themeModeSchema>;
-
-type BrandColor = { background: string; foreground: string };
-
-export type Brand = { primary: BrandColor | null; secondary: BrandColor | null };
-
 export type ThemeColor = keyof z.infer<typeof colorsSchema>;
 
 const SHADOWS: Record<Theme["shadow"], { panel: string; launcher: string }> =
@@ -144,12 +136,10 @@ export const DEFAULT_THEME: Theme = {
   fontFamily: "store",
 };
 
-export function themeVars(
-  theme: Theme,
-  mode: ThemeMode = "custom",
-): Record<string, string> {
+export function themeVars(theme: Theme): Record<string, string> {
   const { stack } = font(theme.fontFamily);
-  const colors = {
+
+  return {
     "--cc-color-primary": theme.primary,
     "--cc-color-on-primary": theme.onPrimary,
     "--cc-color-primary-hover": theme.primaryHover,
@@ -165,10 +155,6 @@ export function themeVars(
     "--cc-color-text": theme.text,
     "--cc-color-text-muted": theme.textMuted,
     "--cc-color-border": theme.border,
-  };
-
-  return {
-    ...(mode === "custom" ? colors : {}),
     "--cc-radius": `${theme.radius}px`,
     "--cc-border-width": `${theme.borderWidth}px`,
     "--cc-radius-button":
@@ -179,22 +165,8 @@ export function themeVars(
   };
 }
 
-export function brandVars(brand: Brand): Record<string, string> {
-  return {
-    ...(brand.primary
-      ? {
-          "--cc-brand-primary": brand.primary.background,
-          "--cc-brand-on-primary": brand.primary.foreground,
-        }
-      : {}),
-    ...(brand.secondary
-      ? { "--cc-brand-secondary": brand.secondary.background }
-      : {}),
-  };
-}
-
-export function themeStyle(theme: Theme, mode: ThemeMode): string {
-  return Object.entries(themeVars(theme, mode))
+export function themeStyle(theme: Theme): string {
+  return Object.entries(themeVars(theme))
     .map(([name, value]) => `${name}: ${value};`)
     .join(" ");
 }

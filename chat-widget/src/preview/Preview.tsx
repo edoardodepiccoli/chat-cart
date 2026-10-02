@@ -1,11 +1,5 @@
 import type { ChatMessage, ProductCardProps } from "../../../shared/chat";
-import {
-  brandVars,
-  themeVars,
-  type Brand,
-  type Theme,
-  type ThemeMode,
-} from "../../../shared/theme";
+import { themeVars, type Theme } from "../../../shared/theme";
 import type { PartContext } from "../components";
 import Composer from "../components/Composer";
 import Launcher from "../components/Launcher";
@@ -70,28 +64,12 @@ const CONTEXT: PartContext = {
   onAdd: noopAsync,
 };
 
-export default function Preview({
-  theme,
-  mode,
-  brand,
-}: {
-  theme: Theme;
-  mode: ThemeMode;
-  brand: Brand;
-}) {
-  const automatic = mode === "automatic";
-
+export default function Preview({ theme }: { theme: Theme }) {
   return (
     <div
       id="chat-cart-root"
       className="cc-preview"
-      data-mode={automatic ? "automatic" : undefined}
-      style={
-        {
-          ...themeVars(theme, mode),
-          ...(automatic ? brandVars(brand) : {}),
-        } as React.CSSProperties
-      }
+      style={themeVars(theme) as React.CSSProperties}
       onClickCapture={(event) => {
         if ((event.target as Element).closest("a")) event.preventDefault();
       }}

@@ -1,16 +1,16 @@
-import type { ChatMessage, ProductCardProps } from "../../shared/chat";
+import type { ChatMessage, ProductCardProps } from "../../../shared/chat";
 import {
   brandVars,
   themeVars,
   type Brand,
   type Theme,
   type ThemeMode,
-} from "../../shared/theme";
-import type { PartContext } from "./components";
-import Composer from "./components/Composer";
-import Launcher from "./components/Launcher";
-import Message from "./components/Message";
-import Suggestions from "./components/Suggestions";
+} from "../../../shared/theme";
+import type { PartContext } from "../components";
+import Composer from "../components/Composer";
+import Launcher from "../components/Launcher";
+import Message from "../components/Message";
+import Suggestions from "../components/Suggestions";
 
 function variant(size: string, available: boolean) {
   return {

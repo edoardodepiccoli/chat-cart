@@ -1,5 +1,4 @@
-#chat-cart-root,
-.cc-theme {
+#chat-cart-root {
   all: initial;
   -webkit-text-size-adjust: 100%;
   font-family: var(--cc-font-family, inherit);
@@ -7,10 +6,7 @@
 
 #chat-cart-root *,
 #chat-cart-root *::before,
-#chat-cart-root *::after,
-.cc-theme *,
-.cc-theme *::before,
-.cc-theme *::after {
+#chat-cart-root *::after {
   box-sizing: border-box;
 }
 

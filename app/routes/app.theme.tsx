@@ -15,14 +15,12 @@ import {
   contrast,
   FONTS,
   fontUrl,
-  THEME_PRESETS,
   themeSchema,
   type FontKey,
   type Theme,
   type ThemeColor,
 } from "../../shared/theme";
 import Preview from "../../chat-widget/src/Preview";
-import ThemeCard from "../../chat-widget/src/ThemeCard";
 import widgetTokens from "../../chat-widget/src/tokens.css?url";
 import widgetStyles from "../../chat-widget/src/styles.css?url";
 import previewStyles from "../../chat-widget/src/preview.css?url";
@@ -155,16 +153,6 @@ function readTheme(form: HTMLFormElement) {
   return themeSchema.safeParse(Object.fromEntries(new FormData(form)));
 }
 
-function applyPreset(form: HTMLFormElement, theme: Theme) {
-  for (const [name, value] of Object.entries(theme)) {
-    const field = form.querySelector<HTMLInputElement>(`[name="${name}"]`);
-    if (!field) continue;
-    field.value = String(value);
-    field.dispatchEvent(new Event("input", { bubbles: true }));
-    field.dispatchEvent(new Event("change", { bubbles: true }));
-  }
-}
-
 const CONTRAST_PAIRS: {
   text: ThemeColor;
   background: ThemeColor;
@@ -197,18 +185,11 @@ const CONTRAST_PAIRS: {
   },
 ];
 
-function sameTheme(a: Theme, b: Theme) {
-  return (Object.keys(a) as (keyof Theme)[]).every((key) => a[key] === b[key]);
-}
-
 function WidgetLook({ theme }: { theme: Theme }) {
   const fetcher = useFetcher<typeof action>();
   const shopify = useAppBridge();
   const [draft, setDraft] = useState(theme);
   const [mounted, setMounted] = useState(false);
-  const current = THEME_PRESETS.find((preset) =>
-    sameTheme(preset.theme, draft),
-  );
   const lowContrast = CONTRAST_PAIRS.map((pair) => ({
     ...pair,
     ratio: contrast(draft[pair.text], draft[pair.background]),
@@ -243,74 +224,6 @@ function WidgetLook({ theme }: { theme: Theme }) {
               Some values are invalid. Check the fields and try again.
             </s-banner>
           )}
-          <s-stack gap="small">
-            <s-clickable
-              type="button"
-              commandFor="theme-presets"
-              padding="small"
-              border="base"
-              borderRadius="base"
-              inlineSize="300px"
-              accessibilityLabel={`Current look: ${current?.name ?? "Custom"}. Change preset`}
-            >
-              <s-grid
-                gridTemplateColumns="auto 1fr auto"
-                gap="base"
-                alignItems="center"
-              >
-                <div className="cc-theme-thumb">
-                  <ThemeCard name={current?.name ?? "Custom"} theme={draft} />
-                </div>
-                <s-stack gap="none">
-                  <s-text color="subdued">Preset</s-text>
-                  <s-text type="strong">{current?.name ?? "Custom"}</s-text>
-                </s-stack>
-                <s-icon type="chevron-down"></s-icon>
-              </s-grid>
-            </s-clickable>
-            <s-popover id="theme-presets" inlineSize="640px">
-              <s-box padding="base">
-                <s-stack gap="base">
-                  <s-paragraph color="subdued">
-                    Fills the fields below. You can still change them before
-                    saving.
-                  </s-paragraph>
-                  <s-grid gridTemplateColumns="repeat(2, 1fr)" gap="base">
-                    {THEME_PRESETS.map((preset) => {
-                      const selected = preset === current;
-                      return (
-                        <s-clickable
-                          key={preset.name}
-                          type="button"
-                          commandFor="theme-presets"
-                          command="--hide"
-                          padding="small"
-                          borderRadius="large"
-                          border={selected ? "large strong" : "base"}
-                          accessibilityLabel={
-                            selected
-                              ? `${preset.name}, current look`
-                              : `Use the ${preset.name} preset`
-                          }
-                          onClick={(event) => {
-                            const form = event.currentTarget.closest("form");
-                            if (form) applyPreset(form, preset.theme);
-                          }}
-                        >
-                          <s-stack gap="small">
-                            <ThemeCard name={preset.name} theme={preset.theme} />
-                            <s-box paddingInline="small">
-                              <s-text type="strong">{preset.name}</s-text>
-                            </s-box>
-                          </s-stack>
-                        </s-clickable>
-                      );
-                    })}
-                  </s-grid>
-                </s-stack>
-              </s-box>
-            </s-popover>
-          </s-stack>
           {COLOR_GROUPS.map((group) => {
             const warnings = lowContrast.filter((pair) =>
               group.fields.some((field) => field.name === pair.text),

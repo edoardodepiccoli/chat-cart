@@ -63,7 +63,7 @@ export async function saveTheme(graphql: AdminGraphqlClient, theme: Theme) {
           value: JSON.stringify({
             theme,
             style: themeStyle(theme),
-            fontUrl: fontUrl([theme.fontFamily]),
+            fontUrl: fontUrl([theme.font]),
           }),
         },
       ],

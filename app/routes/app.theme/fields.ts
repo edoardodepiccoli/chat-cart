@@ -1,4 +1,4 @@
-import type { ThemeColor } from "../../../shared/theme";
+import type { Theme, ThemeColor } from "../../../shared/theme";
 
 export const COLOR_GROUPS: {
   heading: string;
@@ -10,22 +10,14 @@ export const COLOR_GROUPS: {
       {
         name: "primary",
         label: "Primary color",
-        details: "Main buttons, the launcher and focus rings",
+        details:
+          "Main buttons, the launcher, customer messages and focus rings. Darkens on hover",
       },
       {
         name: "onPrimary",
         label: "Text on primary",
-        details: "Text and icons on main buttons and the launcher",
-      },
-      {
-        name: "primaryHover",
-        label: "Primary hover",
-        details: "Main buttons under the pointer",
-      },
-      {
-        name: "onPrimaryHover",
-        label: "Text on primary hover",
-        details: "Text on hovered main buttons",
+        details:
+          "Text and icons on main buttons, the launcher and customer messages",
       },
     ],
   },
@@ -35,22 +27,13 @@ export const COLOR_GROUPS: {
       {
         name: "secondary",
         label: "Secondary color",
-        details: "Product and FAQ links, suggested replies",
+        details:
+          "Product and FAQ links, suggested replies. Shifts toward the text color on hover",
       },
       {
         name: "onSecondary",
         label: "Text on secondary",
         details: "Text on secondary buttons and suggested replies",
-      },
-      {
-        name: "secondaryHover",
-        label: "Secondary hover",
-        details: "Secondary buttons and suggested replies under the pointer",
-      },
-      {
-        name: "onSecondaryHover",
-        label: "Text on secondary hover",
-        details: "Text on hovered secondary buttons and suggested replies",
       },
     ],
   },
@@ -66,16 +49,6 @@ export const COLOR_GROUPS: {
         name: "surface",
         label: "Surface",
         details: "Assistant messages, typing indicator and image placeholders",
-      },
-      {
-        name: "userBubble",
-        label: "Customer messages",
-        details: "Messages the shopper sends",
-      },
-      {
-        name: "onUserBubble",
-        label: "Text on customer messages",
-        details: "Text in messages the shopper sends",
       },
     ],
   },
@@ -97,6 +70,20 @@ export const COLOR_GROUPS: {
   },
 ];
 
+export const RADIUS_FIELDS: {
+  name: keyof Theme["cornerRadius"];
+  label: string;
+  details: string;
+}[] = [
+  { name: "small", label: "Small radius", details: "Fields and cart images" },
+  {
+    name: "base",
+    label: "Base radius",
+    details: "Messages, cards and rounded buttons",
+  },
+  { name: "large", label: "Large radius", details: "The chat panel" },
+];
+
 export const CONTRAST_PAIRS: {
   text: ThemeColor;
   background: ThemeColor;
@@ -111,22 +98,7 @@ export const CONTRAST_PAIRS: {
   },
   { text: "textMuted", background: "surface", label: "Muted text on surface" },
   { text: "onPrimary", background: "primary", label: "Text on primary" },
-  {
-    text: "onPrimaryHover",
-    background: "primaryHover",
-    label: "Text on primary hover",
-  },
   { text: "onSecondary", background: "secondary", label: "Text on secondary" },
-  {
-    text: "onSecondaryHover",
-    background: "secondaryHover",
-    label: "Text on secondary hover",
-  },
-  {
-    text: "onUserBubble",
-    background: "userBubble",
-    label: "Text on customer messages",
-  },
 ];
 
 function luminance(hex: string) {

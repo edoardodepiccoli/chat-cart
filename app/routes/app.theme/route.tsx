@@ -11,8 +11,18 @@ import { boundary } from "@shopify/shopify-app-react-router/server";
 
 import { authenticate } from "../../shopify.server";
 import { getTheme, saveTheme } from "./theme.server";
-import { COLOR_GROUPS, CONTRAST_PAIRS, contrast } from "./fields";
-import { FONTS, fontUrl, themeSchema, type FontKey } from "../../../shared/theme";
+import {
+  COLOR_GROUPS,
+  CONTRAST_PAIRS,
+  RADIUS_FIELDS,
+  contrast,
+} from "./fields";
+import {
+  FONTS,
+  fontUrl,
+  themeSchema,
+  type FontKey,
+} from "../../../shared/theme";
 import Preview from "../../../chat-widget/src/preview/Preview";
 import widgetTokens from "../../../chat-widget/src/tokens.css?url";
 import widgetStyles from "../../../chat-widget/src/styles.css?url";
@@ -27,6 +37,16 @@ export const links: LinksFunction = () => [
   ...(allFonts ? [{ rel: "stylesheet", href: allFonts }] : []),
 ];
 
+function parseTheme(form: FormData) {
+  const values: Record<string, unknown> = {};
+  for (const [name, value] of form) {
+    const [group, key] = name.split(".");
+    if (key) ((values[group] ??= {}) as Record<string, unknown>)[key] = value;
+    else values[name] = value;
+  }
+  return themeSchema.safeParse(values);
+}
+
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { admin } = await authenticate.admin(request);
 
@@ -36,9 +56,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 export const action = async ({ request }: ActionFunctionArgs) => {
   const { admin } = await authenticate.admin(request);
 
-  const parsed = themeSchema.safeParse(
-    Object.fromEntries(await request.formData()),
-  );
+  const parsed = parseTheme(await request.formData());
   if (!parsed.success) return { ok: false };
 
   await saveTheme(admin.graphql, parsed.data);
@@ -53,7 +71,7 @@ export default function ThemePage() {
   const [mounted, setMounted] = useState(false);
   const lowContrast = CONTRAST_PAIRS.map((pair) => ({
     ...pair,
-    ratio: contrast(draft[pair.text], draft[pair.background]),
+    ratio: contrast(draft.colors[pair.text], draft.colors[pair.background]),
   })).filter((pair) => pair.ratio < 4.5);
 
   useEffect(() => setMounted(true), []);
@@ -77,9 +95,7 @@ export default function ThemePage() {
             }}
             onReset={() => setDraft(theme)}
             onInput={(event) => {
-              const parsed = themeSchema.safeParse(
-                Object.fromEntries(new FormData(event.currentTarget)),
-              );
+              const parsed = parseTheme(new FormData(event.currentTarget));
               if (parsed.success) setDraft(parsed.data);
             }}
           >
@@ -104,8 +120,8 @@ export default function ThemePage() {
                         <s-color-field
                           key={field.name}
                           label={field.label}
-                          name={field.name}
-                          value={theme[field.name]}
+                          name={`colors.${field.name}`}
+                          value={theme.colors[field.name]}
                           details={field.details}
                           required
                         ></s-color-field>
@@ -137,8 +153,8 @@ export default function ThemePage() {
                 >
                   <s-select
                     label="Font"
-                    name="fontFamily"
-                    value={theme.fontFamily}
+                    name="font"
+                    value={theme.font}
                     details="Store font uses your theme's font. Named fonts load from Google Fonts"
                   >
                     {Object.entries(FONTS).map(([key, font]) => (
@@ -155,17 +171,20 @@ export default function ThemePage() {
                   gridTemplateColumns="repeat(auto-fill, minmax(220px, 1fr))"
                   gap="base"
                 >
-                  <s-number-field
-                    label="Corner radius"
-                    name="radius"
-                    value={String(theme.radius)}
-                    details="Roundness of the panel, messages, cards, fields and rounded buttons. 0 is square"
-                    min={0}
-                    max={24}
-                    step={1}
-                    suffix="px"
-                    required
-                  ></s-number-field>
+                  {RADIUS_FIELDS.map((field) => (
+                    <s-number-field
+                      key={field.name}
+                      label={field.label}
+                      name={`cornerRadius.${field.name}`}
+                      value={String(theme.cornerRadius[field.name])}
+                      details={`${field.details}. 0 is square`}
+                      min={0}
+                      max={24}
+                      step={1}
+                      suffix="px"
+                      required
+                    ></s-number-field>
+                  ))}
                   <s-number-field
                     label="Border width"
                     name="borderWidth"
@@ -184,7 +203,7 @@ export default function ThemePage() {
                     details="Suggested replies are always pills"
                   >
                     <s-option value="rounded">
-                      Rounded, follows corner radius
+                      Rounded, follows base radius
                     </s-option>
                     <s-option value="pill">Pill</s-option>
                   </s-select>

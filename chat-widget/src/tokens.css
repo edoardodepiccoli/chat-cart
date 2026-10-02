@@ -9,18 +9,29 @@
   --cc-color-border: #e3e3e3;
   --cc-color-primary: #1a1a1a;
   --cc-color-on-primary: #ffffff;
-  --cc-color-primary-hover: #3c3c3c;
-  --cc-color-on-primary-hover: #ffffff;
   --cc-color-secondary: #ffffff;
   --cc-color-on-secondary: #1a1a1a;
-  --cc-color-secondary-hover: #f1f1f1;
-  --cc-color-on-secondary-hover: #1a1a1a;
-  --cc-color-user-bubble: #1a1a1a;
-  --cc-color-on-user-bubble: #ffffff;
+
+  --cc-color-primary-hover: color-mix(
+    in srgb,
+    var(--cc-color-primary) 85%,
+    #000000
+  );
+  --cc-color-on-primary-hover: var(--cc-color-on-primary);
+  --cc-color-secondary-hover: color-mix(
+    in srgb,
+    var(--cc-color-secondary) 94%,
+    var(--cc-color-text)
+  );
+  --cc-color-on-secondary-hover: var(--cc-color-on-secondary);
+  --cc-color-user-bubble: var(--cc-color-primary);
+  --cc-color-on-user-bubble: var(--cc-color-on-primary);
 
   --cc-border-width: 1px;
-  --cc-radius: 12px;
-  --cc-radius-button: var(--cc-radius);
+  --cc-radius-small: 8px;
+  --cc-radius-base: 12px;
+  --cc-radius-large: 16px;
+  --cc-radius-button: var(--cc-radius-base);
 
   --cc-shadow-panel: 0 8px 32px rgba(0, 0, 0, 0.16);
   --cc-shadow-launcher: 0 8px 24px rgba(0, 0, 0, 0.24);

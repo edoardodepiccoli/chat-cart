@@ -3,15 +3,27 @@
   --cc-font-size-sm: 12px;
 
   --cc-color-bg: #ffffff;
-  --cc-color-surface: #f1f1f1;
   --cc-color-text: #1a1a1a;
-  --cc-color-text-muted: #616161;
-  --cc-color-border: #e3e3e3;
   --cc-color-primary: #1a1a1a;
   --cc-color-on-primary: #ffffff;
   --cc-color-secondary: #ffffff;
   --cc-color-on-secondary: #1a1a1a;
 
+  --cc-color-surface: color-mix(
+    in srgb,
+    var(--cc-color-text) 6%,
+    var(--cc-color-bg)
+  );
+  --cc-color-text-muted: color-mix(
+    in srgb,
+    var(--cc-color-text) 65%,
+    var(--cc-color-bg)
+  );
+  --cc-color-border: color-mix(
+    in srgb,
+    var(--cc-color-text) 12%,
+    var(--cc-color-bg)
+  );
   --cc-color-primary-hover: color-mix(
     in srgb,
     var(--cc-color-primary) 85%,

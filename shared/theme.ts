@@ -70,7 +70,7 @@ export function fontUrl(keys: FontKey[]): string | null {
   return `https://fonts.googleapis.com/css2?${query}&display=swap`;
 }
 
-export const themeSchema = z.object({
+const colorsSchema = z.object({
   primary: hex,
   onPrimary: hex,
   primaryHover: hex,
@@ -86,6 +86,9 @@ export const themeSchema = z.object({
   text: hex,
   textMuted: hex,
   border: hex,
+});
+
+export const themeSchema = colorsSchema.extend({
   radius: z.coerce.number().int().min(0).max(24),
   borderWidth: z.coerce.number().int().min(0).max(2),
   buttonShape: z.enum(["rounded", "pill"]),
@@ -103,10 +106,7 @@ type BrandColor = { background: string; foreground: string };
 
 export type Brand = { primary: BrandColor | null; secondary: BrandColor | null };
 
-export type ThemeColor = Exclude<
-  keyof Theme,
-  "radius" | "borderWidth" | "buttonShape" | "shadow" | "fontFamily"
->;
+export type ThemeColor = keyof z.infer<typeof colorsSchema>;
 
 const SHADOWS: Record<Theme["shadow"], { panel: string; launcher: string }> =
   {

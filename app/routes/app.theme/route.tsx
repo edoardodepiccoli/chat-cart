@@ -9,8 +9,8 @@ import { useFetcher, useLoaderData } from "react-router";
 import { useAppBridge } from "@shopify/app-bridge-react";
 import { boundary } from "@shopify/shopify-app-react-router/server";
 
-import shopify, { authenticate } from "../shopify.server";
-import { getBrand, getTheme, saveTheme } from "../theme.server";
+import shopify, { authenticate } from "../../shopify.server";
+import { getBrand, getTheme, saveTheme } from "./theme.server";
 import {
   contrast,
   FONTS,
@@ -22,11 +22,11 @@ import {
   type Theme,
   type ThemeColor,
   type ThemeMode,
-} from "../../shared/theme";
-import Preview from "../../chat-widget/src/Preview";
-import widgetTokens from "../../chat-widget/src/tokens.css?url";
-import widgetStyles from "../../chat-widget/src/styles.css?url";
-import previewStyles from "../../chat-widget/src/preview.css?url";
+} from "../../../shared/theme";
+import Preview from "../../../chat-widget/src/Preview";
+import widgetTokens from "../../../chat-widget/src/tokens.css?url";
+import widgetStyles from "../../../chat-widget/src/styles.css?url";
+import previewStyles from "../../../chat-widget/src/preview.css?url";
 
 const allFonts = fontUrl(Object.keys(FONTS) as FontKey[]);
 

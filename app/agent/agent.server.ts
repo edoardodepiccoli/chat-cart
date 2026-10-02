@@ -23,9 +23,9 @@ import {
   type ProductCardProps,
   type ProductCardsProps,
   type SelectedOption,
-} from "../shared/chat";
-import { pickOptions } from "../shared/variants";
-import { saveMessage } from "./conversations.server";
+} from "../../shared/chat";
+import { pickOptions } from "../../shared/variants";
+import { saveMessage } from "../conversations.server";
 import { SUGGEST, SYSTEM } from "./prompts";
 import {
   getProduct,

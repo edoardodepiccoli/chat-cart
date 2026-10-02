@@ -1,7 +1,7 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 
 import type { ChatMessage } from "../../shared/chat";
-import { reply } from "../agent.server";
+import { reply } from "../agent/agent.server";
 import {
   loadMessages,
   openConversation,

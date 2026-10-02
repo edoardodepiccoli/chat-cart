@@ -1,5 +1,5 @@
 import type { ChatMessage, ProductCardProps } from "../../../shared/chat";
-import { themeVars, type Theme } from "../../../shared/theme";
+import { fontFaces, themeVars, type Theme } from "../../../shared/theme";
 import type { PartContext } from "../components";
 import Composer from "../components/Composer";
 import Launcher from "../components/Launcher";
@@ -74,6 +74,7 @@ export default function Preview({ theme }: { theme: Theme }) {
         if ((event.target as Element).closest("a")) event.preventDefault();
       }}
     >
+      <style>{fontFaces(theme)}</style>
       <div className="cc-panel" data-open="true" data-size="l">
         <div className="cc-log">
           <div className="cc-log__content">

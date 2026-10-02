@@ -23,10 +23,10 @@ import {
   type ThemeColor,
   type ThemeMode,
 } from "../../../shared/theme";
-import Preview from "../../../chat-widget/src/Preview";
+import Preview from "../../../chat-widget/src/preview/Preview";
 import widgetTokens from "../../../chat-widget/src/tokens.css?url";
 import widgetStyles from "../../../chat-widget/src/styles.css?url";
-import previewStyles from "../../../chat-widget/src/preview.css?url";
+import previewStyles from "../../../chat-widget/src/preview/preview.css?url";
 
 const allFonts = fontUrl(Object.keys(FONTS) as FontKey[]);
 

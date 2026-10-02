@@ -70,35 +70,30 @@ export function fontUrl(keys: FontKey[]): string | null {
   return `https://fonts.googleapis.com/css2?${query}&display=swap`;
 }
 
-const colorsSchema = z.object({
-  primary: hex,
-  onPrimary: hex,
-  primaryHover: hex,
-  onPrimaryHover: hex,
-  secondary: hex,
-  onSecondary: hex,
-  secondaryHover: hex,
-  onSecondaryHover: hex,
-  background: hex,
-  surface: hex,
-  userBubble: hex,
-  onUserBubble: hex,
-  text: hex,
-  textMuted: hex,
-  border: hex,
-});
+const radius = z.coerce.number().int().min(0).max(24);
 
-export const themeSchema = colorsSchema.extend({
-  radius: z.coerce.number().int().min(0).max(24),
+export const themeSchema = z.object({
+  colors: z.object({
+    primary: hex,
+    onPrimary: hex,
+    secondary: hex,
+    onSecondary: hex,
+    background: hex,
+    surface: hex,
+    text: hex,
+    textMuted: hex,
+    border: hex,
+  }),
+  cornerRadius: z.object({ small: radius, base: radius, large: radius }),
+  font: z.enum(Object.keys(FONTS) as [FontKey, ...FontKey[]]),
   borderWidth: z.coerce.number().int().min(0).max(2),
   buttonShape: z.enum(["rounded", "pill"]),
   shadow: z.enum(["none", "soft", "strong"]),
-  fontFamily: z.enum(Object.keys(FONTS) as [FontKey, ...FontKey[]]),
 });
 
 export type Theme = z.infer<typeof themeSchema>;
 
-export type ThemeColor = keyof z.infer<typeof colorsSchema>;
+export type ThemeColor = keyof Theme["colors"];
 
 const SHADOWS: Record<Theme["shadow"], { panel: string; launcher: string }> =
   {
@@ -114,51 +109,44 @@ const SHADOWS: Record<Theme["shadow"], { panel: string; launcher: string }> =
   };
 
 export const DEFAULT_THEME: Theme = {
-  primary: "#1a1a1a",
-  onPrimary: "#ffffff",
-  primaryHover: "#3c3c3c",
-  onPrimaryHover: "#ffffff",
-  secondary: "#ffffff",
-  onSecondary: "#1a1a1a",
-  secondaryHover: "#f1f1f1",
-  onSecondaryHover: "#1a1a1a",
-  background: "#ffffff",
-  surface: "#f1f1f1",
-  userBubble: "#1a1a1a",
-  onUserBubble: "#ffffff",
-  text: "#1a1a1a",
-  textMuted: "#616161",
-  border: "#e3e3e3",
-  radius: 12,
+  colors: {
+    primary: "#1a1a1a",
+    onPrimary: "#ffffff",
+    secondary: "#ffffff",
+    onSecondary: "#1a1a1a",
+    background: "#ffffff",
+    surface: "#f1f1f1",
+    text: "#1a1a1a",
+    textMuted: "#616161",
+    border: "#e3e3e3",
+  },
+  cornerRadius: { small: 8, base: 12, large: 16 },
+  font: "store",
   borderWidth: 1,
   buttonShape: "rounded",
   shadow: "soft",
-  fontFamily: "store",
 };
 
 export function themeVars(theme: Theme): Record<string, string> {
-  const { stack } = font(theme.fontFamily);
+  const { colors, cornerRadius } = theme;
+  const { stack } = font(theme.font);
 
   return {
-    "--cc-color-primary": theme.primary,
-    "--cc-color-on-primary": theme.onPrimary,
-    "--cc-color-primary-hover": theme.primaryHover,
-    "--cc-color-on-primary-hover": theme.onPrimaryHover,
-    "--cc-color-secondary": theme.secondary,
-    "--cc-color-on-secondary": theme.onSecondary,
-    "--cc-color-secondary-hover": theme.secondaryHover,
-    "--cc-color-on-secondary-hover": theme.onSecondaryHover,
-    "--cc-color-bg": theme.background,
-    "--cc-color-surface": theme.surface,
-    "--cc-color-user-bubble": theme.userBubble,
-    "--cc-color-on-user-bubble": theme.onUserBubble,
-    "--cc-color-text": theme.text,
-    "--cc-color-text-muted": theme.textMuted,
-    "--cc-color-border": theme.border,
-    "--cc-radius": `${theme.radius}px`,
+    "--cc-color-primary": colors.primary,
+    "--cc-color-on-primary": colors.onPrimary,
+    "--cc-color-secondary": colors.secondary,
+    "--cc-color-on-secondary": colors.onSecondary,
+    "--cc-color-bg": colors.background,
+    "--cc-color-surface": colors.surface,
+    "--cc-color-text": colors.text,
+    "--cc-color-text-muted": colors.textMuted,
+    "--cc-color-border": colors.border,
+    "--cc-radius-small": `${cornerRadius.small}px`,
+    "--cc-radius-base": `${cornerRadius.base}px`,
+    "--cc-radius-large": `${cornerRadius.large}px`,
     "--cc-border-width": `${theme.borderWidth}px`,
     "--cc-radius-button":
-      theme.buttonShape === "pill" ? "999px" : `${theme.radius}px`,
+      theme.buttonShape === "pill" ? "999px" : `${cornerRadius.base}px`,
     "--cc-shadow-panel": SHADOWS[theme.shadow].panel,
     "--cc-shadow-launcher": SHADOWS[theme.shadow].launcher,
     ...(stack ? { "--cc-font-family": stack } : {}),

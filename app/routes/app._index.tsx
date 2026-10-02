@@ -265,11 +265,10 @@ export default function Index() {
   return (
     <s-page heading="Stats">
       <s-section>
-        <s-button-group gap="none" accessibilityLabel="Date range">
+        <s-stack direction="inline" gap="small-200">
           {RANGES.map((range) => (
             <s-button
               key={range}
-              slot="secondary-actions"
               variant={range === days ? "primary" : "secondary"}
               onClick={() =>
                 setSearchParams((params) => {
@@ -281,7 +280,7 @@ export default function Index() {
               Last {range} days
             </s-button>
           ))}
-        </s-button-group>
+        </s-stack>
       </s-section>
 
       <s-section>

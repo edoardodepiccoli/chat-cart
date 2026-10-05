@@ -121,10 +121,6 @@ export default function ThemePage() {
                 >
                   Generate from store theme
                 </s-button>
-                <s-text color="subdued">
-                  Picks every value below from your published theme. Review,
-                  then save
-                </s-text>
               </s-stack>
               {generator.data && "generateError" in generator.data && (
                 <s-banner tone="critical">

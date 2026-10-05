@@ -10,17 +10,114 @@ import { SaveBar, useAppBridge } from "@shopify/app-bridge-react";
 import { boundary } from "@shopify/shopify-app-react-router/server";
 
 import { authenticate } from "../../shopify.server";
-import { generateTheme, getTheme, saveTheme } from "./theme.server";
-import { COLOR_GROUPS, CONTRAST_PAIRS, contrast } from "./fields";
+import { getTheme, saveTheme } from "./theme.server";
 import {
   DEFAULT_THEME,
   themeSchema,
   type Theme,
+  type ThemeColor,
 } from "../../../shared/theme";
 import Preview from "../../../chat-widget/src/preview/Preview";
 import widgetTokens from "../../../chat-widget/src/tokens.css?url";
 import widgetStyles from "../../../chat-widget/src/styles.css?url";
 import previewStyles from "../../../chat-widget/src/preview/preview.css?url";
+
+const COLOR_GROUPS: {
+  heading: string;
+  fields: { name: ThemeColor; label: string; details: string }[];
+}[] = [
+  {
+    heading: "Primary",
+    fields: [
+      {
+        name: "primary",
+        label: "Primary color",
+        details: "Main buttons, the launcher and focus rings",
+      },
+      {
+        name: "onPrimary",
+        label: "Text on primary",
+        details: "Text and icons on main buttons and the launcher",
+      },
+    ],
+  },
+  {
+    heading: "Secondary",
+    fields: [
+      {
+        name: "secondary",
+        label: "Secondary color",
+        details: "Secondary buttons",
+      },
+      {
+        name: "onSecondary",
+        label: "Text on secondary",
+        details: "Text on secondary buttons",
+      },
+    ],
+  },
+  {
+    heading: "Suggested replies",
+    fields: [
+      {
+        name: "suggestion",
+        label: "Suggestion color",
+        details: "Clickable replies under the assistant's answer",
+      },
+      {
+        name: "onSuggestion",
+        label: "Text on suggestions",
+        details: "Text in suggested replies",
+      },
+      {
+        name: "suggestionBorder",
+        label: "Suggestion border",
+        details: "Line around suggested replies",
+      },
+    ],
+  },
+  {
+    heading: "Surfaces",
+    fields: [
+      {
+        name: "background",
+        label: "Background",
+        details: "Chat panel, cards and the message field",
+      },
+      {
+        name: "surface",
+        label: "Surface",
+        details: "Assistant messages, typing indicator and image placeholders",
+      },
+      {
+        name: "userBubble",
+        label: "Customer messages",
+        details: "Messages the shopper sends",
+      },
+      {
+        name: "onUserBubble",
+        label: "Text on customer messages",
+        details: "Text in messages the shopper sends",
+      },
+    ],
+  },
+  {
+    heading: "Text and lines",
+    fields: [
+      { name: "text", label: "Text", details: "Main text" },
+      {
+        name: "textMuted",
+        label: "Muted text",
+        details: "Prices, labels and hints",
+      },
+      {
+        name: "border",
+        label: "Borders",
+        details: "Lines around the panel, cards, fields and buttons",
+      },
+    ],
+  },
+];
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: widgetTokens },
@@ -36,17 +133,9 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const { admin } = await authenticate.admin(request);
-  const formData = await request.formData();
-
-  if (formData.get("intent") === "generate") {
-    try {
-      return { generated: await generateTheme(admin.graphql) };
-    } catch {
-      return { generateError: true };
-    }
-  }
-
-  const parsed = themeSchema.safeParse(Object.fromEntries(formData));
+  const parsed = themeSchema.safeParse(
+    Object.fromEntries(await request.formData()),
+  );
   if (!parsed.success) return { ok: false };
 
   await saveTheme(admin.graphql, parsed.data);
@@ -56,15 +145,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 export default function ThemePage() {
   const { theme } = useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof action>();
-  const generator = useFetcher<typeof action>();
   const shopify = useAppBridge();
   const [formKey, setFormKey] = useState(0);
   const [draft, setDraft] = useState(theme);
   const [mounted, setMounted] = useState(false);
-  const lowContrast = CONTRAST_PAIRS.map((pair) => ({
-    ...pair,
-    ratio: contrast(draft[pair.text], draft[pair.background]),
-  })).filter((pair) => pair.ratio < 4.5);
 
   const dirty = (Object.keys(theme) as (keyof Theme)[]).some(
     (key) => draft[key] !== theme[key],
@@ -78,17 +162,8 @@ export default function ThemePage() {
   useEffect(() => setMounted(true), []);
 
   useEffect(() => {
-    if (fetcher.data && "ok" in fetcher.data && fetcher.data.ok)
-      shopify.toast.show("Theme saved");
+    if (fetcher.data?.ok) shopify.toast.show("Theme saved");
   }, [fetcher.data, shopify]);
-
-  useEffect(() => {
-    const generated =
-      generator.data && "generated" in generator.data
-        ? generator.data.generated
-        : null;
-    if (generated) load(generated);
-  }, [generator.data]);
 
   return (
     <s-page heading="Theme">
@@ -116,70 +191,36 @@ export default function ThemePage() {
             }}
           >
             <s-stack gap="base">
-              <s-stack direction="inline" gap="base" alignItems="center">
-                <s-button
-                  type="button"
-                  loading={generator.state !== "idle"}
-                  onClick={() =>
-                    generator.submit({ intent: "generate" }, { method: "post" })
-                  }
-                >
-                  Generate from store theme
-                </s-button>
+              <s-stack direction="inline" gap="base">
                 <s-button type="button" onClick={() => load(DEFAULT_THEME)}>
                   Revert to default
                 </s-button>
               </s-stack>
-              {generator.data && "generateError" in generator.data && (
-                <s-banner tone="critical">
-                  Theme generation failed. Try again.
-                </s-banner>
-              )}
-              {fetcher.data && "ok" in fetcher.data && !fetcher.data.ok && (
+              {fetcher.data && !fetcher.data.ok && (
                 <s-banner tone="critical">
                   Some values are invalid. Check the fields and try again.
                 </s-banner>
               )}
-              {COLOR_GROUPS.map((group) => {
-                const warnings = lowContrast.filter((pair) =>
-                  group.fields.some((field) => field.name === pair.text),
-                );
-                return (
-                  <s-stack key={group.heading} gap="small">
-                    <s-heading>{group.heading}</s-heading>
-                    <s-grid
-                      gridTemplateColumns="repeat(auto-fill, minmax(220px, 1fr))"
-                      gap="base"
-                    >
-                      {group.fields.map((field) => (
-                        <s-color-field
-                          key={field.name}
-                          label={field.label}
-                          name={field.name}
-                          value={draft[field.name]}
-                          details={field.details}
-                          required
-                        ></s-color-field>
-                      ))}
-                    </s-grid>
-                    {warnings.length > 0 && (
-                      <s-banner tone="warning">
-                        <s-paragraph>
-                          Below the 4.5:1 contrast recommended for readable
-                          text:
-                        </s-paragraph>
-                        <s-unordered-list>
-                          {warnings.map((pair) => (
-                            <s-list-item key={pair.label}>
-                              {pair.label} ({pair.ratio.toFixed(1)}:1)
-                            </s-list-item>
-                          ))}
-                        </s-unordered-list>
-                      </s-banner>
-                    )}
-                  </s-stack>
-                );
-              })}
+              {COLOR_GROUPS.map((group) => (
+                <s-stack key={group.heading} gap="small">
+                  <s-heading>{group.heading}</s-heading>
+                  <s-grid
+                    gridTemplateColumns="repeat(auto-fill, minmax(220px, 1fr))"
+                    gap="base"
+                  >
+                    {group.fields.map((field) => (
+                      <s-color-field
+                        key={field.name}
+                        label={field.label}
+                        name={field.name}
+                        value={draft[field.name]}
+                        details={field.details}
+                        required
+                      ></s-color-field>
+                    ))}
+                  </s-grid>
+                </s-stack>
+              ))}
             </s-stack>
           </form>
 

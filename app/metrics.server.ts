@@ -1,5 +1,4 @@
 import { COMPONENT_TOOLS } from "../shared/chat";
-import type { ProductCardProps, ProductVariant } from "../shared/chat";
 import type { ChatEvent } from "../shared/events";
 import prisma from "./db.server";
 
@@ -33,7 +32,7 @@ const COMPONENT_ACTIONS: Record<(typeof COMPONENT_TOOLS)[number], string> = {
   showCart: "checkout_clicked",
 };
 
-type Part = { type: string; state?: string; output?: unknown };
+type AddedToCart = Extract<ChatEvent, { type: "added_to_cart" }>["data"];
 
 type Summary = {
   createdAt: Date;
@@ -46,19 +45,6 @@ type Summary = {
   shown: number;
   actions: number;
 };
-
-function variantsOf(part: Part): ProductVariant[] {
-  if (part.state !== "output-available") return [];
-  if (part.type === "tool-showProductCard") {
-    return (part.output as ProductCardProps).variants;
-  }
-  if (part.type === "tool-showProductCards") {
-    return (part.output as { products: ProductCardProps[] }).products.flatMap(
-      (product) => product.variants,
-    );
-  }
-  return [];
-}
 
 function stats(summaries: Summary[]) {
   const count = (key: "engaged" | "opened" | "carted" | "checkout") =>
@@ -100,25 +86,22 @@ export async function getStats(shop: string, days: number) {
   const actionTypes = new Set(Object.values(COMPONENT_ACTIONS));
 
   const summaries: Summary[] = conversations.map((conversation) => {
-    const prices = new Map<string, number>();
     let shown = 0;
     for (const message of conversation.messages) {
       if (message.role !== "assistant") continue;
-      for (const part of message.parts as Part[]) {
-        const name = part.type.replace(/^tool-/, "");
-        if (name in COMPONENT_ACTIONS) shown++;
-        for (const variant of variantsOf(part)) {
-          prices.set(variant.id, Number(variant.price.amount));
-          currency ??= variant.price.currencyCode;
-        }
+      for (const part of message.parts as { type: string }[]) {
+        if (part.type.replace(/^tool-/, "") in COMPONENT_ACTIONS) shown++;
       }
     }
 
     const events = conversation.events;
     const has = (type: string) => events.some((event) => event.type === type);
     const adds = events.filter((event) => event.type === "added_to_cart");
-    const priceOf = (event: (typeof events)[number]) =>
-      prices.get((event.data as { variantId: string }).variantId) ?? 0;
+    const priceOf = (event: (typeof events)[number]) => {
+      const { price } = event.data as AddedToCart;
+      currency ??= price.currencyCode;
+      return Number(price.amount);
+    };
     const lastCheckout = events
       .filter((event) => event.type === "checkout_clicked")
       .reduce<Date | null>(

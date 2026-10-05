@@ -125,7 +125,11 @@ export default function App() {
     await addToCart(variant.id);
     record({
       type: "added_to_cart",
-      data: { handle: product.handle, variantId: variant.id },
+      data: {
+        handle: product.handle,
+        variantId: variant.id,
+        price: variant.price,
+      },
     });
     setCart(await getCart());
     const label =

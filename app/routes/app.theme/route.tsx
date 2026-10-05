@@ -12,7 +12,11 @@ import { boundary } from "@shopify/shopify-app-react-router/server";
 import { authenticate } from "../../shopify.server";
 import { generateTheme, getTheme, saveTheme } from "./theme.server";
 import { COLOR_GROUPS, CONTRAST_PAIRS, contrast } from "./fields";
-import { themeSchema, type Theme } from "../../../shared/theme";
+import {
+  DEFAULT_THEME,
+  themeSchema,
+  type Theme,
+} from "../../../shared/theme";
 import Preview from "../../../chat-widget/src/preview/Preview";
 import widgetTokens from "../../../chat-widget/src/tokens.css?url";
 import widgetStyles from "../../../chat-widget/src/styles.css?url";
@@ -123,6 +127,9 @@ export default function ThemePage() {
                   }
                 >
                   Generate from store theme
+                </s-button>
+                <s-button type="button" onClick={() => load(DEFAULT_THEME)}>
+                  Revert to default
                 </s-button>
               </s-stack>
               {generator.data && "generateError" in generator.data && (

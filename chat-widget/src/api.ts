@@ -19,7 +19,13 @@ export const transport = new DefaultChatTransport<ChatMessage>({
   api: `${BASE}/chat`,
   headers: HEADERS,
   prepareSendMessagesRequest: ({ id, messages }) => ({
-    body: { id, message: messages.at(-1), ...market },
+    body: {
+      id,
+      text: messages[messages.length - 1].parts
+        .map((part) => (part.type === "text" ? part.text : ""))
+        .join(""),
+      ...market,
+    },
   }),
 });
 

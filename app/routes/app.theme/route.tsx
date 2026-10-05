@@ -235,6 +235,17 @@ export default function ThemePage() {
                     placeholder="Body font"
                     details="Product, FAQ and cart titles. Empty uses the body font"
                   ></s-text-field>
+                  <s-number-field
+                    label="Text size"
+                    name="fontSize"
+                    value={String(fields.fontSize)}
+                    details="Base size of messages, buttons and fields. Small text follows"
+                    min={12}
+                    max={18}
+                    step={1}
+                    suffix="px"
+                    required
+                  ></s-number-field>
                   {WEIGHT_FIELDS.map((field) => (
                     <s-select
                       key={field.name}

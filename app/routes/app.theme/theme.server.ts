@@ -115,6 +115,7 @@ Shape and depth:
 Fonts, as family names (letters, digits and spaces):
 - bodyFont: messages, buttons and fields. Empty inherits the storefront's font
 - headingFont: product, FAQ and cart titles. Empty uses bodyFont
+- fontSize: base text size in px, 12 to 18. Small text is 2px less. Scale it with the theme's body text scale, 14 is the default
 
 Font weights, 300 to 700 in steps of 100:
 - bodyWeight: messages and fields

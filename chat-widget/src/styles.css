@@ -23,7 +23,7 @@
   max-height: calc(var(--cc-viewport-height, 100dvh) - 108px);
   overflow: hidden;
   border: var(--cc-border-width) solid var(--cc-color-border);
-  border-radius: var(--cc-radius-large);
+  border-radius: var(--cc-radius);
   background: var(--cc-color-bg);
   box-shadow: var(--cc-shadow-panel);
   color: var(--cc-color-text);
@@ -211,7 +211,7 @@
 .cc-part--text,
 .cc-typing {
   padding: 8px 12px;
-  border-radius: var(--cc-radius-base);
+  border-radius: var(--cc-radius);
   white-space: pre-wrap;
 }
 
@@ -288,7 +288,7 @@
 .cc-control {
   padding: 8px 12px;
   border: var(--cc-border-width) solid var(--cc-color-border);
-  border-radius: var(--cc-radius-small);
+  border-radius: var(--cc-radius);
   background: var(--cc-color-bg);
   color: inherit;
   font: inherit;
@@ -357,7 +357,7 @@
 .cc-card {
   overflow: hidden;
   border: var(--cc-border-width) solid var(--cc-color-border);
-  border-radius: var(--cc-radius-base);
+  border-radius: var(--cc-radius);
   background: var(--cc-color-bg);
 }
 
@@ -550,7 +550,7 @@
   flex: none;
   width: 56px;
   height: 56px;
-  border-radius: var(--cc-radius-small);
+  border-radius: var(--cc-radius);
   background: var(--cc-color-surface);
   object-fit: cover;
 }

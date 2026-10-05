@@ -1,6 +1,7 @@
 import { createRoot } from "react-dom/client";
 
 import App from "./App";
+import { setMarket } from "./api";
 import { setLocale } from "./i18n";
 import "./tokens.css";
 import "./styles.css";
@@ -9,6 +10,11 @@ function mount() {
   const el = document.getElementById("chat-cart-root");
   if (!el) return;
   setLocale(el.dataset.locale ?? "en");
+  setMarket({
+    country: el.dataset.country ?? "",
+    language: el.dataset.locale ?? "",
+    currency: el.dataset.currency ?? "",
+  });
   createRoot(el).render(<App />);
 }
 

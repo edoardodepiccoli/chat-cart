@@ -1,9 +1,13 @@
 import type { StorefrontApiContext } from "@shopify/shopify-app-react-router/server";
 
-import type { ProductCardProps, ProductOption } from "../../shared/chat";
+import type {
+  Market,
+  ProductCardProps,
+  ProductOption,
+} from "../../shared/chat";
 
 const PRODUCTS_QUERY = `#graphql
-  query Products {
+  query Products($country: CountryCode, $language: LanguageCode) @inContext(country: $country, language: $language) {
     products(first: 250) {
       nodes {
         handle
@@ -21,7 +25,11 @@ const PRODUCTS_QUERY = `#graphql
   }`;
 
 const PRODUCT_QUERY = `#graphql
-  query Product($handle: String!) {
+  query Product(
+    $handle: String!
+    $country: CountryCode
+    $language: LanguageCode
+  ) @inContext(country: $country, language: $language) {
     product(handle: $handle) {
       handle
       title
@@ -43,7 +51,7 @@ const PRODUCT_QUERY = `#graphql
   }`;
 
 const STORE_PAGES_QUERY = `#graphql
-  query StorePages {
+  query StorePages($country: CountryCode, $language: LanguageCode) @inContext(country: $country, language: $language) {
     shop {
       privacyPolicy { handle title body url }
       refundPolicy { handle title body url }
@@ -161,10 +169,20 @@ function options(nodes: OptionNode[]): ProductOption[] {
     );
 }
 
+function inContext(market: Market) {
+  return {
+    country: market.country || undefined,
+    language: market.language.toUpperCase().replace("-", "_") || undefined,
+  };
+}
+
 export async function listProducts(
   storefront: StorefrontApiContext,
+  market: Market,
 ): Promise<ProductSummary[]> {
-  const response = await storefront.graphql(PRODUCTS_QUERY);
+  const response = await storefront.graphql(PRODUCTS_QUERY, {
+    variables: inContext(market),
+  });
   const { data } = (await response.json()) as { data: ProductsResponse };
 
   return data.products.nodes.map((product) => ({
@@ -184,10 +202,11 @@ export async function listProducts(
 
 export async function getProduct(
   storefront: StorefrontApiContext,
+  market: Market,
   handle: string,
 ): Promise<ProductDetails | null> {
   const response = await storefront.graphql(PRODUCT_QUERY, {
-    variables: { handle },
+    variables: { handle, ...inContext(market) },
   });
   const { data } = (await response.json()) as { data: ProductResponse };
 
@@ -221,8 +240,11 @@ function plainText(html: string): string {
 
 async function storePages(
   storefront: StorefrontApiContext,
+  market: Market,
 ): Promise<StorePage[]> {
-  const response = await storefront.graphql(STORE_PAGES_QUERY);
+  const response = await storefront.graphql(STORE_PAGES_QUERY, {
+    variables: inContext(market),
+  });
   const { data } = (await response.json()) as { data: StorePagesResponse };
 
   const policies = Object.values(data.shop)
@@ -252,8 +274,9 @@ async function storePages(
 
 export async function listStorePages(
   storefront: StorefrontApiContext,
+  market: Market,
 ): Promise<StorePageSummary[]> {
-  return (await storePages(storefront)).map((page) => ({
+  return (await storePages(storefront, market)).map((page) => ({
     handle: page.handle,
     title: page.title,
     url: page.url,
@@ -263,10 +286,12 @@ export async function listStorePages(
 
 export async function getStorePage(
   storefront: StorefrontApiContext,
+  market: Market,
   handle: string,
 ): Promise<StorePage | null> {
   return (
-    (await storePages(storefront)).find((page) => page.handle === handle) ??
-    null
+    (await storePages(storefront, market)).find(
+      (page) => page.handle === handle,
+    ) ?? null
   );
 }

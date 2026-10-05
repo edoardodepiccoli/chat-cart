@@ -1,6 +1,6 @@
 import { DefaultChatTransport } from "ai";
 
-import type { ChatMessage } from "../../shared/chat";
+import type { ChatMessage, Market } from "../../shared/chat";
 import type { ChatEvent } from "../../shared/events";
 
 export type Conversation = { id: string; messages: ChatMessage[] };
@@ -9,11 +9,17 @@ const BASE = "/apps/chat-cart";
 const HEADERS = { "ngrok-skip-browser-warning": "true" };
 const KEY = "chat-cart:conversationId";
 
+let market: Market = { country: "", language: "", currency: "" };
+
+export function setMarket(value: Market) {
+  market = value;
+}
+
 export const transport = new DefaultChatTransport<ChatMessage>({
   api: `${BASE}/chat`,
   headers: HEADERS,
   prepareSendMessagesRequest: ({ id, messages }) => ({
-    body: { id, message: messages.at(-1) },
+    body: { id, message: messages.at(-1), ...market },
   }),
 });
 

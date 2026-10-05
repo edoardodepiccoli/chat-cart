@@ -1,5 +1,7 @@
 import type { UIMessage } from "ai";
 
+export type Market = { country: string; language: string; currency: string };
+
 export type Money = { amount: string; currencyCode: string };
 
 export type ProductOption = { name: string; values: string[] };

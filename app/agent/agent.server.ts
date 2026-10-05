@@ -20,6 +20,7 @@ import {
   type CartSummaryProps,
   type ChatMessage,
   type FaqCardProps,
+  type Market,
   type ProductCardProps,
   type ProductCardsProps,
   type SelectedOption,
@@ -42,10 +43,11 @@ export const DEEPSEEK = gateway("deepseek/deepseek-v4.1-flash");
 
 async function productCard(
   storefront: StorefrontApiContext,
+  market: Market,
   handle: string,
   picks?: SelectedOption[],
 ): Promise<ProductCardProps> {
-  const product = await getProduct(storefront, handle);
+  const product = await getProduct(storefront, market, handle);
   if (!product) throw new Error(`No product with handle ${handle}`);
   return {
     handle: product.handle,
@@ -57,31 +59,31 @@ async function productCard(
   };
 }
 
-function tools(storefront: StorefrontApiContext) {
+function tools(storefront: StorefrontApiContext, market: Market) {
   return {
     listProducts: tool({
       description:
         "List every product in the store: handle, title, short description, tags, price range, availability, options.",
       inputSchema: z.object({}),
-      execute: () => listProducts(storefront),
+      execute: () => listProducts(storefront, market),
     }),
     getProduct: tool({
       description:
         "Full details of one product by its handle from listProducts: full description, every variant with price, sale price and stock.",
       inputSchema: z.object({ handle: z.string() }),
-      execute: ({ handle }) => getProduct(storefront, handle),
+      execute: ({ handle }) => getProduct(storefront, market, handle),
     }),
     listStorePages: tool({
       description:
         "List the store's policies and info pages (shipping, returns, privacy, terms, FAQ, contact...): handle, title, url, short summary.",
       inputSchema: z.object({}),
-      execute: () => listStorePages(storefront),
+      execute: () => listStorePages(storefront, market),
     }),
     getStorePage: tool({
       description:
         "Full text of one store policy or info page by its handle from listStorePages.",
       inputSchema: z.object({ handle: z.string() }),
-      execute: ({ handle }) => getStorePage(storefront, handle),
+      execute: ({ handle }) => getStorePage(storefront, market, handle),
     }),
     showProductCard: tool({
       description:
@@ -95,7 +97,7 @@ function tools(storefront: StorefrontApiContext) {
           ),
       }),
       execute: ({ handle, options }) =>
-        productCard(storefront, handle, options),
+        productCard(storefront, market, handle, options),
     }),
     showProductCards: tool({
       description:
@@ -103,7 +105,7 @@ function tools(storefront: StorefrontApiContext) {
       inputSchema: z.object({ handles: z.array(z.string()).min(2).max(6) }),
       execute: async ({ handles }): Promise<ProductCardsProps> => ({
         products: await Promise.all(
-          handles.map((handle) => productCard(storefront, handle)),
+          handles.map((handle) => productCard(storefront, market, handle)),
         ),
       }),
     }),
@@ -112,7 +114,7 @@ function tools(storefront: StorefrontApiContext) {
         "Show the shopper the answer to their store question, with a link to the store page it comes from, by its handle from listStorePages.",
       inputSchema: z.object({ handle: z.string(), answer: z.string() }),
       execute: async ({ handle, answer }): Promise<FaqCardProps> => {
-        const page = await getStorePage(storefront, handle);
+        const page = await getStorePage(storefront, market, handle);
         if (!page) throw new Error(`No store page with handle ${handle}`);
         return { title: page.title, answer, url: page.url };
       },
@@ -146,6 +148,7 @@ export async function reply(
   conversationId: string,
   messages: ChatMessage[],
   storefront: StorefrontApiContext,
+  market: Market,
 ): Promise<Response> {
   const modelMessages = await convertToModelMessages<ChatMessage>(messages);
   const firstReply = !messages.some((message) => message.role === "assistant");
@@ -163,7 +166,7 @@ export async function reply(
         reasoning: "none",
         system: SYSTEM,
         messages: modelMessages,
-        tools: tools(storefront),
+        tools: tools(storefront, market),
         stopWhen: [isStepCount(10), hasToolCall(...COMPONENT_TOOLS)],
         prepareStep: ({ stepNumber }) =>
           firstReply && stepNumber === 0

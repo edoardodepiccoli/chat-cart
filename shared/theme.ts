@@ -2,72 +2,10 @@ import { z } from "zod";
 
 const hex = z.string().regex(/^#[0-9a-f]{6}$/i);
 
-type Font = { label: string; stack?: string; google?: string };
+const fontName = z.string().trim().max(60).regex(/^[a-z0-9 ]*$/i);
 
-export const FONTS = {
-  store: { label: "Store font" },
-  system: {
-    label: "System sans",
-    stack: 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
-  },
-  serif: { label: "Serif", stack: 'Georgia, "Times New Roman", serif' },
-  mono: {
-    label: "Mono",
-    stack: 'ui-monospace, "SF Mono", Menlo, Consolas, monospace',
-  },
-  inter: {
-    label: "Inter",
-    stack: '"Inter", sans-serif',
-    google: "Inter:wght@400;600",
-  },
-  poppins: {
-    label: "Poppins",
-    stack: '"Poppins", sans-serif',
-    google: "Poppins:wght@400;600",
-  },
-  dmSans: {
-    label: "DM Sans",
-    stack: '"DM Sans", sans-serif',
-    google: "DM+Sans:wght@400;600",
-  },
-  nunito: {
-    label: "Nunito",
-    stack: '"Nunito", sans-serif',
-    google: "Nunito:wght@400;600",
-  },
-  spaceGrotesk: {
-    label: "Space Grotesk",
-    stack: '"Space Grotesk", sans-serif',
-    google: "Space+Grotesk:wght@400;600",
-  },
-  lora: {
-    label: "Lora",
-    stack: '"Lora", serif',
-    google: "Lora:wght@400;600",
-  },
-  playfairDisplay: {
-    label: "Playfair Display",
-    stack: '"Playfair Display", serif',
-    google: "Playfair+Display:wght@400;600",
-  },
-  libreBaskerville: {
-    label: "Libre Baskerville",
-    stack: '"Libre Baskerville", serif',
-    google: "Libre+Baskerville:wght@400;700",
-  },
-} satisfies Record<string, Font>;
-
-export type FontKey = keyof typeof FONTS;
-
-function font(key: FontKey): Font {
-  return FONTS[key];
-}
-
-export function fontUrl(keys: FontKey[]): string | null {
-  const families = keys.flatMap((key) => font(key).google ?? []);
-  if (!families.length) return null;
-  const query = families.map((family) => `family=${family}`).join("&");
-  return `https://fonts.googleapis.com/css2?${query}&display=swap`;
+function fontStack(name: string) {
+  return `"${name}", system-ui, sans-serif`;
 }
 
 const colorsSchema = z.object({
@@ -99,12 +37,23 @@ export const themeSchema = colorsSchema.extend({
   buttonShape: z.enum(["rounded", "pill"]),
   suggestionShape: z.enum(["rounded", "pill"]),
   shadow: z.enum(["none", "soft", "strong"]),
-  fontFamily: z.enum(Object.keys(FONTS) as [FontKey, ...FontKey[]]),
+  bodyFont: fontName,
+  headingFont: fontName,
 });
 
 export type Theme = z.infer<typeof themeSchema>;
 
 export type ThemeColor = keyof z.infer<typeof colorsSchema>;
+
+export function fontUrls(theme: Theme): string[] {
+  const families = new Set(
+    [theme.bodyFont, theme.headingFont].filter(Boolean),
+  );
+  return [...families].map(
+    (family) =>
+      `https://fonts.googleapis.com/css2?family=${family.replace(/ /g, "+")}:wght@400;600&display=swap`,
+  );
+}
 
 const SHADOWS: Record<Theme["shadow"], { panel: string; launcher: string }> =
   {
@@ -145,12 +94,11 @@ export const DEFAULT_THEME: Theme = {
   buttonShape: "rounded",
   suggestionShape: "pill",
   shadow: "soft",
-  fontFamily: "store",
+  bodyFont: "",
+  headingFont: "",
 };
 
 export function themeVars(theme: Theme): Record<string, string> {
-  const { stack } = font(theme.fontFamily);
-
   return {
     "--cc-color-primary": theme.primary,
     "--cc-color-on-primary": theme.onPrimary,
@@ -180,7 +128,12 @@ export function themeVars(theme: Theme): Record<string, string> {
       theme.suggestionShape === "pill" ? "999px" : `${theme.radius}px`,
     "--cc-shadow-panel": SHADOWS[theme.shadow].panel,
     "--cc-shadow-launcher": SHADOWS[theme.shadow].launcher,
-    ...(stack ? { "--cc-font-family": stack } : {}),
+    ...(theme.bodyFont
+      ? { "--cc-font-family": fontStack(theme.bodyFont) }
+      : {}),
+    ...(theme.headingFont
+      ? { "--cc-font-heading": fontStack(theme.headingFont) }
+      : {}),
   };
 }
 

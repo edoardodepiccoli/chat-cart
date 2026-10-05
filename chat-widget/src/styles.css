@@ -381,6 +381,7 @@
 
 .cc-card__title {
   color: inherit;
+  font-family: var(--cc-font-heading, inherit);
   font-weight: 600;
   text-decoration: none;
 }
@@ -563,6 +564,7 @@
 }
 
 .cc-cart__title {
+  font-family: var(--cc-font-heading, inherit);
   font-weight: 600;
 }
 

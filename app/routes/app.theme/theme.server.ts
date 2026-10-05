@@ -5,8 +5,7 @@ import { z } from "zod";
 import { DEEPSEEK } from "../../agent/agent.server";
 import {
   DEFAULT_THEME,
-  FONTS,
-  fontUrl,
+  fontUrls,
   themeSchema,
   themeStyle,
   type Theme,
@@ -67,7 +66,7 @@ export async function saveTheme(graphql: AdminGraphqlClient, theme: Theme) {
           value: JSON.stringify({
             theme,
             style: themeStyle(theme),
-            fontUrl: fontUrl([theme.fontFamily]),
+            fontUrls: fontUrls(theme),
           }),
         },
       ],
@@ -113,9 +112,10 @@ Shape and depth:
 - suggestionShape: rounded (follows radius) or pill, for suggested replies
 - shadow: none, soft or strong
 
-fontFamily, one of: ${Object.entries(FONTS)
-  .map(([key, font]) => `${key} (${font.label})`)
-  .join(", ")}. store inherits the storefront's own font, prefer it unless another font matches the brand better.`;
+Fonts, as family names (letters, digits and spaces):
+- bodyFont: messages, buttons and fields. Empty inherits the storefront's font
+- headingFont: product, FAQ and cart titles. Empty uses bodyFont
+Font settings (e.g. type_body_font, type_header_font) are Shopify font handles: assistant_n4 is family "Assistant" at weight 400, playfair_display_i7 is "Playfair Display" italic at 700. Turn underscores into spaces and title case the name. Always write the exact family names from the theme.`;
 
 export async function generateTheme(
   graphql: AdminGraphqlClient,

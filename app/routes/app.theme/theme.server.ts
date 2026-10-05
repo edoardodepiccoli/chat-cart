@@ -5,7 +5,6 @@ import { z } from "zod";
 import { DEEPSEEK } from "../../agent/agent.server";
 import {
   DEFAULT_THEME,
-  fontUrls,
   themeSchema,
   themeStyle,
   type Theme,
@@ -63,11 +62,7 @@ export async function saveTheme(graphql: AdminGraphqlClient, theme: Theme) {
           ownerId,
           ...METAFIELD,
           type: "json",
-          value: JSON.stringify({
-            theme,
-            style: themeStyle(theme),
-            fontUrls: fontUrls(theme),
-          }),
+          value: JSON.stringify({ theme, style: themeStyle(theme) }),
         },
       ],
     },
@@ -106,7 +101,7 @@ function parseThemeJson(content: string) {
 
 function storeSettings(schemaFile: string, dataFile: string): Settings {
   const schema = parseThemeJson(schemaFile) as {
-    settings?: { id?: string; type?: string; default?: unknown }[];
+    settings?: { id?: string; default?: unknown }[];
   }[];
   const data = parseThemeJson(dataFile) as {
     current: Settings | string;
@@ -144,33 +139,11 @@ function storeSettings(schemaFile: string, dataFile: string): Settings {
     return value;
   }
 
-  const resolved = resolve(settings) as Settings;
-
-  for (const setting of schema.flatMap((group) => group.settings ?? [])) {
-    if (setting.type === "font_picker" && setting.id)
-      resolved[setting.id] = fontHandle(resolved[setting.id]);
-  }
-
-  return resolved;
+  return resolve(settings) as Settings;
 }
 
-function fontHandle(handle: unknown) {
-  const match = String(handle).match(/^(.+)_([nio])(\d)$/);
-  if (!match) return handle;
-
-  const [, name, style, weight] = match;
-  return {
-    family: name
-      .split("_")
-      .map((word) => word[0].toUpperCase() + word.slice(1))
-      .join(" "),
-    weight: Math.min(700, Math.max(300, Number(weight) * 100)),
-    style: { n: "normal", i: "italic", o: "oblique" }[style],
-  };
-}
-
-const GENERATE = `You design the theme of a chat widget embedded in a Shopify storefront, so it looks on brand with the store.
-You get the effective settings of the store's published theme: the defaults from config/settings_schema.json with the saved values from config/settings_data.json on top, and references to other settings already resolved. Read its colors, color schemes, fonts, corner radius, borders and shadows, and pick every widget token so the widget looks like part of the store.
+const GENERATE = `You pick the colors of a chat widget embedded in a Shopify storefront, so it looks on brand with the store.
+You get the effective settings of the store's published theme: the defaults from config/settings_schema.json with the saved values from config/settings_data.json on top, and references to other settings already resolved. Read its colors and color schemes, and pick every widget color so the widget looks like part of the store.
 
 Colors, as #rrggbb:
 ${COLOR_GROUPS.flatMap((group) =>
@@ -180,31 +153,7 @@ ${COLOR_GROUPS.flatMap((group) =>
 ).join("\n")}
 
 Each of these pairs needs at least 4.5:1 contrast:
-${CONTRAST_PAIRS.map((pair) => `- ${pair.text} on ${pair.background}`).join("\n")}
-
-Shape, spacing and depth:
-- radius: corner radius in px, 0 to 24
-- borderWidth: border width in px, 0 to 2
-- buttonShape: rounded (follows radius) or pill
-- suggestionShape: rounded (follows radius) or pill, for suggested replies
-- shadow: none, soft or strong
-- spacing: compact, comfortable or spacious, scales padding and gaps in messages, cards, buttons and fields. Follow the theme's spacing and padding settings
-
-Fonts, as family names (letters, digits and spaces):
-- bodyFont: messages, buttons and fields. Empty inherits the storefront's font
-- headingFont: product, FAQ and cart titles. Empty uses bodyFont
-- fontSize: base text size in px, 12 to 18. Small text is 2px less. Scale it with the theme's body text scale, 14 is the default
-
-Font weights, 300 to 700 in steps of 100:
-- bodyWeight: messages and fields
-- headingWeight: product, FAQ and cart titles
-- buttonWeight: buttons
-
-Text style:
-- headingCase, buttonCase: none, uppercase or capitalize, for titles and buttons
-- headingLetterSpacing, buttonLetterSpacing: letter spacing in px, -1 to 4 in steps of 0.5
-Look for text transform, capitalization and letter spacing settings for headings and buttons. Uppercase text usually comes with 1 to 2px of letter spacing.
-Font settings (e.g. type_body_font, type_header_font) come as { family, weight, style }. Write each family as Google Fonts spells it: "Dm Sans" is "DM Sans", "Ibm Plex Sans" is "IBM Plex Sans". Always use the families from the theme, and take bodyWeight and headingWeight from their fonts' weight. Take buttonWeight from the font the theme sets for buttons. When no setting names one, buttons use the body font at its weight.`;
+${CONTRAST_PAIRS.map((pair) => `- ${pair.text} on ${pair.background}`).join("\n")}`;
 
 export async function generateTheme(
   graphql: AdminGraphqlClient,

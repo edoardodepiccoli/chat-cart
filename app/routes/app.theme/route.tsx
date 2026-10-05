@@ -12,51 +12,11 @@ import { boundary } from "@shopify/shopify-app-react-router/server";
 import { authenticate } from "../../shopify.server";
 import { generateTheme, getTheme, saveTheme } from "./theme.server";
 import { COLOR_GROUPS, CONTRAST_PAIRS, contrast } from "./fields";
-import { fontUrls, themeSchema, type Theme } from "../../../shared/theme";
+import { themeSchema, type Theme } from "../../../shared/theme";
 import Preview from "../../../chat-widget/src/preview/Preview";
 import widgetTokens from "../../../chat-widget/src/tokens.css?url";
 import widgetStyles from "../../../chat-widget/src/styles.css?url";
 import previewStyles from "../../../chat-widget/src/preview/preview.css?url";
-
-const WEIGHTS = [
-  { value: 300, label: "Light" },
-  { value: 400, label: "Regular" },
-  { value: 500, label: "Medium" },
-  { value: 600, label: "Semibold" },
-  { value: 700, label: "Bold" },
-];
-
-const WEIGHT_FIELDS = [
-  { name: "bodyWeight", label: "Body weight", details: "Messages and fields" },
-  {
-    name: "headingWeight",
-    label: "Heading weight",
-    details: "Product, FAQ and cart titles",
-  },
-  { name: "buttonWeight", label: "Button weight", details: "Buttons" },
-] as const;
-
-const CASE_FIELDS = [
-  {
-    name: "headingCase",
-    label: "Heading case",
-    details: "Product, FAQ and cart titles",
-  },
-  { name: "buttonCase", label: "Button case", details: "Buttons" },
-] as const;
-
-const LETTER_SPACING_FIELDS = [
-  {
-    name: "headingLetterSpacing",
-    label: "Heading letter spacing",
-    details: "Product, FAQ and cart titles",
-  },
-  {
-    name: "buttonLetterSpacing",
-    label: "Button letter spacing",
-    details: "Buttons",
-  },
-] as const;
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: widgetTokens },
@@ -215,165 +175,10 @@ export default function ThemePage() {
                   </s-stack>
                 );
               })}
-              <s-stack gap="small">
-                <s-heading>Typography</s-heading>
-                <s-grid
-                  gridTemplateColumns="repeat(auto-fill, minmax(220px, 1fr))"
-                  gap="base"
-                >
-                  <s-text-field
-                    label="Body font"
-                    name="bodyFont"
-                    value={fields.bodyFont}
-                    placeholder="Store font"
-                    details="Family name, e.g. Assistant. Loads from your theme or Google Fonts. Empty uses your store's font"
-                  ></s-text-field>
-                  <s-text-field
-                    label="Heading font"
-                    name="headingFont"
-                    value={fields.headingFont}
-                    placeholder="Body font"
-                    details="Product, FAQ and cart titles. Empty uses the body font"
-                  ></s-text-field>
-                  <s-number-field
-                    label="Text size"
-                    name="fontSize"
-                    value={String(fields.fontSize)}
-                    details="Base size of messages, buttons and fields. Small text follows"
-                    min={12}
-                    max={18}
-                    step={1}
-                    suffix="px"
-                    required
-                  ></s-number-field>
-                  {WEIGHT_FIELDS.map((field) => (
-                    <s-select
-                      key={field.name}
-                      label={field.label}
-                      name={field.name}
-                      value={String(fields[field.name])}
-                      details={field.details}
-                    >
-                      {WEIGHTS.map((weight) => (
-                        <s-option
-                          key={weight.value}
-                          value={String(weight.value)}
-                        >
-                          {weight.value} {weight.label}
-                        </s-option>
-                      ))}
-                    </s-select>
-                  ))}
-                  {CASE_FIELDS.map((field) => (
-                    <s-select
-                      key={field.name}
-                      label={field.label}
-                      name={field.name}
-                      value={fields[field.name]}
-                      details={field.details}
-                    >
-                      <s-option value="none">As written</s-option>
-                      <s-option value="uppercase">UPPERCASE</s-option>
-                      <s-option value="capitalize">
-                        Capitalize Each Word
-                      </s-option>
-                    </s-select>
-                  ))}
-                  {LETTER_SPACING_FIELDS.map((field) => (
-                    <s-number-field
-                      key={field.name}
-                      label={field.label}
-                      name={field.name}
-                      value={String(fields[field.name])}
-                      details={field.details}
-                      min={-1}
-                      max={4}
-                      step={0.5}
-                      suffix="px"
-                      required
-                    ></s-number-field>
-                  ))}
-                </s-grid>
-              </s-stack>
-              <s-stack gap="small">
-                <s-heading>Shape, spacing and depth</s-heading>
-                <s-grid
-                  gridTemplateColumns="repeat(auto-fill, minmax(220px, 1fr))"
-                  gap="base"
-                >
-                  <s-number-field
-                    label="Corner radius"
-                    name="radius"
-                    value={String(fields.radius)}
-                    details="Roundness of the panel, messages, cards, fields and rounded buttons. 0 is square"
-                    min={0}
-                    max={24}
-                    step={1}
-                    suffix="px"
-                    required
-                  ></s-number-field>
-                  <s-number-field
-                    label="Border width"
-                    name="borderWidth"
-                    value={String(fields.borderWidth)}
-                    details="Lines around the panel, cards, fields and buttons. 0 hides them"
-                    min={0}
-                    max={2}
-                    step={1}
-                    suffix="px"
-                    required
-                  ></s-number-field>
-                  <s-select
-                    label="Button shape"
-                    name="buttonShape"
-                    value={fields.buttonShape}
-                    details="Main and secondary buttons"
-                  >
-                    <s-option value="rounded">
-                      Rounded, follows corner radius
-                    </s-option>
-                    <s-option value="pill">Pill</s-option>
-                  </s-select>
-                  <s-select
-                    label="Suggested reply shape"
-                    name="suggestionShape"
-                    value={fields.suggestionShape}
-                    details="Clickable replies under the assistant's answer"
-                  >
-                    <s-option value="rounded">
-                      Rounded, follows corner radius
-                    </s-option>
-                    <s-option value="pill">Pill</s-option>
-                  </s-select>
-                  <s-select
-                    label="Shadow"
-                    name="shadow"
-                    value={fields.shadow}
-                    details="Depth under the chat panel and the launcher"
-                  >
-                    <s-option value="none">None</s-option>
-                    <s-option value="soft">Soft</s-option>
-                    <s-option value="strong">Strong</s-option>
-                  </s-select>
-                  <s-select
-                    label="Spacing"
-                    name="spacing"
-                    value={fields.spacing}
-                    details="Padding and gaps in messages, cards, buttons and fields"
-                  >
-                    <s-option value="compact">Compact</s-option>
-                    <s-option value="comfortable">Comfortable</s-option>
-                    <s-option value="spacious">Spacious</s-option>
-                  </s-select>
-                </s-grid>
-              </s-stack>
             </s-stack>
           </form>
 
           <div className="cc-preview-frame">
-            {fontUrls(draft).map((href) => (
-              <link key={href} rel="stylesheet" href={href} />
-            ))}
             {mounted && <Preview theme={draft} />}
           </div>
         </s-grid>

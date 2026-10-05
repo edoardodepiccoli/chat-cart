@@ -1,7 +1,7 @@
 #chat-cart-root {
   all: initial;
   -webkit-text-size-adjust: 100%;
-  font-family: var(--cc-font-family, inherit);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   font-weight: var(--cc-font-weight);
 }
 
@@ -317,10 +317,8 @@
   color: var(--cc-color-on-primary);
   font: inherit;
   font-weight: var(--cc-font-weight-button);
-  letter-spacing: var(--cc-button-tracking);
   text-align: center;
   text-decoration: none;
-  text-transform: var(--cc-button-case);
   cursor: pointer;
 }
 
@@ -384,11 +382,8 @@
 
 .cc-card__title {
   color: inherit;
-  font-family: var(--cc-font-heading, inherit);
   font-weight: var(--cc-font-weight-heading);
-  letter-spacing: var(--cc-heading-tracking);
   text-decoration: none;
-  text-transform: var(--cc-heading-case);
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -569,10 +564,7 @@
 }
 
 .cc-cart__title {
-  font-family: var(--cc-font-heading, inherit);
   font-weight: var(--cc-font-weight-heading);
-  letter-spacing: var(--cc-heading-tracking);
-  text-transform: var(--cc-heading-case);
 }
 
 @media (hover: hover) and (pointer: fine) {

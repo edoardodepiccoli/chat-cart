@@ -7,7 +7,7 @@ export default function Launcher({
   onClick,
 }: {
   open: boolean;
-  size?: string;
+  size?: "s" | "m" | "l";
   onClick?: () => void;
 }) {
   return (

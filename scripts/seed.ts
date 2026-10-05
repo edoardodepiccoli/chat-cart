@@ -372,7 +372,11 @@ function addToCart(chat: Chat, item: Product, picks: SelectedOption[]) {
     chat,
     {
       type: "added_to_cart",
-      data: { handle: item.handle, variantId: variant.id },
+      data: {
+        handle: item.handle,
+        variantId: variant.id,
+        price: variant.price,
+      },
     },
     `I added ${item.title}${label} to my cart.`,
   );

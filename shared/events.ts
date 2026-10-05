@@ -15,6 +15,10 @@ export const chatEventSchema = z.discriminatedUnion("type", [
     data: z.object({
       handle: z.string().max(200),
       variantId: z.string().max(200),
+      price: z.object({
+        amount: z.string().max(50),
+        currencyCode: z.string().max(10),
+      }),
     }),
   }),
   z.object({ type: z.literal("checkout_clicked") }),

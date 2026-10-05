@@ -1,6 +1,8 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { generateId } from "ai";
+import { z } from "zod";
 
-import type { ChatMessage, Market } from "../../shared/chat";
+import type { ChatMessage } from "../../shared/chat";
 import { reply } from "../agent/agent.server";
 import {
   loadMessages,
@@ -8,6 +10,14 @@ import {
   saveMessage,
 } from "../conversations.server";
 import { authenticate } from "../shopify.server";
+
+const bodySchema = z.object({
+  id: z.string().max(200),
+  text: z.string().trim().min(1).max(2000),
+  country: z.string().max(10),
+  language: z.string().max(20),
+  currency: z.string().max(10),
+});
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { session } = await authenticate.public.appProxy(request);
@@ -24,22 +34,20 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     throw new Response("Unauthorized", { status: 401 });
   }
 
-  const { id, message, country, language, currency } =
-    (await request.json()) as { id: string; message: ChatMessage } & Market;
+  const body = bodySchema.safeParse(await request.json().catch(() => null));
+  if (!body.success) throw new Response("Bad request", { status: 400 });
+
+  const { id, text, ...market } = body.data;
 
   const history = await loadMessages(session.shop, id);
   if (!history) throw new Response("Not found", { status: 404 });
 
   const userMessage: ChatMessage = {
-    id: message.id,
+    id: generateId(),
     role: "user",
-    parts: message.parts,
+    parts: [{ type: "text", text }],
   };
   await saveMessage(id, userMessage);
 
-  return reply(id, [...history, userMessage], storefront, {
-    country,
-    language,
-    currency,
-  });
+  return reply(id, [...history, userMessage], storefront, market);
 };

@@ -27,7 +27,7 @@ import {
 } from "../../shared/chat";
 import { pickOptions } from "../../shared/variants";
 import { saveMessage } from "../conversations.server";
-import { SUGGEST, SYSTEM } from "./prompts";
+import { marketPrompt, SUGGEST, SYSTEM } from "./prompts";
 import {
   getProduct,
   getStorePage,
@@ -164,7 +164,10 @@ export async function reply(
       const result = streamText({
         model: DEEPSEEK,
         reasoning: "none",
-        system: SYSTEM,
+        system:
+          market.country && market.currency
+            ? `${SYSTEM}\n\n${marketPrompt(market.country, market.currency)}`
+            : SYSTEM,
         messages: modelMessages,
         tools: tools(storefront, market),
         stopWhen: [isStepCount(10), hasToolCall(...COMPONENT_TOOLS)],

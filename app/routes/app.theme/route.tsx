@@ -12,25 +12,16 @@ import { boundary } from "@shopify/shopify-app-react-router/server";
 import { authenticate } from "../../shopify.server";
 import { generateTheme, getTheme, saveTheme } from "./theme.server";
 import { COLOR_GROUPS, CONTRAST_PAIRS, contrast } from "./fields";
-import {
-  FONTS,
-  fontUrl,
-  themeSchema,
-  type FontKey,
-  type Theme,
-} from "../../../shared/theme";
+import { fontUrls, themeSchema, type Theme } from "../../../shared/theme";
 import Preview from "../../../chat-widget/src/preview/Preview";
 import widgetTokens from "../../../chat-widget/src/tokens.css?url";
 import widgetStyles from "../../../chat-widget/src/styles.css?url";
 import previewStyles from "../../../chat-widget/src/preview/preview.css?url";
 
-const allFonts = fontUrl(Object.keys(FONTS) as FontKey[]);
-
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: widgetTokens },
   { rel: "stylesheet", href: widgetStyles },
   { rel: "stylesheet", href: previewStyles },
-  ...(allFonts ? [{ rel: "stylesheet", href: allFonts }] : []),
 ];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
@@ -185,23 +176,25 @@ export default function ThemePage() {
                 );
               })}
               <s-stack gap="small">
-                <s-heading>Font</s-heading>
+                <s-heading>Typography</s-heading>
                 <s-grid
                   gridTemplateColumns="repeat(auto-fill, minmax(220px, 1fr))"
                   gap="base"
                 >
-                  <s-select
-                    label="Font"
-                    name="fontFamily"
-                    value={fields.fontFamily}
-                    details="Store font uses your theme's font. Named fonts load from Google Fonts"
-                  >
-                    {Object.entries(FONTS).map(([key, font]) => (
-                      <s-option key={key} value={key}>
-                        {font.label}
-                      </s-option>
-                    ))}
-                  </s-select>
+                  <s-text-field
+                    label="Body font"
+                    name="bodyFont"
+                    value={fields.bodyFont}
+                    placeholder="Store font"
+                    details="Family name, e.g. Assistant. Loads from your theme or Google Fonts. Empty uses your store's font"
+                  ></s-text-field>
+                  <s-text-field
+                    label="Heading font"
+                    name="headingFont"
+                    value={fields.headingFont}
+                    placeholder="Body font"
+                    details="Product, FAQ and cart titles. Empty uses the body font"
+                  ></s-text-field>
                 </s-grid>
               </s-stack>
               <s-stack gap="small">
@@ -270,6 +263,9 @@ export default function ThemePage() {
           </form>
 
           <div className="cc-preview-frame">
+            {fontUrls(draft).map((href) => (
+              <link key={href} rel="stylesheet" href={href} />
+            ))}
             {mounted && <Preview theme={draft} />}
           </div>
         </s-grid>

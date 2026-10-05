@@ -1,8 +1,10 @@
 {%- assign widget_theme = app.metafields.chat_cart.theme.value -%}
-{%- if widget_theme.fontUrl -%}
+{%- if widget_theme.fontUrls.size > 0 -%}
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="{{ widget_theme.fontUrl | escape }}">
+  {%- for font_url in widget_theme.fontUrls -%}
+    <link rel="stylesheet" href="{{ font_url | escape }}">
+  {%- endfor -%}
 {%- endif -%}
 <div id="chat-cart-root" style="{{ widget_theme.style | escape }}"></div>
 

@@ -4,6 +4,10 @@
   --cc-font-weight: 400;
   --cc-font-weight-heading: 600;
   --cc-font-weight-button: 600;
+  --cc-heading-case: none;
+  --cc-button-case: none;
+  --cc-heading-tracking: 0px;
+  --cc-button-tracking: 0px;
 
   --cc-color-bg: #ffffff;
   --cc-color-surface: #f1f1f1;

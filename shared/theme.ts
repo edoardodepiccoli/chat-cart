@@ -10,6 +10,10 @@ const fontName = z
 
 const fontWeight = z.coerce.number().int().min(300).max(700).multipleOf(100);
 
+const textCase = z.enum(["none", "uppercase", "capitalize"]);
+
+const letterSpacing = z.coerce.number().min(-1).max(4).multipleOf(0.5);
+
 function fontStack(name: string) {
   return `"${name}", system-ui, sans-serif`;
 }
@@ -48,6 +52,10 @@ export const themeSchema = colorsSchema.extend({
   bodyWeight: fontWeight,
   headingWeight: fontWeight,
   buttonWeight: fontWeight,
+  headingCase: textCase,
+  buttonCase: textCase,
+  headingLetterSpacing: letterSpacing,
+  buttonLetterSpacing: letterSpacing,
 });
 
 export type Theme = z.infer<typeof themeSchema>;
@@ -115,6 +123,10 @@ export const DEFAULT_THEME: Theme = {
   bodyWeight: 400,
   headingWeight: 600,
   buttonWeight: 600,
+  headingCase: "none",
+  buttonCase: "none",
+  headingLetterSpacing: 0,
+  buttonLetterSpacing: 0,
 };
 
 export function themeVars(theme: Theme): Record<string, string> {
@@ -150,6 +162,10 @@ export function themeVars(theme: Theme): Record<string, string> {
     "--cc-font-weight": String(theme.bodyWeight),
     "--cc-font-weight-heading": String(theme.headingWeight),
     "--cc-font-weight-button": String(theme.buttonWeight),
+    "--cc-heading-case": theme.headingCase,
+    "--cc-button-case": theme.buttonCase,
+    "--cc-heading-tracking": `${theme.headingLetterSpacing}px`,
+    "--cc-button-tracking": `${theme.buttonLetterSpacing}px`,
     ...(theme.bodyFont
       ? { "--cc-font-family": fontStack(theme.bodyFont) }
       : {}),

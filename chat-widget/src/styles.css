@@ -290,8 +290,11 @@
 
 @media (hover: hover) and (pointer: fine) {
   .cc-suggestion:hover {
-    background: var(--cc-color-suggestion-hover);
-    color: var(--cc-color-on-suggestion-hover);
+    background: color-mix(
+      in srgb,
+      var(--cc-color-suggestion),
+      var(--cc-color-on-suggestion) 10%
+    );
   }
 }
 
@@ -359,13 +362,19 @@
 
 @media (hover: hover) and (pointer: fine) {
   .cc-btn:not(:disabled):hover {
-    background: var(--cc-color-primary-hover);
-    color: var(--cc-color-on-primary-hover);
+    background: color-mix(
+      in srgb,
+      var(--cc-color-primary),
+      var(--cc-color-on-primary) 10%
+    );
   }
 
   .cc-btn--secondary:not(:disabled):hover {
-    background: var(--cc-color-secondary-hover);
-    color: var(--cc-color-on-secondary-hover);
+    background: color-mix(
+      in srgb,
+      var(--cc-color-secondary),
+      var(--cc-color-on-secondary) 10%
+    );
   }
 }
 

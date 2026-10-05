@@ -17,16 +17,6 @@ export const COLOR_GROUPS: {
         label: "Text on primary",
         details: "Text and icons on main buttons and the launcher",
       },
-      {
-        name: "primaryHover",
-        label: "Primary hover",
-        details: "Main buttons under the pointer",
-      },
-      {
-        name: "onPrimaryHover",
-        label: "Text on primary hover",
-        details: "Text on hovered main buttons",
-      },
     ],
   },
   {
@@ -42,16 +32,6 @@ export const COLOR_GROUPS: {
         label: "Text on secondary",
         details: "Text on secondary buttons",
       },
-      {
-        name: "secondaryHover",
-        label: "Secondary hover",
-        details: "Secondary buttons under the pointer",
-      },
-      {
-        name: "onSecondaryHover",
-        label: "Text on secondary hover",
-        details: "Text on hovered secondary buttons",
-      },
     ],
   },
   {
@@ -66,16 +46,6 @@ export const COLOR_GROUPS: {
         name: "onSuggestion",
         label: "Text on suggestions",
         details: "Text in suggested replies",
-      },
-      {
-        name: "suggestionHover",
-        label: "Suggestion hover",
-        details: "Suggested replies under the pointer",
-      },
-      {
-        name: "onSuggestionHover",
-        label: "Text on suggestion hover",
-        details: "Text in hovered suggested replies",
       },
       {
         name: "suggestionBorder",
@@ -141,26 +111,11 @@ export const CONTRAST_PAIRS: {
   },
   { text: "textMuted", background: "surface", label: "Muted text on surface" },
   { text: "onPrimary", background: "primary", label: "Text on primary" },
-  {
-    text: "onPrimaryHover",
-    background: "primaryHover",
-    label: "Text on primary hover",
-  },
   { text: "onSecondary", background: "secondary", label: "Text on secondary" },
-  {
-    text: "onSecondaryHover",
-    background: "secondaryHover",
-    label: "Text on secondary hover",
-  },
   {
     text: "onSuggestion",
     background: "suggestion",
     label: "Text on suggestions",
-  },
-  {
-    text: "onSuggestionHover",
-    background: "suggestionHover",
-    label: "Text on suggestion hover",
   },
   {
     text: "onUserBubble",

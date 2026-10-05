@@ -38,6 +38,8 @@
   --cc-shadow-panel: 0 8px 32px rgba(0, 0, 0, 0.16);
   --cc-shadow-launcher: 0 8px 24px rgba(0, 0, 0, 0.24);
 
+  --cc-space: 1;
+
   --cc-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
   --cc-duration-fast: 200ms;
   --cc-duration: 480ms;

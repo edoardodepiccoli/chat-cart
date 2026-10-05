@@ -141,7 +141,7 @@
 
 .cc-log {
   flex: 1 1 auto;
-  padding: 16px;
+  padding: calc(16px * var(--cc-space));
   overflow-y: auto;
   overscroll-behavior: contain;
   transition: padding-top var(--cc-duration) var(--cc-ease);
@@ -151,7 +151,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: calc(8px * var(--cc-space));
   overflow-y: clip;
 }
 
@@ -194,7 +194,7 @@
 .cc-message {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: calc(8px * var(--cc-space));
   max-width: 80%;
   word-break: break-word;
 }
@@ -211,7 +211,7 @@
 
 .cc-part--text,
 .cc-typing {
-  padding: 8px 12px;
+  padding: calc(8px * var(--cc-space)) calc(12px * var(--cc-space));
   border-radius: var(--cc-radius);
   white-space: pre-wrap;
 }
@@ -237,7 +237,7 @@
 .cc-suggestions {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: calc(6px * var(--cc-space));
 }
 
 .cc-suggestions[data-leaving="true"] {
@@ -249,7 +249,7 @@
 }
 
 .cc-suggestion {
-  padding: 6px 12px;
+  padding: calc(6px * var(--cc-space)) calc(12px * var(--cc-space));
   border: var(--cc-border-width) solid var(--cc-color-suggestion-border);
   border-radius: var(--cc-radius-suggestion);
   background: var(--cc-color-suggestion);
@@ -280,14 +280,14 @@
 .cc-composer {
   flex: 0 0 auto;
   display: flex;
-  gap: 8px;
-  padding: 12px;
+  gap: calc(8px * var(--cc-space));
+  padding: calc(12px * var(--cc-space));
   border-top: var(--cc-border-width) solid var(--cc-color-border);
   margin: 0;
 }
 
 .cc-control {
-  padding: 8px 12px;
+  padding: calc(8px * var(--cc-space)) calc(12px * var(--cc-space));
   border: var(--cc-border-width) solid var(--cc-color-border);
   border-radius: var(--cc-radius);
   background: var(--cc-color-bg);
@@ -309,8 +309,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 10px 16px;
+  gap: calc(6px * var(--cc-space));
+  padding: calc(10px * var(--cc-space)) calc(16px * var(--cc-space));
   border: 0;
   border-radius: var(--cc-radius-button);
   background: var(--cc-color-primary);
@@ -354,7 +354,7 @@
 }
 
 .cc-composer .cc-btn {
-  padding: 8px 16px;
+  padding: calc(8px * var(--cc-space)) calc(16px * var(--cc-space));
 }
 
 .cc-card {
@@ -378,8 +378,8 @@
 .cc-card__body {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 12px;
+  gap: calc(8px * var(--cc-space));
+  padding: calc(12px * var(--cc-space));
 }
 
 .cc-card__title {
@@ -512,7 +512,7 @@
 .cc-card__options {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: calc(8px * var(--cc-space));
 }
 
 .cc-field {
@@ -540,9 +540,9 @@
 
 .cc-cart__item {
   display: flex;
-  gap: 10px;
+  gap: calc(10px * var(--cc-space));
   align-items: center;
-  padding: 8px 0;
+  padding: calc(8px * var(--cc-space)) 0;
   border-bottom: var(--cc-border-width) solid var(--cc-color-border);
   color: inherit;
   text-decoration: none;
@@ -598,7 +598,7 @@
 
 .cc-carousel {
   display: flex;
-  gap: 8px;
+  gap: calc(8px * var(--cc-space));
   padding-bottom: 4px;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
@@ -620,8 +620,8 @@
 
 .cc-carousel .cc-card__body {
   flex: 1;
-  gap: 6px;
-  padding: 8px;
+  gap: calc(6px * var(--cc-space));
+  padding: calc(8px * var(--cc-space));
 }
 
 .cc-carousel .cc-card__price {
@@ -629,7 +629,7 @@
 }
 
 .cc-carousel .cc-btn {
-  padding: 6px 8px;
+  padding: calc(6px * var(--cc-space)) calc(8px * var(--cc-space));
 }
 
 @keyframes cc-rise {

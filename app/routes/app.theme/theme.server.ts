@@ -105,12 +105,13 @@ ${COLOR_GROUPS.flatMap((group) =>
 Each of these pairs needs at least 4.5:1 contrast:
 ${CONTRAST_PAIRS.map((pair) => `- ${pair.text} on ${pair.background}`).join("\n")}
 
-Shape and depth:
+Shape, spacing and depth:
 - radius: corner radius in px, 0 to 24
 - borderWidth: border width in px, 0 to 2
 - buttonShape: rounded (follows radius) or pill
 - suggestionShape: rounded (follows radius) or pill, for suggested replies
 - shadow: none, soft or strong
+- spacing: compact, comfortable or spacious, scales padding and gaps in messages, cards, buttons and fields. Follow the theme's spacing and padding settings
 
 Fonts, as family names (letters, digits and spaces):
 - bodyFont: messages, buttons and fields. Empty inherits the storefront's font

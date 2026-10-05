@@ -47,6 +47,7 @@ export const themeSchema = colorsSchema.extend({
   buttonShape: z.enum(["rounded", "pill"]),
   suggestionShape: z.enum(["rounded", "pill"]),
   shadow: z.enum(["none", "soft", "strong"]),
+  spacing: z.enum(["compact", "comfortable", "spacious"]),
   bodyFont: fontName,
   headingFont: fontName,
   fontSize: z.coerce.number().int().min(12).max(18),
@@ -93,6 +94,12 @@ const SHADOWS: Record<Theme["shadow"], { panel: string; launcher: string }> =
     },
   };
 
+const SPACING: Record<Theme["spacing"], number> = {
+  compact: 0.75,
+  comfortable: 1,
+  spacious: 1.25,
+};
+
 export const DEFAULT_THEME: Theme = {
   primary: "#1a1a1a",
   onPrimary: "#ffffff",
@@ -119,6 +126,7 @@ export const DEFAULT_THEME: Theme = {
   buttonShape: "rounded",
   suggestionShape: "pill",
   shadow: "soft",
+  spacing: "comfortable",
   bodyFont: "",
   headingFont: "",
   fontSize: 14,
@@ -161,6 +169,7 @@ export function themeVars(theme: Theme): Record<string, string> {
       theme.suggestionShape === "pill" ? "999px" : `${theme.radius}px`,
     "--cc-shadow-panel": SHADOWS[theme.shadow].panel,
     "--cc-shadow-launcher": SHADOWS[theme.shadow].launcher,
+    "--cc-space": String(SPACING[theme.spacing]),
     "--cc-font-size": `${theme.fontSize}px`,
     "--cc-font-size-sm": `${theme.fontSize - 2}px`,
     "--cc-font-weight": String(theme.bodyWeight),

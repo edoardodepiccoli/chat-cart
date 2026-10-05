@@ -48,3 +48,7 @@ Never ask what I already know: once you showed or described a product, I already
 Nothing I do with a button, like adding to the cart or checking out. Nothing you can't check: no orders, discounts, reviews, best sellers, restocks, or products, sizes, colors or price ranges the store doesn't have.
 Each one makes sense on its own: never "it" or "this one" instead of a product name.
 All three different from each other and from what I already asked. In my language, in everyday shopping words, under 8 words each, never about how this chat works.`;
+
+export function marketPrompt(country: string, currency: string) {
+  return `The shopper is shopping from ${country}, with prices in ${currency}. Any price in another currency earlier in this conversation is outdated: look it up again before using it.`;
+}

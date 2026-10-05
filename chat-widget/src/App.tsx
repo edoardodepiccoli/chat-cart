@@ -7,7 +7,7 @@ import {
   transport,
   type Conversation,
 } from "./api";
-import { addToCart, getCart, type Cart } from "./cart";
+import { addToCart, CHECKOUT_URL, getCart, type Cart } from "./cart";
 import Composer from "./components/Composer";
 import Launcher from "./components/Launcher";
 import Message from "./components/Message";
@@ -85,7 +85,7 @@ export default function App() {
     const href = (event.target as Element).closest("a")?.getAttribute("href");
     if (!href) return;
     record(
-      href === "/checkout"
+      href === CHECKOUT_URL
         ? { type: "checkout_clicked" }
         : { type: "link_clicked", data: { url: href } },
     );

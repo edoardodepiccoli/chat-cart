@@ -1,4 +1,4 @@
-import type { Cart } from "../cart";
+import { CHECKOUT_URL, localUrl, type Cart } from "../cart";
 import { t } from "../i18n";
 import { CartIcon } from "../icons";
 import { formatMoney } from "./Price";
@@ -19,7 +19,7 @@ export default function CartSummary({ cart }: { cart: Cart | undefined }) {
       <div className="cc-card__body">
         <div className="cc-cart__items">
           {cart.items.map((item) => (
-            <a className="cc-cart__item" key={item.key} href={item.url}>
+            <a className="cc-cart__item" key={item.key} href={localUrl(item.url)}>
               {item.image === null ? (
                 <div className="cc-cart__image" aria-hidden="true" />
               ) : (
@@ -50,7 +50,7 @@ export default function CartSummary({ cart }: { cart: Cart | undefined }) {
           ))}
         </div>
 
-        <a className="cc-btn cc-cart__checkout" href="/checkout">
+        <a className="cc-btn cc-cart__checkout" href={CHECKOUT_URL}>
           <CartIcon className="cc-icon" />
           {t("checkout", {
             total: formatMoney(cart.total_price / 100, cart.currency),

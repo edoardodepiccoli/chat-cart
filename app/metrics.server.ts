@@ -1,4 +1,4 @@
-import { COMPONENT_TOOLS } from "../shared/chat";
+import { COMPONENT_ACTIONS } from "../shared/chat";
 import type { ChatEvent } from "../shared/events";
 import prisma from "./db.server";
 
@@ -24,13 +24,6 @@ export async function saveEvent(
 }
 
 const DAY = 86_400_000;
-
-const COMPONENT_ACTIONS: Record<(typeof COMPONENT_TOOLS)[number], string> = {
-  showProductCard: "added_to_cart",
-  showProductCards: "product_liked",
-  showFaqCard: "link_clicked",
-  showCart: "checkout_clicked",
-};
 
 type AddedToCart = Extract<ChatEvent, { type: "added_to_cart" }>["data"];
 
@@ -83,7 +76,7 @@ export async function getStats(shop: string, days: number) {
   });
 
   let currency: string | null = null;
-  const actionTypes = new Set(Object.values(COMPONENT_ACTIONS));
+  const actionTypes = new Set<string>(Object.values(COMPONENT_ACTIONS));
 
   const summaries: Summary[] = conversations.map((conversation) => {
     let shown = 0;

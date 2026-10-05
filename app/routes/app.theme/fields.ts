@@ -25,7 +25,7 @@ export const COLOR_GROUPS: {
       {
         name: "secondary",
         label: "Secondary color",
-        details: "Product and FAQ links",
+        details: "Secondary buttons",
       },
       {
         name: "onSecondary",

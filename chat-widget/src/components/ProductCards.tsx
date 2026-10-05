@@ -1,5 +1,6 @@
 import type { ProductCardProps, ProductCardsProps } from "../../../shared/chat";
 import { findVariant } from "../../../shared/variants";
+import { productUrl } from "../cart";
 import { t } from "../i18n";
 import { HeartIcon } from "../icons";
 import { ProductPrice } from "./Price";
@@ -14,11 +15,11 @@ function SimpleProductCard({
 }: ProductCardProps & { onLike: () => void }) {
   const shownVariant = findVariant(variants, selectedOptions) ?? variants[0];
   const shownImageUrl = shownVariant.imageUrl ?? images[0]?.url ?? null;
-  const productUrl = `/products/${handle}`;
+  const url = productUrl(handle);
 
   return (
     <div className="cc-card">
-      <a className="cc-card__media" href={productUrl}>
+      <a className="cc-card__media" href={url}>
         {shownImageUrl === null ? (
           <div className="cc-card__image-placeholder" aria-hidden="true" />
         ) : (
@@ -32,7 +33,7 @@ function SimpleProductCard({
       </a>
 
       <div className="cc-card__body">
-        <a className="cc-card__title" href={productUrl}>
+        <a className="cc-card__title" href={url}>
           {title}
         </a>
 

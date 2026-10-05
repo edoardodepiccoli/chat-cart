@@ -1,3 +1,21 @@
+declare global {
+  interface Window {
+    Shopify?: { routes?: { root?: string } };
+  }
+}
+
+export const ROOT = window.Shopify?.routes?.root ?? "/";
+
+export const CHECKOUT_URL = `${ROOT}checkout`;
+
+export function productUrl(handle: string) {
+  return `${ROOT}products/${handle}`;
+}
+
+export function localUrl(path: string) {
+  return ROOT + path.replace(/^\//, "");
+}
+
 export type CartItem = {
   key: string;
   variant_id: number;
@@ -21,7 +39,7 @@ export function variantNumber(variantId: string) {
 }
 
 export async function addToCart(variantId: string) {
-  const response = await fetch("/cart/add.js", {
+  const response = await fetch(`${ROOT}cart/add.js`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -32,7 +50,7 @@ export async function addToCart(variantId: string) {
 }
 
 export async function getCart(): Promise<Cart> {
-  const response = await fetch("/cart.js");
+  const response = await fetch(`${ROOT}cart.js`);
   if (!response.ok) throw new Error(`Cart ${response.status}`);
   return response.json();
 }

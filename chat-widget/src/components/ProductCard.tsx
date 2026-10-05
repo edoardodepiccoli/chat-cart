@@ -5,7 +5,7 @@ import type {
   ProductVariant,
   SelectedOption,
 } from "../../../shared/chat";
-import { variantNumber } from "../cart";
+import { productUrl, variantNumber } from "../cart";
 import { t } from "../i18n";
 import { CartCheckIcon, CartIcon } from "../icons";
 import { ProductPrice } from "./Price";
@@ -41,7 +41,7 @@ export default function ProductCard({
   const inCart =
     selectedVariant !== undefined &&
     cartVariantIds.includes(variantNumber(selectedVariant.id));
-  const productUrl = `/products/${handle}`;
+  const url = productUrl(handle);
 
   async function add() {
     if (selectedVariant === undefined) return;
@@ -69,12 +69,12 @@ export default function ProductCard({
       <ProductMedia
         images={images}
         title={title}
-        productUrl={productUrl}
+        productUrl={url}
         activeUrl={shownImageUrl}
       />
 
       <div className="cc-card__body">
-        <a className="cc-card__title" href={productUrl}>
+        <a className="cc-card__title" href={url}>
           {title}
         </a>
 
@@ -137,7 +137,7 @@ export default function ProductCard({
           {addLabel()}
         </button>
 
-        <a className="cc-btn cc-btn--secondary" href={productUrl}>
+        <a className="cc-btn cc-btn--secondary" href={url}>
           {t("seeProduct")}
         </a>
       </div>

@@ -236,7 +236,18 @@ export default function ThemePage() {
                     label="Button shape"
                     name="buttonShape"
                     value={fields.buttonShape}
-                    details="Suggested replies are always pills"
+                    details="Main and secondary buttons"
+                  >
+                    <s-option value="rounded">
+                      Rounded, follows corner radius
+                    </s-option>
+                    <s-option value="pill">Pill</s-option>
+                  </s-select>
+                  <s-select
+                    label="Suggested reply shape"
+                    name="suggestionShape"
+                    value={fields.suggestionShape}
+                    details="Clickable replies under the assistant's answer"
                   >
                     <s-option value="rounded">
                       Rounded, follows corner radius

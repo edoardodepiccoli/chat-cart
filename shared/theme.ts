@@ -2,7 +2,13 @@ import { z } from "zod";
 
 const hex = z.string().regex(/^#[0-9a-f]{6}$/i);
 
-const fontName = z.string().trim().max(60).regex(/^[a-z0-9 ]*$/i);
+const fontName = z
+  .string()
+  .trim()
+  .max(60)
+  .regex(/^[a-z0-9 ]*$/i);
+
+const fontWeight = z.coerce.number().int().min(300).max(700).multipleOf(100);
 
 function fontStack(name: string) {
   return `"${name}", system-ui, sans-serif`;
@@ -39,6 +45,9 @@ export const themeSchema = colorsSchema.extend({
   shadow: z.enum(["none", "soft", "strong"]),
   bodyFont: fontName,
   headingFont: fontName,
+  bodyWeight: fontWeight,
+  headingWeight: fontWeight,
+  buttonWeight: fontWeight,
 });
 
 export type Theme = z.infer<typeof themeSchema>;
@@ -46,13 +55,20 @@ export type Theme = z.infer<typeof themeSchema>;
 export type ThemeColor = keyof z.infer<typeof colorsSchema>;
 
 export function fontUrls(theme: Theme): string[] {
-  const families = new Set(
-    [theme.bodyFont, theme.headingFont].filter(Boolean),
-  );
-  return [...families].map(
-    (family) =>
-      `https://fonts.googleapis.com/css2?family=${family.replace(/ /g, "+")}:wght@400;600&display=swap`,
-  );
+  const families = new Map<string, number[]>();
+
+  function add(family: string, weights: number[]) {
+    if (family)
+      families.set(family, [...(families.get(family) ?? []), ...weights]);
+  }
+
+  add(theme.bodyFont, [theme.bodyWeight, theme.buttonWeight]);
+  add(theme.headingFont || theme.bodyFont, [theme.headingWeight]);
+
+  return [...families].map(([family, weights]) => {
+    const wght = [...new Set(weights)].sort((a, b) => a - b).join(";");
+    return `https://fonts.googleapis.com/css2?family=${family.replace(/ /g, "+")}:wght@${wght}&display=swap`;
+  });
 }
 
 const SHADOWS: Record<Theme["shadow"], { panel: string; launcher: string }> =
@@ -96,6 +112,9 @@ export const DEFAULT_THEME: Theme = {
   shadow: "soft",
   bodyFont: "",
   headingFont: "",
+  bodyWeight: 400,
+  headingWeight: 600,
+  buttonWeight: 600,
 };
 
 export function themeVars(theme: Theme): Record<string, string> {
@@ -128,6 +147,9 @@ export function themeVars(theme: Theme): Record<string, string> {
       theme.suggestionShape === "pill" ? "999px" : `${theme.radius}px`,
     "--cc-shadow-panel": SHADOWS[theme.shadow].panel,
     "--cc-shadow-launcher": SHADOWS[theme.shadow].launcher,
+    "--cc-font-weight": String(theme.bodyWeight),
+    "--cc-font-weight-heading": String(theme.headingWeight),
+    "--cc-font-weight-button": String(theme.buttonWeight),
     ...(theme.bodyFont
       ? { "--cc-font-family": fontStack(theme.bodyFont) }
       : {}),

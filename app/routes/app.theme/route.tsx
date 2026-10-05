@@ -18,6 +18,24 @@ import widgetTokens from "../../../chat-widget/src/tokens.css?url";
 import widgetStyles from "../../../chat-widget/src/styles.css?url";
 import previewStyles from "../../../chat-widget/src/preview/preview.css?url";
 
+const WEIGHTS = [
+  { value: 300, label: "Light" },
+  { value: 400, label: "Regular" },
+  { value: 500, label: "Medium" },
+  { value: 600, label: "Semibold" },
+  { value: 700, label: "Bold" },
+];
+
+const WEIGHT_FIELDS = [
+  { name: "bodyWeight", label: "Body weight", details: "Messages and fields" },
+  {
+    name: "headingWeight",
+    label: "Heading weight",
+    details: "Product, FAQ and cart titles",
+  },
+  { name: "buttonWeight", label: "Button weight", details: "Buttons" },
+] as const;
+
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: widgetTokens },
   { rel: "stylesheet", href: widgetStyles },
@@ -195,6 +213,24 @@ export default function ThemePage() {
                     placeholder="Body font"
                     details="Product, FAQ and cart titles. Empty uses the body font"
                   ></s-text-field>
+                  {WEIGHT_FIELDS.map((field) => (
+                    <s-select
+                      key={field.name}
+                      label={field.label}
+                      name={field.name}
+                      value={String(fields[field.name])}
+                      details={field.details}
+                    >
+                      {WEIGHTS.map((weight) => (
+                        <s-option
+                          key={weight.value}
+                          value={String(weight.value)}
+                        >
+                          {weight.value} {weight.label}
+                        </s-option>
+                      ))}
+                    </s-select>
+                  ))}
                 </s-grid>
               </s-stack>
               <s-stack gap="small">

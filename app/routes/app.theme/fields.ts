@@ -35,22 +35,52 @@ export const COLOR_GROUPS: {
       {
         name: "secondary",
         label: "Secondary color",
-        details: "Product and FAQ links, suggested replies",
+        details: "Product and FAQ links",
       },
       {
         name: "onSecondary",
         label: "Text on secondary",
-        details: "Text on secondary buttons and suggested replies",
+        details: "Text on secondary buttons",
       },
       {
         name: "secondaryHover",
         label: "Secondary hover",
-        details: "Secondary buttons and suggested replies under the pointer",
+        details: "Secondary buttons under the pointer",
       },
       {
         name: "onSecondaryHover",
         label: "Text on secondary hover",
-        details: "Text on hovered secondary buttons and suggested replies",
+        details: "Text on hovered secondary buttons",
+      },
+    ],
+  },
+  {
+    heading: "Suggested replies",
+    fields: [
+      {
+        name: "suggestion",
+        label: "Suggestion color",
+        details: "Clickable replies under the assistant's answer",
+      },
+      {
+        name: "onSuggestion",
+        label: "Text on suggestions",
+        details: "Text in suggested replies",
+      },
+      {
+        name: "suggestionHover",
+        label: "Suggestion hover",
+        details: "Suggested replies under the pointer",
+      },
+      {
+        name: "onSuggestionHover",
+        label: "Text on suggestion hover",
+        details: "Text in hovered suggested replies",
+      },
+      {
+        name: "suggestionBorder",
+        label: "Suggestion border",
+        details: "Line around suggested replies",
       },
     ],
   },
@@ -121,6 +151,16 @@ export const CONTRAST_PAIRS: {
     text: "onSecondaryHover",
     background: "secondaryHover",
     label: "Text on secondary hover",
+  },
+  {
+    text: "onSuggestion",
+    background: "suggestion",
+    label: "Text on suggestions",
+  },
+  {
+    text: "onSuggestionHover",
+    background: "suggestionHover",
+    label: "Text on suggestion hover",
   },
   {
     text: "onUserBubble",

@@ -110,6 +110,7 @@ Shape and depth:
 - radius: corner radius in px, 0 to 24
 - borderWidth: border width in px, 0 to 2
 - buttonShape: rounded (follows radius) or pill
+- suggestionShape: rounded (follows radius) or pill, for suggested replies
 - shadow: none, soft or strong
 
 fontFamily, one of: ${Object.entries(FONTS)

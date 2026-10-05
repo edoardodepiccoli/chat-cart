@@ -249,10 +249,10 @@
 
 .cc-suggestion {
   padding: 6px 12px;
-  border: var(--cc-border-width) solid var(--cc-color-border);
-  border-radius: 999px;
-  background: var(--cc-color-secondary);
-  color: var(--cc-color-on-secondary);
+  border: var(--cc-border-width) solid var(--cc-color-suggestion-border);
+  border-radius: var(--cc-radius-suggestion);
+  background: var(--cc-color-suggestion);
+  color: var(--cc-color-on-suggestion);
   font: inherit;
   font-size: var(--cc-font-size-sm);
   cursor: pointer;
@@ -260,8 +260,8 @@
 
 @media (hover: hover) and (pointer: fine) {
   .cc-suggestion:hover {
-    background: var(--cc-color-secondary-hover);
-    color: var(--cc-color-on-secondary-hover);
+    background: var(--cc-color-suggestion-hover);
+    color: var(--cc-color-on-suggestion-hover);
   }
 }
 

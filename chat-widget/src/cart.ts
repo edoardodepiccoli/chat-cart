@@ -4,7 +4,8 @@ declare global {
   }
 }
 
-export const ROOT = window.Shopify?.routes?.root ?? "/";
+export const ROOT =
+  (typeof window !== "undefined" && window.Shopify?.routes?.root) || "/";
 
 export const CHECKOUT_URL = `${ROOT}checkout`;
 

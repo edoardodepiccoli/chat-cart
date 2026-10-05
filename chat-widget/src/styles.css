@@ -234,6 +234,35 @@
   color: var(--cc-color-text-muted);
 }
 
+.cc-part--text:not(:has(~ .cc-part--text)),
+.cc-typing {
+  position: relative;
+  isolation: isolate;
+}
+
+.cc-part--text:not(:has(~ .cc-part--text))::after,
+.cc-typing::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  z-index: -1;
+  width: 20px;
+  height: 20px;
+  background: inherit;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M0 0H14C14 9 16 16 20 20C14 20 8 19 4 16H0Z'/%3E%3C/svg%3E")
+    no-repeat;
+}
+
+.cc-message--user .cc-part--text::after {
+  right: -6px;
+}
+
+.cc-message--assistant .cc-part--text::after,
+.cc-typing::after {
+  left: -6px;
+  transform: scaleX(-1);
+}
+
 .cc-suggestions {
   display: flex;
   flex-wrap: wrap;

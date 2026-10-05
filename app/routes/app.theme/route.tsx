@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type {
   ActionFunctionArgs,
   HeadersFunction,
@@ -10,7 +10,7 @@ import { useAppBridge } from "@shopify/app-bridge-react";
 import { boundary } from "@shopify/shopify-app-react-router/server";
 
 import { authenticate } from "../../shopify.server";
-import { getTheme, saveTheme } from "./theme.server";
+import { generateTheme, getTheme, saveTheme } from "./theme.server";
 import { COLOR_GROUPS, CONTRAST_PAIRS, contrast } from "./fields";
 import { FONTS, fontUrl, themeSchema, type FontKey } from "../../../shared/theme";
 import Preview from "../../../chat-widget/src/preview/Preview";
@@ -35,10 +35,17 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const { admin } = await authenticate.admin(request);
+  const formData = await request.formData();
 
-  const parsed = themeSchema.safeParse(
-    Object.fromEntries(await request.formData()),
-  );
+  if (formData.get("intent") === "generate") {
+    try {
+      return { generated: await generateTheme(admin.graphql) };
+    } catch {
+      return { generateError: true };
+    }
+  }
+
+  const parsed = themeSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { ok: false };
 
   await saveTheme(admin.graphql, parsed.data);
@@ -48,6 +55,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 export default function ThemePage() {
   const { theme } = useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof action>();
+  const generator = useFetcher<typeof action>();
+  const form = useRef<HTMLFormElement>(null);
   const shopify = useAppBridge();
   const [draft, setDraft] = useState(theme);
   const [mounted, setMounted] = useState(false);
@@ -59,8 +68,25 @@ export default function ThemePage() {
   useEffect(() => setMounted(true), []);
 
   useEffect(() => {
-    if (fetcher.data?.ok) shopify.toast.show("Theme saved");
+    if (fetcher.data && "ok" in fetcher.data && fetcher.data.ok)
+      shopify.toast.show("Theme saved");
   }, [fetcher.data, shopify]);
+
+  useEffect(() => {
+    const generated =
+      generator.data && "generated" in generator.data
+        ? generator.data.generated
+        : null;
+    if (!generated || !form.current) return;
+
+    for (const [name, value] of Object.entries(generated)) {
+      const field = form.current.elements.namedItem(name) as {
+        value: string;
+      } | null;
+      if (field) field.value = String(value);
+    }
+    form.current.dispatchEvent(new Event("input", { bubbles: true }));
+  }, [generator.data]);
 
   return (
     <s-page heading="Theme">
@@ -70,6 +96,7 @@ export default function ThemePage() {
           gap="base"
         >
           <form
+            ref={form}
             data-save-bar
             onSubmit={(event) => {
               event.preventDefault();
@@ -84,7 +111,27 @@ export default function ThemePage() {
             }}
           >
             <s-stack gap="base">
-              {fetcher.data?.ok === false && (
+              <s-stack direction="inline" gap="base" alignItems="center">
+                <s-button
+                  type="button"
+                  loading={generator.state !== "idle"}
+                  onClick={() =>
+                    generator.submit({ intent: "generate" }, { method: "post" })
+                  }
+                >
+                  Generate from store theme
+                </s-button>
+                <s-text color="subdued">
+                  Picks every value below from your published theme. Review,
+                  then save
+                </s-text>
+              </s-stack>
+              {generator.data && "generateError" in generator.data && (
+                <s-banner tone="critical">
+                  Theme generation failed. Try again.
+                </s-banner>
+              )}
+              {fetcher.data && "ok" in fetcher.data && !fetcher.data.ok && (
                 <s-banner tone="critical">
                   Some values are invalid. Check the fields and try again.
                 </s-banner>

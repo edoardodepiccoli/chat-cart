@@ -1,13 +1,17 @@
 import type { AdminGraphqlClient } from "@shopify/shopify-app-react-router/server";
+import { generateText, Output } from "ai";
 import { z } from "zod";
 
+import { DEEPSEEK } from "../../agent/agent.server";
 import {
   DEFAULT_THEME,
+  FONTS,
   fontUrl,
   themeSchema,
   themeStyle,
   type Theme,
 } from "../../../shared/theme";
+import { COLOR_GROUPS, CONTRAST_PAIRS } from "./fields";
 
 const METAFIELD = { namespace: "chat_cart", key: "theme" };
 
@@ -75,4 +79,68 @@ export async function saveTheme(graphql: AdminGraphqlClient, theme: Theme) {
 
   const [error] = data.metafieldsSet.userErrors;
   if (error) throw new Error(error.message);
+}
+
+const STORE_THEME_QUERY = `#graphql
+  query StoreTheme {
+    themes(first: 1, roles: [MAIN]) {
+      nodes {
+        name
+        files(filenames: ["config/settings_data.json"], first: 1) {
+          nodes { body { ... on OnlineStoreThemeFileBodyText { content } } }
+        }
+      }
+    }
+  }`;
+
+const GENERATE = `You design the theme of a chat widget embedded in a Shopify storefront, so it looks on brand with the store.
+You get the settings of the store's published theme (config/settings_data.json). Read its colors, color schemes, fonts, corner radius, borders and shadows, and pick every widget token so the widget looks like part of the store.
+
+Colors, as #rrggbb:
+${COLOR_GROUPS.flatMap((group) =>
+  group.fields.map(
+    (field) => `- ${field.name}: ${field.label}. ${field.details}`,
+  ),
+).join("\n")}
+
+Each of these pairs needs at least 4.5:1 contrast:
+${CONTRAST_PAIRS.map((pair) => `- ${pair.text} on ${pair.background}`).join("\n")}
+
+Shape and depth:
+- radius: corner radius in px, 0 to 24
+- borderWidth: border width in px, 0 to 2
+- buttonShape: rounded (follows radius) or pill
+- shadow: none, soft or strong
+
+fontFamily, one of: ${Object.entries(FONTS)
+  .map(([key, font]) => `${key} (${font.label})`)
+  .join(", ")}. store inherits the storefront's own font, prefer it unless another font matches the brand better.`;
+
+export async function generateTheme(
+  graphql: AdminGraphqlClient,
+): Promise<Theme> {
+  const response = await graphql(STORE_THEME_QUERY);
+  const { data } = (await response.json()) as {
+    data: {
+      themes: {
+        nodes: {
+          name: string;
+          files: { nodes: { body: { content?: string } }[] };
+        }[];
+      };
+    };
+  };
+
+  const [theme] = data.themes.nodes;
+  const settings = theme?.files.nodes[0]?.body.content;
+  if (!settings) throw new Error("No published theme settings");
+
+  const { output } = await generateText({
+    model: DEEPSEEK,
+    system: GENERATE,
+    output: Output.object({ schema: themeSchema }),
+    prompt: `Theme: ${theme.name}\n\n${settings}`,
+  });
+
+  return output;
 }

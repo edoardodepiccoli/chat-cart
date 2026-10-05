@@ -38,7 +38,7 @@ if (existsSync(".env")) process.loadEnvFile();
 
 const gateway = createGateway({ apiKey: process.env.AI_GATEWAY_API_KEY });
 
-const DEEPSEEK = gateway("deepseek/deepseek-v4.1-flash");
+export const DEEPSEEK = gateway("deepseek/deepseek-v4.1-flash");
 
 async function productCard(
   storefront: StorefrontApiContext,

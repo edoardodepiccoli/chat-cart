@@ -3,9 +3,8 @@ import { Fragment, useEffect, useRef, useState } from "react";
 
 import { sendEvent, transport } from "./api";
 import { CHECKOUT_URL } from "./cart";
-import Composer from "./components/Composer";
-import Launcher from "./components/Launcher";
 import Message from "./components/Message";
+import Panel from "./components/Panel";
 import Suggestions, { type ShownSuggestions } from "./components/Suggestions";
 import {
   useCart,
@@ -117,72 +116,59 @@ export default function App() {
   }
 
   return (
-    <>
-      <div
-        id="cc-panel"
-        className="cc-panel"
-        data-open={open}
-        data-size={size}
-        aria-hidden={!open}
-      >
-        <div
-          className="cc-log"
-          ref={logRef}
-          onScroll={track}
-          onClickCapture={recordLink}
-        >
-          <div className="cc-log__content">
-            {messages.map((message) => (
-              <Fragment key={message.id}>
-                <Message
-                  message={message}
-                  context={{
-                    cart,
-                    streaming: status === "streaming" && message === last,
-                    onLike: like,
-                    onAdd: add,
-                  }}
-                />
-                {suggestions?.id === message.id && (
-                  <Suggestions
-                    {...suggestions}
-                    leaving={suggestions === leaving}
-                    onPick={pick}
-                    onLeft={() => setLeaving(undefined)}
-                  />
-                )}
-              </Fragment>
-            ))}
+    <Panel
+      open={open}
+      size={size}
+      logRef={logRef}
+      onScroll={track}
+      onClickCapture={recordLink}
+      composer={{
+        value: draft,
+        onChange: setDraft,
+        onSubmit: submit,
+        disabled: busy || !conversation,
+        inputRef,
+      }}
+      onToggle={() => setOpen(!open)}
+    >
+      {messages.map((message) => (
+        <Fragment key={message.id}>
+          <Message
+            message={message}
+            context={{
+              cart,
+              streaming: status === "streaming" && message === last,
+              onLike: like,
+              onAdd: add,
+            }}
+          />
+          {suggestions?.id === message.id && (
+            <Suggestions
+              {...suggestions}
+              leaving={suggestions === leaving}
+              onPick={pick}
+              onLeft={() => setLeaving(undefined)}
+            />
+          )}
+        </Fragment>
+      ))}
 
-            {busy && (
-              <div className="cc-message cc-message--assistant">
-                <div className="cc-part cc-typing">
-                  {t("typing")}
-                  <span className="cc-typing__dot">.</span>
-                  <span className="cc-typing__dot">.</span>
-                  <span className="cc-typing__dot">.</span>
-                </div>
-              </div>
-            )}
-
-            {(error || loadFailed) && (
-              <div className="cc-message cc-message--assistant">
-                <div className="cc-part">{t("error")}</div>
-              </div>
-            )}
+      {busy && (
+        <div className="cc-message cc-message--assistant">
+          <div className="cc-part cc-typing">
+            {t("typing")}
+            <span className="cc-typing__dot">.</span>
+            <span className="cc-typing__dot">.</span>
+            <span className="cc-typing__dot">.</span>
           </div>
         </div>
+      )}
 
-        <Composer
-          value={draft}
-          onChange={setDraft}
-          onSubmit={submit}
-          disabled={busy || !conversation}
-          inputRef={inputRef}
-        />
-      </div>
-
-      <Launcher open={open} size={size} onClick={() => setOpen(!open)} />
-    </>
+      {(error || loadFailed) && (
+        <div className="cc-message cc-message--assistant">
+          <div className="cc-part">{t("error")}</div>
+        </div>
+      )}
+    </Panel>
   );
 }

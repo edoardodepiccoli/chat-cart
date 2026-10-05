@@ -1,9 +1,8 @@
 import type { ChatMessage, ProductCardProps } from "../../../shared/chat";
 import { themeVars, type Theme } from "../../../shared/theme";
 import type { PartContext } from "../components";
-import Composer from "../components/Composer";
-import Launcher from "../components/Launcher";
 import Message from "../components/Message";
+import Panel from "../components/Panel";
 import Suggestions from "../components/Suggestions";
 
 function variant(size: string, available: boolean) {
@@ -74,30 +73,26 @@ export default function Preview({ theme }: { theme: Theme }) {
         if ((event.target as Element).closest("a")) event.preventDefault();
       }}
     >
-      <div className="cc-panel" data-open="true" data-size="l">
-        <div className="cc-log">
-          <div className="cc-log__content">
-            {MESSAGES.map((message) => (
-              <Message key={message.id} message={message} context={CONTEXT} />
-            ))}
-            <Suggestions
-              id="preview"
-              items={SUGGESTIONS}
-              leaving={false}
-              onPick={noop}
-              onLeft={noop}
-            />
-          </div>
-        </div>
-
-        <Composer
-          value=""
-          onChange={noop}
-          onSubmit={(event) => event.preventDefault()}
+      <Panel
+        open
+        size="l"
+        composer={{
+          value: "",
+          onChange: noop,
+          onSubmit: (event) => event.preventDefault(),
+        }}
+      >
+        {MESSAGES.map((message) => (
+          <Message key={message.id} message={message} context={CONTEXT} />
+        ))}
+        <Suggestions
+          id="preview"
+          items={SUGGESTIONS}
+          leaving={false}
+          onPick={noop}
+          onLeft={noop}
         />
-      </div>
-
-      <Launcher open />
+      </Panel>
     </div>
   );
 }

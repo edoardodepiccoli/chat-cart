@@ -77,7 +77,10 @@ export function fontUrls(theme: Theme): string[] {
 
   return [...families].map(([family, weights]) => {
     const wght = [...new Set(weights)].sort((a, b) => a - b).join(";");
-    return `https://fonts.googleapis.com/css2?family=${family.replace(/ /g, "+")}:wght@${wght}&display=swap`;
+    const name = family
+      .replace(/\b[a-z]/g, (letter) => letter.toUpperCase())
+      .replace(/ /g, "+");
+    return `https://fonts.googleapis.com/css2?family=${name}:wght@${wght}&display=swap`;
   });
 }
 

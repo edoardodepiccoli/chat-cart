@@ -1,5 +1,5 @@
 {%- assign widget_theme = app.metafields.chat_cart.theme.value -%}
-<div id="chat-cart-root" data-locale="{{ request.locale.iso_code }}" style="{{ widget_theme.style | escape }}"></div>
+<div id="chat-cart-root" data-locale="{{ request.locale.iso_code }}" data-country="{{ localization.country.iso_code }}" data-currency="{{ localization.country.currency.iso_code }}" style="{{ widget_theme.style | escape }}"></div>
 
 <link rel="stylesheet" href="{{ 'chat-widget.css' | asset_url }}">
 <script src="{{ 'chat-widget.js' | asset_url }}" defer></script>

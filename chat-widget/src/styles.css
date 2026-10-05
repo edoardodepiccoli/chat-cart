@@ -2,6 +2,7 @@
   all: initial;
   -webkit-text-size-adjust: 100%;
   font-family: var(--cc-font-family, inherit);
+  font-weight: var(--cc-font-weight);
 }
 
 #chat-cart-root *,
@@ -315,7 +316,7 @@
   background: var(--cc-color-primary);
   color: var(--cc-color-on-primary);
   font: inherit;
-  font-weight: 600;
+  font-weight: var(--cc-font-weight-button);
   text-align: center;
   text-decoration: none;
   cursor: pointer;
@@ -382,7 +383,7 @@
 .cc-card__title {
   color: inherit;
   font-family: var(--cc-font-heading, inherit);
-  font-weight: 600;
+  font-weight: var(--cc-font-weight-heading);
   text-decoration: none;
 }
 
@@ -565,7 +566,7 @@
 
 .cc-cart__title {
   font-family: var(--cc-font-heading, inherit);
-  font-weight: 600;
+  font-weight: var(--cc-font-weight-heading);
 }
 
 @media (hover: hover) and (pointer: fine) {

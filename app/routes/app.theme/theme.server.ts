@@ -115,7 +115,12 @@ Shape and depth:
 Fonts, as family names (letters, digits and spaces):
 - bodyFont: messages, buttons and fields. Empty inherits the storefront's font
 - headingFont: product, FAQ and cart titles. Empty uses bodyFont
-Font settings (e.g. type_body_font, type_header_font) are Shopify font handles: assistant_n4 is family "Assistant" at weight 400, playfair_display_i7 is "Playfair Display" italic at 700. Turn underscores into spaces and title case the name. Always write the exact family names from the theme.`;
+
+Font weights, 300 to 700 in steps of 100:
+- bodyWeight: messages and fields
+- headingWeight: product, FAQ and cart titles
+- buttonWeight: buttons
+Font settings (e.g. type_body_font, type_header_font) are Shopify font handles: assistant_n4 is family "Assistant" at weight 400, playfair_display_i7 is "Playfair Display" italic at 700. Turn underscores into spaces and title case the name. Always write the exact family names from the theme, and take bodyWeight and headingWeight from the handles. Buttons usually follow the body font, slightly bolder.`;
 
 export async function generateTheme(
   graphql: AdminGraphqlClient,

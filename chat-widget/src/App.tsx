@@ -1,25 +1,24 @@
 import { useChat } from "@ai-sdk/react";
 import { Fragment, useEffect, useRef, useState } from "react";
 
-import {
-  openConversation,
-  sendEvent,
-  transport,
-  type Conversation,
-} from "./api";
-import { addToCart, CHECKOUT_URL, getCart, type Cart } from "./cart";
+import { sendEvent, transport } from "./api";
+import { CHECKOUT_URL } from "./cart";
 import Composer from "./components/Composer";
 import Launcher from "./components/Launcher";
 import Message from "./components/Message";
 import Suggestions, { type ShownSuggestions } from "./components/Suggestions";
-import { useIosKeyboard, useStickToBottom } from "./hooks";
+import {
+  useCart,
+  useConversation,
+  useIosKeyboard,
+  useStickToBottom,
+} from "./hooks";
 import { t } from "./i18n";
 import type {
   ChatMessage,
   ProductCardProps,
   ProductVariant,
 } from "../../shared/chat";
-import type { ChatEvent } from "../../shared/events";
 
 function greeting(): ChatMessage {
   return {
@@ -36,9 +35,8 @@ function greeting(): ChatMessage {
 }
 
 export default function App() {
-  const [conversation, setConversation] = useState<Conversation>();
-  const [loadFailed, setLoadFailed] = useState(false);
-  const [cart, setCart] = useState<Cart>();
+  const { conversation, loadFailed, record } = useConversation();
+  const { cart, add: addToCart } = useCart(record);
   const { messages, sendMessage, status, error } = useChat<ChatMessage>({
     id: conversation?.id,
     transport,
@@ -64,22 +62,9 @@ export default function App() {
   const suggestions = live ?? leaving;
 
   useEffect(() => {
-    openConversation()
-      .then(setConversation)
-      .catch(() => setLoadFailed(true));
-    getCart()
-      .then(setCart)
-      .catch(() => {});
-  }, []);
-
-  useEffect(() => {
     if (open && conversation)
       sendEvent(conversation.id, { type: "widget_opened" });
   }, [open, conversation]);
-
-  function record(event: ChatEvent) {
-    if (conversation) sendEvent(conversation.id, event);
-  }
 
   function recordLink(event: React.MouseEvent) {
     const href = (event.target as Element).closest("a")?.getAttribute("href");
@@ -122,16 +107,7 @@ export default function App() {
 
   async function add(product: ProductCardProps, variant: ProductVariant) {
     if (busy || !conversation) return;
-    await addToCart(variant.id);
-    record({
-      type: "added_to_cart",
-      data: {
-        handle: product.handle,
-        variantId: variant.id,
-        price: variant.price,
-      },
-    });
-    setCart(await getCart());
+    await addToCart(product, variant);
     const label =
       product.variants.length > 1
         ? ` (${variant.selectedOptions.map((option) => option.value).join(" / ")})`

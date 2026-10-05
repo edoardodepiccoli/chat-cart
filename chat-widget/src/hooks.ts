@@ -1,4 +1,51 @@
-import { useEffect, useRef, type RefObject } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
+
+import { openConversation, sendEvent, type Conversation } from "./api";
+import { addToCart, getCart, type Cart } from "./cart";
+import type { ProductCardProps, ProductVariant } from "../../shared/chat";
+import type { ChatEvent } from "../../shared/events";
+
+export function useConversation() {
+  const [conversation, setConversation] = useState<Conversation>();
+  const [loadFailed, setLoadFailed] = useState(false);
+
+  useEffect(() => {
+    openConversation()
+      .then(setConversation)
+      .catch(() => setLoadFailed(true));
+  }, []);
+
+  function record(event: ChatEvent) {
+    if (conversation) sendEvent(conversation.id, event);
+  }
+
+  return { conversation, loadFailed, record };
+}
+
+export function useCart(record: (event: ChatEvent) => void) {
+  const [cart, setCart] = useState<Cart>();
+
+  useEffect(() => {
+    getCart()
+      .then(setCart)
+      .catch(() => {});
+  }, []);
+
+  async function add(product: ProductCardProps, variant: ProductVariant) {
+    await addToCart(variant.id);
+    record({
+      type: "added_to_cart",
+      data: {
+        handle: product.handle,
+        variantId: variant.id,
+        price: variant.price,
+      },
+    });
+    setCart(await getCart());
+  }
+
+  return { cart, add };
+}
 
 export function useStickToBottom(logRef: RefObject<HTMLDivElement>) {
   const pinned = useRef(true);

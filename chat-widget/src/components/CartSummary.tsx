@@ -1,4 +1,5 @@
 import type { Cart } from "../cart";
+import { t } from "../i18n";
 import { CartIcon } from "../icons";
 import { formatMoney } from "./Price";
 
@@ -8,7 +9,7 @@ export default function CartSummary({ cart }: { cart: Cart | undefined }) {
   if (cart.items.length === 0) {
     return (
       <div className="cc-card">
-        <div className="cc-card__body">Your cart is empty.</div>
+        <div className="cc-card__body">{t("cartEmpty")}</div>
       </div>
     );
   }
@@ -51,7 +52,9 @@ export default function CartSummary({ cart }: { cart: Cart | undefined }) {
 
         <a className="cc-btn cc-cart__checkout" href="/checkout">
           <CartIcon className="cc-icon" />
-          Checkout · {formatMoney(cart.total_price / 100, cart.currency)}
+          {t("checkout", {
+            total: formatMoney(cart.total_price / 100, cart.currency),
+          })}
         </a>
       </div>
     </div>

@@ -10,7 +10,6 @@ import {
   tool,
   type ModelMessage,
 } from "ai";
-import { createGateway } from "@ai-sdk/gateway";
 import type { StorefrontApiContext } from "@shopify/shopify-app-react-router/server";
 import { existsSync } from "node:fs";
 import { z } from "zod";
@@ -37,9 +36,7 @@ import {
 
 if (existsSync(".env")) process.loadEnvFile();
 
-const gateway = createGateway({ apiKey: process.env.AI_GATEWAY_API_KEY });
-
-export const DEEPSEEK = gateway("deepseek/deepseek-v4.1-flash");
+const MODEL = "deepseek/deepseek-v4.1-flash";
 
 async function productCard(
   storefront: StorefrontApiContext,
@@ -130,7 +127,7 @@ function tools(storefront: StorefrontApiContext, market: Market) {
 
 async function suggest(messages: ModelMessage[]): Promise<string[]> {
   const { output } = await generateText({
-    model: DEEPSEEK,
+    model: MODEL,
     reasoning: "none",
     output: Output.object({
       schema: z.object({ suggestions: z.array(z.string()).length(3) }),
@@ -162,7 +159,7 @@ export async function reply(
     },
     execute: async ({ writer }) => {
       const result = streamText({
-        model: DEEPSEEK,
+        model: MODEL,
         reasoning: "none",
         system:
           market.country && market.currency

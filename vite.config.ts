@@ -1,6 +1,5 @@
 import { reactRouter } from "@react-router/dev/vite";
 import { defineConfig, type UserConfig } from "vite";
-import tsconfigPaths from "vite-tsconfig-paths";
 
 if (
   process.env.HOST &&
@@ -43,10 +42,7 @@ export default defineConfig({
       allow: ["app", "chat-widget", "shared", "node_modules"],
     },
   },
-  plugins: [
-    reactRouter(),
-    tsconfigPaths(),
-  ],
+  plugins: [reactRouter()],
   build: {
     assetsInlineLimit: 0,
   },

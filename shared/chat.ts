@@ -1,6 +1,7 @@
 import type { UIMessage } from "ai";
 
-import type { ChatTools } from "../app/agent/agent.server";
+import type { ChatTools } from "../app/agent/tools.server";
+import type { ChatEvent } from "./events";
 
 export type Market = { country: string; language: string; currency: string };
 
@@ -40,12 +41,16 @@ export type FaqCardProps = {
 
 export type CartSummaryProps = Record<string, never>;
 
-export const COMPONENT_TOOLS = [
-  "showProductCard",
-  "showProductCards",
-  "showFaqCard",
-  "showCart",
-] as const;
+export const COMPONENT_ACTIONS = {
+  showProductCard: "added_to_cart",
+  showProductCards: "product_liked",
+  showFaqCard: "link_clicked",
+  showCart: "checkout_clicked",
+} as const satisfies Partial<Record<keyof ChatTools, ChatEvent["type"]>>;
+
+export const COMPONENT_TOOLS = Object.keys(COMPONENT_ACTIONS) as Array<
+  keyof typeof COMPONENT_ACTIONS
+>;
 
 export type ChatMessage = UIMessage<never, { suggestions: string[] }, ChatTools>;
 

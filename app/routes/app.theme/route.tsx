@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import type {
   ActionFunctionArgs,
   HeadersFunction,
@@ -6,13 +6,19 @@ import type {
   LoaderFunctionArgs,
 } from "react-router";
 import { useFetcher, useLoaderData } from "react-router";
-import { useAppBridge } from "@shopify/app-bridge-react";
+import { SaveBar, useAppBridge } from "@shopify/app-bridge-react";
 import { boundary } from "@shopify/shopify-app-react-router/server";
 
 import { authenticate } from "../../shopify.server";
 import { generateTheme, getTheme, saveTheme } from "./theme.server";
 import { COLOR_GROUPS, CONTRAST_PAIRS, contrast } from "./fields";
-import { FONTS, fontUrl, themeSchema, type FontKey } from "../../../shared/theme";
+import {
+  FONTS,
+  fontUrl,
+  themeSchema,
+  type FontKey,
+  type Theme,
+} from "../../../shared/theme";
 import Preview from "../../../chat-widget/src/preview/Preview";
 import widgetTokens from "../../../chat-widget/src/tokens.css?url";
 import widgetStyles from "../../../chat-widget/src/styles.css?url";
@@ -56,14 +62,25 @@ export default function ThemePage() {
   const { theme } = useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof action>();
   const generator = useFetcher<typeof action>();
-  const form = useRef<HTMLFormElement>(null);
   const shopify = useAppBridge();
+  const [fields, setFields] = useState(theme);
+  const [formKey, setFormKey] = useState(0);
   const [draft, setDraft] = useState(theme);
   const [mounted, setMounted] = useState(false);
   const lowContrast = CONTRAST_PAIRS.map((pair) => ({
     ...pair,
     ratio: contrast(draft[pair.text], draft[pair.background]),
   })).filter((pair) => pair.ratio < 4.5);
+
+  const dirty = (Object.keys(theme) as (keyof Theme)[]).some(
+    (key) => draft[key] !== theme[key],
+  );
+
+  function load(values: Theme) {
+    setFields(values);
+    setDraft(values);
+    setFormKey((key) => key + 1);
+  }
 
   useEffect(() => setMounted(true), []);
 
@@ -77,32 +94,27 @@ export default function ThemePage() {
       generator.data && "generated" in generator.data
         ? generator.data.generated
         : null;
-    if (!generated || !form.current) return;
-
-    for (const [name, value] of Object.entries(generated)) {
-      const field = form.current.elements.namedItem(name) as {
-        value: string;
-      } | null;
-      if (field) field.value = String(value);
-    }
-    form.current.dispatchEvent(new Event("input", { bubbles: true }));
+    if (generated) load(generated);
   }, [generator.data]);
 
   return (
     <s-page heading="Theme">
+      <SaveBar id="theme-save-bar" open={dirty}>
+        <button
+          variant="primary"
+          loading={fetcher.state !== "idle" ? "" : undefined}
+          onClick={() => fetcher.submit(draft, { method: "post" })}
+        ></button>
+        <button onClick={() => load(theme)}></button>
+      </SaveBar>
       <s-section>
         <s-grid
           gridTemplateColumns="repeat(auto-fit, minmax(min(100%, 400px), 1fr))"
           gap="base"
         >
           <form
-            ref={form}
-            data-save-bar
-            onSubmit={(event) => {
-              event.preventDefault();
-              fetcher.submit(event.currentTarget, { method: "post" });
-            }}
-            onReset={() => setDraft(theme)}
+            key={formKey}
+            onSubmit={(event) => event.preventDefault()}
             onInput={(event) => {
               const parsed = themeSchema.safeParse(
                 Object.fromEntries(new FormData(event.currentTarget)),
@@ -148,7 +160,7 @@ export default function ThemePage() {
                           key={field.name}
                           label={field.label}
                           name={field.name}
-                          value={theme[field.name]}
+                          value={fields[field.name]}
                           details={field.details}
                           required
                         ></s-color-field>
@@ -181,7 +193,7 @@ export default function ThemePage() {
                   <s-select
                     label="Font"
                     name="fontFamily"
-                    value={theme.fontFamily}
+                    value={fields.fontFamily}
                     details="Store font uses your theme's font. Named fonts load from Google Fonts"
                   >
                     {Object.entries(FONTS).map(([key, font]) => (
@@ -201,7 +213,7 @@ export default function ThemePage() {
                   <s-number-field
                     label="Corner radius"
                     name="radius"
-                    value={String(theme.radius)}
+                    value={String(fields.radius)}
                     details="Roundness of the panel, messages, cards, fields and rounded buttons. 0 is square"
                     min={0}
                     max={24}
@@ -212,7 +224,7 @@ export default function ThemePage() {
                   <s-number-field
                     label="Border width"
                     name="borderWidth"
-                    value={String(theme.borderWidth)}
+                    value={String(fields.borderWidth)}
                     details="Lines around the panel, cards, fields and buttons. 0 hides them"
                     min={0}
                     max={2}
@@ -223,7 +235,7 @@ export default function ThemePage() {
                   <s-select
                     label="Button shape"
                     name="buttonShape"
-                    value={theme.buttonShape}
+                    value={fields.buttonShape}
                     details="Suggested replies are always pills"
                   >
                     <s-option value="rounded">
@@ -234,7 +246,7 @@ export default function ThemePage() {
                   <s-select
                     label="Shadow"
                     name="shadow"
-                    value={theme.shadow}
+                    value={fields.shadow}
                     details="Depth under the chat panel and the launcher"
                   >
                     <s-option value="none">None</s-option>

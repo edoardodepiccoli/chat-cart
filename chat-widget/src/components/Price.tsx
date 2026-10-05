@@ -1,7 +1,8 @@
 import type { Money } from "../../../shared/chat";
+import { getLocale } from "../i18n";
 
 export function formatMoney(amount: number, currencyCode: string): string {
-  return new Intl.NumberFormat(undefined, {
+  return new Intl.NumberFormat(getLocale(), {
     style: "currency",
     currency: currencyCode,
   }).format(amount);

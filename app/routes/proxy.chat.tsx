@@ -1,6 +1,6 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 
-import type { ChatMessage } from "../../shared/chat";
+import type { ChatMessage, Market } from "../../shared/chat";
 import { reply } from "../agent/agent.server";
 import {
   loadMessages,
@@ -24,10 +24,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     throw new Response("Unauthorized", { status: 401 });
   }
 
-  const { id, message } = (await request.json()) as {
-    id: string;
-    message: ChatMessage;
-  };
+  const { id, message, country, language, currency } =
+    (await request.json()) as { id: string; message: ChatMessage } & Market;
 
   const history = await loadMessages(session.shop, id);
   if (!history) throw new Response("Not found", { status: 404 });
@@ -39,5 +37,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   };
   await saveMessage(id, userMessage);
 
-  return reply(id, [...history, userMessage], storefront);
+  return reply(id, [...history, userMessage], storefront, {
+    country,
+    language,
+    currency,
+  });
 };

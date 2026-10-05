@@ -1,5 +1,7 @@
 import type { UIMessage } from "ai";
 
+import type { ChatTools } from "../app/agent/agent.server";
+
 export type Market = { country: string; language: string; currency: string };
 
 export type Money = { amount: string; currencyCode: string };
@@ -45,31 +47,6 @@ export const COMPONENT_TOOLS = [
   "showCart",
 ] as const;
 
-export type ChatMessage = UIMessage<
-  never,
-  { suggestions: string[] },
-  {
-    listProducts: { input: Record<string, never>; output: unknown };
-    getProduct: { input: { handle: string }; output: unknown };
-    listStorePages: { input: Record<string, never>; output: unknown };
-    getStorePage: { input: { handle: string }; output: unknown };
-    showProductCard: {
-      input: { handle: string; options: SelectedOption[] };
-      output: ProductCardProps;
-    };
-    showProductCards: {
-      input: { handles: string[] };
-      output: ProductCardsProps;
-    };
-    showFaqCard: {
-      input: { handle: string; answer: string };
-      output: FaqCardProps;
-    };
-    showCart: {
-      input: Record<string, never>;
-      output: CartSummaryProps;
-    };
-  }
->;
+export type ChatMessage = UIMessage<never, { suggestions: string[] }, ChatTools>;
 
 export type ChatPart = ChatMessage["parts"][number];

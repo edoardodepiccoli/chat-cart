@@ -41,22 +41,12 @@ export const DEFAULT_THEME: Theme = {
 };
 
 export function themeVars(theme: Theme): Record<string, string> {
-  return {
-    "--cc-color-primary": theme.primary,
-    "--cc-color-on-primary": theme.onPrimary,
-    "--cc-color-secondary": theme.secondary,
-    "--cc-color-on-secondary": theme.onSecondary,
-    "--cc-color-suggestion": theme.suggestion,
-    "--cc-color-on-suggestion": theme.onSuggestion,
-    "--cc-color-suggestion-border": theme.suggestionBorder,
-    "--cc-color-bg": theme.background,
-    "--cc-color-surface": theme.surface,
-    "--cc-color-user-bubble": theme.userBubble,
-    "--cc-color-on-user-bubble": theme.onUserBubble,
-    "--cc-color-text": theme.text,
-    "--cc-color-text-muted": theme.textMuted,
-    "--cc-color-border": theme.border,
-  };
+  return Object.fromEntries(
+    Object.entries(theme).map(([key, value]) => [
+      `--cc-color-${key.replace(/[A-Z]/g, (char) => `-${char.toLowerCase()}`)}`,
+      value,
+    ]),
+  );
 }
 
 export function themeStyle(theme: Theme): string {

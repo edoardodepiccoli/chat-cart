@@ -25,7 +25,7 @@
   overflow: hidden;
   border: var(--cc-border-width) solid var(--cc-color-border);
   border-radius: var(--cc-radius);
-  background: var(--cc-color-bg);
+  background: var(--cc-color-background);
   box-shadow: var(--cc-shadow-panel);
   color: var(--cc-color-text);
   font-size: var(--cc-font-size);
@@ -322,7 +322,7 @@
   padding: calc(8px * var(--cc-space)) calc(12px * var(--cc-space));
   border: var(--cc-border-width) solid var(--cc-color-border);
   border-radius: var(--cc-radius);
-  background: var(--cc-color-bg);
+  background: var(--cc-color-background);
   color: inherit;
   font: inherit;
 }
@@ -397,7 +397,7 @@
   overflow: hidden;
   border: var(--cc-border-width) solid var(--cc-color-border);
   border-radius: var(--cc-radius);
-  background: var(--cc-color-bg);
+  background: var(--cc-color-background);
 }
 
 .cc-card__media {

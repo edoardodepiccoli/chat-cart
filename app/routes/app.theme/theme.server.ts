@@ -127,7 +127,7 @@ Text style:
 - headingCase, buttonCase: none, uppercase or capitalize, for titles and buttons
 - headingLetterSpacing, buttonLetterSpacing: letter spacing in px, -1 to 4 in steps of 0.5
 Look for text transform, capitalization and letter spacing settings for headings and buttons. Uppercase text usually comes with 1 to 2px of letter spacing.
-Font settings (e.g. type_body_font, type_header_font) are Shopify font handles: assistant_n4 is family "Assistant" at weight 400, playfair_display_i7 is "Playfair Display" italic at 700. Turn underscores into spaces and title case the name. Always write the exact family names from the theme, and take bodyWeight and headingWeight from the handles. Buttons usually follow the body font, slightly bolder.`;
+Font settings (e.g. type_body_font, type_header_font) are Shopify font handles: assistant_n4 is family "Assistant" at weight 400, playfair_display_i7 is "Playfair Display" italic at 700. Turn underscores into spaces and write the name as Google Fonts spells it, capitalized: red_hat_text_n4 is "Red Hat Text", dm_sans_n5 is "DM Sans", never lowercase. Always write the exact family names from the theme, and take bodyWeight and headingWeight from the handles, rounded into 300 to 700. Buttons usually follow the body font, slightly bolder.`;
 
 export async function generateTheme(
   graphql: AdminGraphqlClient,

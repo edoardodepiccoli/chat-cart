@@ -6,6 +6,7 @@ import type {
   SelectedOption,
 } from "../../../shared/chat";
 import { variantNumber } from "../cart";
+import { t } from "../i18n";
 import { CartCheckIcon, CartIcon } from "../icons";
 import { ProductPrice } from "./Price";
 import ProductMedia from "./ProductMedia";
@@ -56,11 +57,11 @@ export default function ProductCard({
   }
 
   function addLabel() {
-    if (inCart) return "Added";
-    if (!canAddToCart) return "Sold out";
-    if (adding) return "Adding…";
-    if (failed) return "Try again";
-    return "Add to cart";
+    if (inCart) return t("inCart");
+    if (!canAddToCart) return t("soldOut");
+    if (adding) return t("adding");
+    if (failed) return t("tryAgain");
+    return t("addToCart");
   }
 
   return (
@@ -137,7 +138,7 @@ export default function ProductCard({
         </button>
 
         <a className="cc-btn cc-btn--secondary" href={productUrl}>
-          See product page
+          {t("seeProduct")}
         </a>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
+import { t } from "../i18n";
 import { ChevronLeftIcon, ChevronRightIcon } from "../icons";
 import type { ProductImage } from "../../../shared/chat";
 
@@ -78,7 +79,7 @@ export default function ProductMedia({
           <button
             className="cc-media__arrow cc-media__arrow--prev"
             type="button"
-            aria-label="Previous image"
+            aria-label={t("previousImage")}
             onClick={() => step(-1)}
           >
             <ChevronLeftIcon className="cc-icon" />
@@ -88,7 +89,7 @@ export default function ProductMedia({
           <button
             className="cc-media__arrow cc-media__arrow--next"
             type="button"
-            aria-label="Next image"
+            aria-label={t("nextImage")}
             onClick={() => step(1)}
           >
             <ChevronRightIcon className="cc-icon" />

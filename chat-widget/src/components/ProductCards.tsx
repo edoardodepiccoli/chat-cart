@@ -1,5 +1,6 @@
 import type { ProductCardProps, ProductCardsProps } from "../../../shared/chat";
 import { findVariant } from "../../../shared/variants";
+import { t } from "../i18n";
 import { HeartIcon } from "../icons";
 import { ProductPrice } from "./Price";
 
@@ -42,7 +43,7 @@ function SimpleProductCard({
 
         <button className="cc-btn" type="button" onClick={onLike}>
           <HeartIcon className="cc-icon" />
-          I like this
+          {t("iLikeThis")}
         </button>
       </div>
     </div>

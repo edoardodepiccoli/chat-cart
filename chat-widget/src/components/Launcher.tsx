@@ -1,3 +1,4 @@
+import { t } from "../i18n";
 import { ChatIcon, CloseIcon } from "../icons";
 
 export default function Launcher({
@@ -17,7 +18,7 @@ export default function Launcher({
       data-size={size}
       aria-expanded={open}
       aria-controls="cc-panel"
-      aria-label={open ? "Close chat" : "Open chat"}
+      aria-label={open ? t("closeChat") : t("openChat")}
       onClick={onClick}
     >
       <ChatIcon className="cc-launcher__icon cc-launcher__icon--chat" />

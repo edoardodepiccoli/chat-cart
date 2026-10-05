@@ -1,5 +1,7 @@
 import type { RefObject } from "react";
 
+import { t } from "../i18n";
+
 export default function Composer({
   value,
   onChange,
@@ -21,12 +23,12 @@ export default function Composer({
         enterKeyHint="send"
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        placeholder="Type a message"
-        aria-label="Message"
+        placeholder={t("placeholder")}
+        aria-label={t("messageLabel")}
         disabled={disabled}
       />
       <button className="cc-btn" type="submit" disabled={disabled}>
-        Send
+        {t("send")}
       </button>
     </form>
   );

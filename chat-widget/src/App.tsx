@@ -13,6 +13,7 @@ import Launcher from "./components/Launcher";
 import Message from "./components/Message";
 import Suggestions, { type ShownSuggestions } from "./components/Suggestions";
 import { useIosKeyboard, useStickToBottom } from "./hooks";
+import { t } from "./i18n";
 import type {
   ChatMessage,
   ProductCardProps,
@@ -20,24 +21,19 @@ import type {
 } from "../../shared/chat";
 import type { ChatEvent } from "../../shared/events";
 
-const GREETING: ChatMessage = {
-  id: "greeting",
-  role: "assistant",
-  parts: [
-    {
-      type: "text",
-      text: "Hi! I'm your personal AI shopping assistant. I can find the right product for you, check sizes and stock, and answer questions about shipping and returns. What are you looking for today?",
-    },
-    {
-      type: "data-suggestions",
-      data: [
-        "What do you sell?",
-        "Help me find a gift",
-        "How long does shipping take?",
-      ],
-    },
-  ],
-};
+function greeting(): ChatMessage {
+  return {
+    id: "greeting",
+    role: "assistant",
+    parts: [
+      { type: "text", text: t("greeting") },
+      {
+        type: "data-suggestions",
+        data: [t("suggestion1"), t("suggestion2"), t("suggestion3")],
+      },
+    ],
+  };
+}
 
 export default function App() {
   const [conversation, setConversation] = useState<Conversation>();
@@ -46,7 +42,7 @@ export default function App() {
   const { messages, sendMessage, status, error } = useChat<ChatMessage>({
     id: conversation?.id,
     transport,
-    messages: conversation ? [GREETING, ...conversation.messages] : [],
+    messages: conversation ? [greeting(), ...conversation.messages] : [],
   });
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState("");
@@ -121,7 +117,7 @@ export default function App() {
     if (busy || !conversation) return;
     record({ type: "product_liked", data: { handle } });
     pin();
-    send(`I like ${title}, tell me more about it.`);
+    send(t("liked", { title }));
   }
 
   async function add(product: ProductCardProps, variant: ProductVariant) {
@@ -137,7 +133,7 @@ export default function App() {
         ? ` (${variant.selectedOptions.map((option) => option.value).join(" / ")})`
         : "";
     pin();
-    send(`I added ${product.title}${label} to my cart.`);
+    send(t("added", { title: product.title, options: label }));
   }
 
   return (
@@ -181,7 +177,7 @@ export default function App() {
             {busy && (
               <div className="cc-message cc-message--assistant">
                 <div className="cc-part cc-typing">
-                  Typing
+                  {t("typing")}
                   <span className="cc-typing__dot">.</span>
                   <span className="cc-typing__dot">.</span>
                   <span className="cc-typing__dot">.</span>
@@ -191,9 +187,7 @@ export default function App() {
 
             {(error || loadFailed) && (
               <div className="cc-message cc-message--assistant">
-                <div className="cc-part">
-                  Something went wrong. Please try again.
-                </div>
+                <div className="cc-part">{t("error")}</div>
               </div>
             )}
           </div>

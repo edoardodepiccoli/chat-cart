@@ -1,4 +1,5 @@
 import type { FaqCardProps } from "../../../shared/chat";
+import { t } from "../i18n";
 import { ListIcon } from "../icons";
 
 export default function FaqCard({ title, answer, url }: FaqCardProps) {
@@ -13,7 +14,7 @@ export default function FaqCard({ title, answer, url }: FaqCardProps) {
 
         <a className="cc-btn cc-btn--secondary" href={url}>
           <ListIcon className="cc-icon" />
-          Read full page
+          {t("readFullPage")}
         </a>
       </div>
     </div>

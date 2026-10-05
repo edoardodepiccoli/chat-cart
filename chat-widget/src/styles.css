@@ -317,8 +317,10 @@
   color: var(--cc-color-on-primary);
   font: inherit;
   font-weight: var(--cc-font-weight-button);
+  letter-spacing: var(--cc-button-tracking);
   text-align: center;
   text-decoration: none;
+  text-transform: var(--cc-button-case);
   cursor: pointer;
 }
 
@@ -384,7 +386,9 @@
   color: inherit;
   font-family: var(--cc-font-heading, inherit);
   font-weight: var(--cc-font-weight-heading);
+  letter-spacing: var(--cc-heading-tracking);
   text-decoration: none;
+  text-transform: var(--cc-heading-case);
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -567,6 +571,8 @@
 .cc-cart__title {
   font-family: var(--cc-font-heading, inherit);
   font-weight: var(--cc-font-weight-heading);
+  letter-spacing: var(--cc-heading-tracking);
+  text-transform: var(--cc-heading-case);
 }
 
 @media (hover: hover) and (pointer: fine) {

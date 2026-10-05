@@ -36,6 +36,28 @@ const WEIGHT_FIELDS = [
   { name: "buttonWeight", label: "Button weight", details: "Buttons" },
 ] as const;
 
+const CASE_FIELDS = [
+  {
+    name: "headingCase",
+    label: "Heading case",
+    details: "Product, FAQ and cart titles",
+  },
+  { name: "buttonCase", label: "Button case", details: "Buttons" },
+] as const;
+
+const LETTER_SPACING_FIELDS = [
+  {
+    name: "headingLetterSpacing",
+    label: "Heading letter spacing",
+    details: "Product, FAQ and cart titles",
+  },
+  {
+    name: "buttonLetterSpacing",
+    label: "Button letter spacing",
+    details: "Buttons",
+  },
+] as const;
+
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: widgetTokens },
   { rel: "stylesheet", href: widgetStyles },
@@ -230,6 +252,35 @@ export default function ThemePage() {
                         </s-option>
                       ))}
                     </s-select>
+                  ))}
+                  {CASE_FIELDS.map((field) => (
+                    <s-select
+                      key={field.name}
+                      label={field.label}
+                      name={field.name}
+                      value={fields[field.name]}
+                      details={field.details}
+                    >
+                      <s-option value="none">As written</s-option>
+                      <s-option value="uppercase">UPPERCASE</s-option>
+                      <s-option value="capitalize">
+                        Capitalize Each Word
+                      </s-option>
+                    </s-select>
+                  ))}
+                  {LETTER_SPACING_FIELDS.map((field) => (
+                    <s-number-field
+                      key={field.name}
+                      label={field.label}
+                      name={field.name}
+                      value={String(fields[field.name])}
+                      details={field.details}
+                      min={-1}
+                      max={4}
+                      step={0.5}
+                      suffix="px"
+                      required
+                    ></s-number-field>
                   ))}
                 </s-grid>
               </s-stack>

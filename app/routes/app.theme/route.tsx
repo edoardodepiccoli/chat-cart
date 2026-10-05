@@ -296,7 +296,7 @@ export default function ThemePage() {
                 </s-grid>
               </s-stack>
               <s-stack gap="small">
-                <s-heading>Shape and depth</s-heading>
+                <s-heading>Shape, spacing and depth</s-heading>
                 <s-grid
                   gridTemplateColumns="repeat(auto-fill, minmax(220px, 1fr))"
                   gap="base"
@@ -354,6 +354,16 @@ export default function ThemePage() {
                     <s-option value="none">None</s-option>
                     <s-option value="soft">Soft</s-option>
                     <s-option value="strong">Strong</s-option>
+                  </s-select>
+                  <s-select
+                    label="Spacing"
+                    name="spacing"
+                    value={fields.spacing}
+                    details="Padding and gaps in messages, cards, buttons and fields"
+                  >
+                    <s-option value="compact">Compact</s-option>
+                    <s-option value="comfortable">Comfortable</s-option>
+                    <s-option value="spacious">Spacious</s-option>
                   </s-select>
                 </s-grid>
               </s-stack>

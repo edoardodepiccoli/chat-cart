@@ -8,6 +8,7 @@ import {
   Output,
   streamText,
   tool,
+  type InferUITools,
   type ModelMessage,
 } from "ai";
 import type { StorefrontApiContext } from "@shopify/shopify-app-react-router/server";
@@ -124,6 +125,8 @@ function tools(storefront: StorefrontApiContext, market: Market) {
     }),
   };
 }
+
+export type ChatTools = InferUITools<ReturnType<typeof tools>>;
 
 async function suggest(messages: ModelMessage[]): Promise<string[]> {
   const { output } = await generateText({

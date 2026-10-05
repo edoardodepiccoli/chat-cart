@@ -106,7 +106,7 @@ function parseThemeJson(content: string) {
 
 function storeSettings(schemaFile: string, dataFile: string): Settings {
   const schema = parseThemeJson(schemaFile) as {
-    settings?: { id?: string; default?: unknown }[];
+    settings?: { id?: string; type?: string; default?: unknown }[];
   }[];
   const data = parseThemeJson(dataFile) as {
     current: Settings | string;
@@ -144,7 +144,29 @@ function storeSettings(schemaFile: string, dataFile: string): Settings {
     return value;
   }
 
-  return resolve(settings) as Settings;
+  const resolved = resolve(settings) as Settings;
+
+  for (const setting of schema.flatMap((group) => group.settings ?? [])) {
+    if (setting.type === "font_picker" && setting.id)
+      resolved[setting.id] = fontHandle(resolved[setting.id]);
+  }
+
+  return resolved;
+}
+
+function fontHandle(handle: unknown) {
+  const match = String(handle).match(/^(.+)_([nio])(\d)$/);
+  if (!match) return handle;
+
+  const [, name, style, weight] = match;
+  return {
+    family: name
+      .split("_")
+      .map((word) => word[0].toUpperCase() + word.slice(1))
+      .join(" "),
+    weight: Math.min(700, Math.max(300, Number(weight) * 100)),
+    style: { n: "normal", i: "italic", o: "oblique" }[style],
+  };
 }
 
 const GENERATE = `You design the theme of a chat widget embedded in a Shopify storefront, so it looks on brand with the store.
@@ -182,7 +204,7 @@ Text style:
 - headingCase, buttonCase: none, uppercase or capitalize, for titles and buttons
 - headingLetterSpacing, buttonLetterSpacing: letter spacing in px, -1 to 4 in steps of 0.5
 Look for text transform, capitalization and letter spacing settings for headings and buttons. Uppercase text usually comes with 1 to 2px of letter spacing.
-Font settings (e.g. type_body_font, type_header_font) are Shopify font handles: assistant_n4 is family "Assistant" at weight 400, playfair_display_i7 is "Playfair Display" italic at 700. Turn underscores into spaces and write the name as Google Fonts spells it, capitalized: red_hat_text_n4 is "Red Hat Text", dm_sans_n5 is "DM Sans", never lowercase. Always write the exact family names from the theme, and take bodyWeight and headingWeight from the handles, rounded into 300 to 700. Take buttonWeight from the font the theme sets for buttons. When no setting names one, buttons use the body font at its weight.`;
+Font settings (e.g. type_body_font, type_header_font) come as { family, weight, style }. Write each family as Google Fonts spells it: "Dm Sans" is "DM Sans", "Ibm Plex Sans" is "IBM Plex Sans". Always use the families from the theme, and take bodyWeight and headingWeight from their fonts' weight. Take buttonWeight from the font the theme sets for buttons. When no setting names one, buttons use the body font at its weight.`;
 
 export async function generateTheme(
   graphql: AdminGraphqlClient,

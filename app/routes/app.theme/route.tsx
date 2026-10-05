@@ -58,7 +58,6 @@ export default function ThemePage() {
   const fetcher = useFetcher<typeof action>();
   const generator = useFetcher<typeof action>();
   const shopify = useAppBridge();
-  const [fields, setFields] = useState(theme);
   const [formKey, setFormKey] = useState(0);
   const [draft, setDraft] = useState(theme);
   const [mounted, setMounted] = useState(false);
@@ -72,7 +71,6 @@ export default function ThemePage() {
   );
 
   function load(values: Theme) {
-    setFields(values);
     setDraft(values);
     setFormKey((key) => key + 1);
   }
@@ -158,7 +156,7 @@ export default function ThemePage() {
                           key={field.name}
                           label={field.label}
                           name={field.name}
-                          value={fields[field.name]}
+                          value={draft[field.name]}
                           details={field.details}
                           required
                         ></s-color-field>

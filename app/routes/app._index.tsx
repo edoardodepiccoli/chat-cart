@@ -13,7 +13,11 @@ import {
 } from "recharts";
 
 import { authenticate } from "../shopify.server";
-import { getStats } from "../metrics.server";
+import {
+  getStats,
+  type FunnelCounts,
+  type TrendDay,
+} from "../metrics.server";
 
 const RANGES = [7, 14, 30];
 
@@ -23,8 +27,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   return getStats(session.shop, RANGES.includes(days) ? days : 14);
 };
-
-type Stats = Awaited<ReturnType<typeof getStats>>;
 
 const int = (n: number) => new Intl.NumberFormat("en-US").format(n);
 
@@ -73,8 +75,8 @@ function Spark({
   data,
   dataKey,
 }: {
-  data: Stats["trend"];
-  dataKey: keyof Stats["trend"][number];
+  data: TrendDay[];
+  dataKey: "chats" | "value" | "checkoutValue";
 }) {
   const mounted = useMounted();
 
@@ -133,7 +135,7 @@ const FUNNEL_COLORS = ["#86b6ef", "#5598e7", "#2a78d6", "#1c5cab", "#104281"];
 
 const STAGE_HEIGHT = 64;
 
-function WidgetFunnel({ funnel }: { funnel: Stats["current"]["funnel"] }) {
+function WidgetFunnel({ funnel }: { funnel: FunnelCounts }) {
   const mounted = useMounted();
 
   const counts = [

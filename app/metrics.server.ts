@@ -1,6 +1,5 @@
-import type { Prisma } from "@prisma/client";
-
 import { COMPONENT_ACTIONS, type ChatEvent } from "../shared/chat";
+import type { Money } from "../shared/product";
 import prisma from "./db.server";
 
 export async function saveEvent(
@@ -28,17 +27,13 @@ const DAY = 86_400_000;
 
 const ACTION_TYPES = new Set<string>(Object.values(COMPONENT_ACTIONS));
 
-const STATS_SELECT = {
-  createdAt: true,
-  messages: { select: { role: true, parts: true } },
-  events: { select: { type: true, data: true, createdAt: true } },
-} satisfies Prisma.ConversationSelect;
+type StatsEvent = { type: string; data: unknown; createdAt: Date };
 
-type StatsConversation = Prisma.ConversationGetPayload<{
-  select: typeof STATS_SELECT;
-}>;
-
-type AddedToCart = Extract<ChatEvent, { type: "added_to_cart" }>["data"];
+type StatsConversation = {
+  createdAt: Date;
+  messages: { role: string; parts: unknown }[];
+  events: StatsEvent[];
+};
 
 type Summary = {
   createdAt: Date;
@@ -65,9 +60,8 @@ function summarize(conversation: StatsConversation): Summary {
   const events = conversation.events;
   const has = (type: string) => events.some((event) => event.type === type);
   const adds = events.filter((event) => event.type === "added_to_cart");
-  const priceOf = (event: (typeof events)[number]) =>
-    (event.data as AddedToCart).price;
-  const valueOf = (list: typeof events) =>
+  const priceOf = (event: StatsEvent) => (event.data as { price: Money }).price;
+  const valueOf = (list: StatsEvent[]) =>
     list.reduce((total, event) => total + Number(priceOf(event).amount), 0);
   const lastCheckout = events
     .filter((event) => event.type === "checkout_clicked")
@@ -93,20 +87,32 @@ function summarize(conversation: StatsConversation): Summary {
   };
 }
 
+export type FunnelCounts = {
+  loads: number;
+  opened: number;
+  engaged: number;
+  carted: number;
+  checkout: number;
+};
+
+export type TrendDay = { chats: number; value: number; checkoutValue: number };
+
 function stats(summaries: Summary[]) {
   const count = (key: "engaged" | "opened" | "carted" | "checkout") =>
     summaries.filter((summary) => summary[key]).length;
   const sum = (key: "cartValue" | "checkoutValue" | "shown" | "actions") =>
     summaries.reduce((total, summary) => total + summary[key], 0);
 
+  const funnel: FunnelCounts = {
+    loads: summaries.length,
+    opened: count("opened"),
+    engaged: count("engaged"),
+    carted: count("carted"),
+    checkout: count("checkout"),
+  };
+
   return {
-    funnel: {
-      loads: summaries.length,
-      opened: count("opened"),
-      engaged: count("engaged"),
-      carted: count("carted"),
-      checkout: count("checkout"),
-    },
+    funnel,
     cartValue: sum("cartValue"),
     checkoutValue: sum("checkoutValue"),
     shown: sum("shown"),
@@ -122,7 +128,11 @@ export async function getStats(shop: string, days: number) {
 
   const conversations = await prisma.conversation.findMany({
     where: { shop, createdAt: { gte: new Date(previousStart), lt: end } },
-    select: STATS_SELECT,
+    select: {
+      createdAt: true,
+      messages: { select: { role: true, parts: true } },
+      events: { select: { type: true, data: true, createdAt: true } },
+    },
   });
   const summaries = conversations.map(summarize);
 
@@ -133,7 +143,7 @@ export async function getStats(shop: string, days: number) {
     (summary) => summary.createdAt.getTime() < start,
   );
 
-  const trend = Array.from({ length: days }, (_, index) => {
+  const trend: TrendDay[] = Array.from({ length: days }, (_, index) => {
     const dayStart = start + index * DAY;
     const inDay = current.filter((summary) => {
       const time = summary.createdAt.getTime();

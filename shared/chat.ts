@@ -39,13 +39,11 @@ export const chatEventSchema = z.discriminatedUnion("type", [
 
 export type ChatEvent = z.infer<typeof chatEventSchema>;
 
-export const COMPONENT_ACTIONS = {
+export const COMPONENT_ACTIONS: Record<string, ChatEvent["type"]> = {
   showProductCard: "added_to_cart",
   showProductCards: "product_liked",
   showFaqCard: "link_clicked",
   showCart: "checkout_clicked",
-} as const satisfies Partial<Record<keyof ChatTools, ChatEvent["type"]>>;
+};
 
-export const COMPONENT_TOOLS = Object.keys(COMPONENT_ACTIONS) as Array<
-  keyof typeof COMPONENT_ACTIONS
->;
+export const COMPONENT_TOOLS = Object.keys(COMPONENT_ACTIONS);

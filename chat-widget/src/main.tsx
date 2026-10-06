@@ -1,7 +1,7 @@
 import { createRoot } from "react-dom/client";
 
 import App from "./App";
-import { setMarket } from "./api";
+import { setMarket } from "./conversation";
 import { setLocale } from "./i18n";
 import "./tokens.css";
 import "./styles.css";

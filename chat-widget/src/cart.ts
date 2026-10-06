@@ -1,3 +1,8 @@
+import { useEffect, useState } from "react";
+
+import type { ProductCardProps, ProductVariant } from "../../shared/chat";
+import type { ChatEvent } from "../../shared/events";
+
 declare global {
   interface Window {
     Shopify?: { routes?: { root?: string } };
@@ -54,4 +59,29 @@ export async function getCart(): Promise<Cart> {
   const response = await fetch(`${ROOT}cart.js`);
   if (!response.ok) throw new Error(`Cart ${response.status}`);
   return response.json();
+}
+
+export function useCart(record: (event: ChatEvent) => void) {
+  const [cart, setCart] = useState<Cart>();
+
+  useEffect(() => {
+    getCart()
+      .then(setCart)
+      .catch(() => {});
+  }, []);
+
+  async function add(product: ProductCardProps, variant: ProductVariant) {
+    await addToCart(variant.id);
+    record({
+      type: "added_to_cart",
+      data: {
+        handle: product.handle,
+        variantId: variant.id,
+        price: variant.price,
+      },
+    });
+    setCart(await getCart());
+  }
+
+  return { cart, add };
 }

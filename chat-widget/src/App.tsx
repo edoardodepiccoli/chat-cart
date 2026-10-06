@@ -1,17 +1,11 @@
 import { useChat } from "@ai-sdk/react";
 import { Fragment, useEffect, useRef, useState } from "react";
 
-import { sendEvent, transport } from "./api";
-import { CHECKOUT_URL } from "./cart";
+import { CHECKOUT_URL, useCart } from "./cart";
 import Message from "./components/Message";
-import Panel from "./components/Panel";
+import Panel, { useIosKeyboard, useStickToBottom } from "./components/Panel";
 import Suggestions, { type ShownSuggestions } from "./components/Suggestions";
-import {
-  useCart,
-  useConversation,
-  useIosKeyboard,
-  useStickToBottom,
-} from "./hooks";
+import { sendEvent, transport, useConversation } from "./conversation";
 import { t } from "./i18n";
 import type {
   ChatMessage,

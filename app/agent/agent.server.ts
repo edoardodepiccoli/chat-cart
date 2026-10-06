@@ -63,8 +63,8 @@ export async function reply(
         model: MODEL,
         reasoning: "none",
         system:
-          market.country && market.currency
-            ? `${SYSTEM}\n\n${marketPrompt(market.country, market.currency)}`
+          market.country
+            ? `${SYSTEM}\n\n${marketPrompt(market.country)}`
             : SYSTEM,
         messages: modelMessages,
         tools: tools(storefront, market),

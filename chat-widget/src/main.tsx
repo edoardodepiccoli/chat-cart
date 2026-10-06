@@ -13,7 +13,6 @@ function mount() {
   setMarket({
     country: el.dataset.country ?? "",
     language: el.dataset.locale ?? "",
-    currency: el.dataset.currency ?? "",
   });
   createRoot(el).render(<App />);
 }

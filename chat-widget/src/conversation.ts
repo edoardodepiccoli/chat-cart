@@ -9,7 +9,7 @@ const BASE = "/apps/chat-cart";
 const HEADERS = { "ngrok-skip-browser-warning": "true" };
 const KEY = "chat-cart:conversationId";
 
-let market: Market = { country: "", language: "", currency: "" };
+let market: Market = { country: "", language: "" };
 
 export function setMarket(value: Market) {
   market = value;

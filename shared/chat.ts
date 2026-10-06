@@ -3,7 +3,7 @@ import { z } from "zod";
 
 import type { ChatTools } from "../app/agent/tools.server";
 
-export type Market = { country: string; language: string; currency: string };
+export type Market = { country: string; language: string };
 
 export type ChatMessage = UIMessage<never, { suggestions: string[] }, ChatTools>;
 

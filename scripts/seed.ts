@@ -4,12 +4,20 @@ import { PrismaClient, type Prisma } from "@prisma/client";
 
 import type { ChatEvent, ChatPart } from "../shared/chat";
 import type {
-  Product as CardProduct,
+  Product,
+  ProductImage,
+  ProductOption,
   ProductVariant,
   SelectedOption,
 } from "../shared/product";
 
-type Product = Omit<CardProduct, "selectedOptions">;
+type SeedProduct = {
+  handle: string;
+  title: string;
+  images: ProductImage[];
+  options: ProductOption[];
+  variants: ProductVariant[];
+};
 
 type Chat = {
   at: number;
@@ -28,7 +36,7 @@ const HOURS = [
   21, 22, 22, 23,
 ];
 
-const PRODUCTS: Product[] = JSON.parse(
+const PRODUCTS: SeedProduct[] = JSON.parse(
   readFileSync(new URL("./seed-products.json", import.meta.url), "utf8"),
 );
 
@@ -244,13 +252,16 @@ function sample<T>(items: readonly T[], count: number): T[] {
   return picked;
 }
 
-function product(handle: string): Product {
+function product(handle: string): SeedProduct {
   const found = PRODUCTS.find((item) => item.handle === handle);
   if (!found) throw new Error(`No seed product ${handle}`);
   return found;
 }
 
-function variantFor(item: Product, picks: SelectedOption[]): ProductVariant {
+function variantFor(
+  item: SeedProduct,
+  picks: SelectedOption[],
+): ProductVariant {
   const matches = (variant: ProductVariant) =>
     picks.every((choice) =>
       variant.selectedOptions.some(
@@ -265,7 +276,7 @@ function variantFor(item: Product, picks: SelectedOption[]): ProductVariant {
   );
 }
 
-function card(item: Product, picks: SelectedOption[]): CardProduct {
+function card(item: SeedProduct, picks: SelectedOption[]): Product {
   return { ...item, selectedOptions: variantFor(item, picks).selectedOptions };
 }
 
@@ -361,7 +372,11 @@ function faq(chat: Chat, text: string) {
   }
 }
 
-function addToCart(chat: Chat, item: Product, picks: SelectedOption[]) {
+function addToCart(
+  chat: Chat,
+  item: SeedProduct,
+  picks: SelectedOption[],
+) {
   const variant = variantFor(item, picks);
   const label =
     item.variants.length > 1
@@ -402,7 +417,11 @@ function addToCart(chat: Chat, item: Product, picks: SelectedOption[]) {
   }
 }
 
-function showProduct(chat: Chat, item: Product, picks: SelectedOption[]) {
+function showProduct(
+  chat: Chat,
+  item: SeedProduct,
+  picks: SelectedOption[],
+) {
   assistant(
     chat,
     INFO[item.handle].pitch,
@@ -429,7 +448,7 @@ function showProduct(chat: Chat, item: Product, picks: SelectedOption[]) {
   }
 }
 
-function showCards(chat: Chat, items: Product[], intro: string) {
+function showCards(chat: Chat, items: SeedProduct[], intro: string) {
   assistant(
     chat,
     intro,

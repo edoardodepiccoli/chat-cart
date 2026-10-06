@@ -150,9 +150,7 @@ export default function ThemePage() {
   const [draft, setDraft] = useState(theme);
   const [mounted, setMounted] = useState(false);
 
-  const dirty = (Object.keys(theme) as (keyof Theme)[]).some(
-    (key) => draft[key] !== theme[key],
-  );
+  const dirty = JSON.stringify(draft) !== JSON.stringify(theme);
 
   function load(values: Theme) {
     setDraft(values);

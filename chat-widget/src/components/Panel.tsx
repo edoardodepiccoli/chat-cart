@@ -1,12 +1,11 @@
 import {
   useEffect,
   useRef,
-  type ComponentProps,
   type ReactNode,
   type RefObject,
 } from "react";
 
-import Composer from "./Composer";
+import Composer, { type ComposerProps } from "./Composer";
 import Launcher from "./Launcher";
 
 export default function Panel({
@@ -24,7 +23,7 @@ export default function Panel({
   logRef?: RefObject<HTMLDivElement>;
   onScroll?: () => void;
   onClickCapture?: (event: React.MouseEvent) => void;
-  composer: ComponentProps<typeof Composer>;
+  composer: ComposerProps;
   onToggle?: () => void;
   children: ReactNode;
 }) {

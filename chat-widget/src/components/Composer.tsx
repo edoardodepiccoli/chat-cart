@@ -2,19 +2,21 @@ import type { RefObject } from "react";
 
 import { t } from "../i18n";
 
+export type ComposerProps = {
+  value: string;
+  onChange: (value: string) => void;
+  onSubmit: (event: React.FormEvent) => void;
+  disabled?: boolean;
+  inputRef?: RefObject<HTMLInputElement>;
+};
+
 export default function Composer({
   value,
   onChange,
   onSubmit,
   disabled,
   inputRef,
-}: {
-  value: string;
-  onChange: (value: string) => void;
-  onSubmit: (event: React.FormEvent) => void;
-  disabled?: boolean;
-  inputRef?: RefObject<HTMLInputElement>;
-}) {
+}: ComposerProps) {
   return (
     <form className="cc-composer" onSubmit={onSubmit}>
       <input

@@ -7,11 +7,8 @@ import Panel, { useIosKeyboard, useStickToBottom } from "./components/Panel";
 import Suggestions, { type ShownSuggestions } from "./components/Suggestions";
 import { sendEvent, transport, useConversation } from "./conversation";
 import { t } from "./i18n";
-import type {
-  ChatMessage,
-  ProductCardProps,
-  ProductVariant,
-} from "../../shared/chat";
+import type { ChatMessage } from "../../shared/chat";
+import type { Product, ProductVariant } from "../../shared/product";
 
 function greeting(): ChatMessage {
   return {
@@ -98,7 +95,7 @@ export default function App() {
     send(t("liked", { title }));
   }
 
-  async function add(product: ProductCardProps, variant: ProductVariant) {
+  async function add(product: Product, variant: ProductVariant) {
     if (busy || !conversation) return;
     await addToCart(product, variant);
     const label =

@@ -1,10 +1,5 @@
 import { useState } from "react";
 
-import type {
-  ProductCardProps,
-  ProductVariant,
-  SelectedOption,
-} from "../../../shared/chat";
 import { productUrl, variantNumber } from "../cart";
 import { t } from "../i18n";
 import { CartCheckIcon, CartIcon } from "../icons";
@@ -14,7 +9,10 @@ import {
   findVariant,
   isOptionValueAvailable,
   replacePick,
-} from "../../../shared/variants";
+  type Product,
+  type ProductVariant,
+  type SelectedOption,
+} from "../../../shared/product";
 
 export default function ProductCard({
   handle,
@@ -25,7 +23,7 @@ export default function ProductCard({
   selectedOptions,
   cartVariantIds,
   onAdd,
-}: ProductCardProps & {
+}: Product & {
   cartVariantIds: number[];
   onAdd: (variant: ProductVariant) => Promise<void>;
 }) {

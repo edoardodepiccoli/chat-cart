@@ -1,10 +1,6 @@
 import type { Cart } from "../cart";
-import type {
-  ChatMessage,
-  ChatPart,
-  ProductCardProps,
-  ProductVariant,
-} from "../../../shared/chat";
+import type { ChatMessage, ChatPart } from "../../../shared/chat";
+import type { Product, ProductVariant } from "../../../shared/product";
 import CartSummary from "./CartSummary";
 import FaqCard from "./FaqCard";
 import ProductCard from "./ProductCard";
@@ -14,8 +10,8 @@ import TextMessage from "./TextMessage";
 export type PartContext = {
   cart: Cart | undefined;
   streaming: boolean;
-  onLike: (product: ProductCardProps) => void;
-  onAdd: (product: ProductCardProps, variant: ProductVariant) => Promise<void>;
+  onLike: (product: Product) => void;
+  onAdd: (product: Product, variant: ProductVariant) => Promise<void>;
 };
 
 function renderPart(

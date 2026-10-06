@@ -1,4 +1,4 @@
-import type { Money } from "../../../shared/chat";
+import type { Money } from "../../../shared/product";
 import { getLocale } from "../i18n";
 
 export function formatMoney(amount: number, currencyCode: string): string {

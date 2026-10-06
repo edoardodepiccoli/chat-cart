@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { t } from "../i18n";
 import { ChevronLeftIcon, ChevronRightIcon } from "../icons";
-import type { ProductImage } from "../../../shared/chat";
+import type { ProductImage } from "../../../shared/product";
 
 export default function ProductMedia({
   images,

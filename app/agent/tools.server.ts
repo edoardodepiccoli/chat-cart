@@ -2,15 +2,12 @@ import { tool, type InferUITools } from "ai";
 import type { StorefrontApiContext } from "@shopify/shopify-app-react-router/server";
 import { z } from "zod";
 
-import type {
-  CartSummaryProps,
-  FaqCardProps,
-  Market,
-  ProductCardProps,
-  ProductCardsProps,
-  SelectedOption,
-} from "../../shared/chat";
-import { pickOptions } from "../../shared/variants";
+import type { Market } from "../../shared/chat";
+import {
+  pickOptions,
+  type Product,
+  type SelectedOption,
+} from "../../shared/product";
 import {
   getProduct,
   getStorePage,
@@ -23,7 +20,7 @@ async function productCard(
   market: Market,
   handle: string,
   picks?: SelectedOption[],
-): Promise<ProductCardProps> {
+): Promise<Product> {
   const product = await getProduct(storefront, market, handle);
   if (!product) throw new Error(`No product with handle ${handle}`);
   return {
@@ -80,7 +77,7 @@ export function tools(storefront: StorefrontApiContext, market: Market) {
       description:
         "Show the shopper two or more products side by side, by their handles from listProducts, each with its photo, price and a button to say they like it.",
       inputSchema: z.object({ handles: z.array(z.string()).min(2).max(6) }),
-      execute: async ({ handles }): Promise<ProductCardsProps> => ({
+      execute: async ({ handles }) => ({
         products: await Promise.all(
           handles.map((handle) => productCard(storefront, market, handle)),
         ),
@@ -90,7 +87,7 @@ export function tools(storefront: StorefrontApiContext, market: Market) {
       description:
         "Show the shopper the answer to their store question, with a link to the store page it comes from, by its handle from listStorePages.",
       inputSchema: z.object({ handle: z.string(), answer: z.string() }),
-      execute: async ({ handle, answer }): Promise<FaqCardProps> => {
+      execute: async ({ handle, answer }) => {
         const page = await getStorePage(storefront, market, handle);
         if (!page) throw new Error(`No store page with handle ${handle}`);
         return { title: page.title, answer, url: page.url };
@@ -100,7 +97,7 @@ export function tools(storefront: StorefrontApiContext, market: Market) {
       description:
         "Show the shopper their cart, with what's in it, the total and a button to check out.",
       inputSchema: z.object({}),
-      execute: async (): Promise<CartSummaryProps> => ({}),
+      execute: async () => ({}),
     }),
   };
 }

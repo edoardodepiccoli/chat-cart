@@ -1,7 +1,6 @@
 import type { Prisma } from "@prisma/client";
 
-import { COMPONENT_ACTIONS } from "../shared/chat";
-import type { ChatEvent } from "../shared/events";
+import { COMPONENT_ACTIONS, type ChatEvent } from "../shared/chat";
 import prisma from "./db.server";
 
 export async function saveEvent(

@@ -2,15 +2,14 @@ import { randomUUID } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { PrismaClient, type Prisma } from "@prisma/client";
 
+import type { ChatEvent, ChatPart } from "../shared/chat";
 import type {
-  ChatPart,
-  ProductCardProps,
+  Product as CardProduct,
   ProductVariant,
   SelectedOption,
-} from "../shared/chat";
-import type { ChatEvent } from "../shared/events";
+} from "../shared/product";
 
-type Product = Omit<ProductCardProps, "selectedOptions">;
+type Product = Omit<CardProduct, "selectedOptions">;
 
 type Chat = {
   at: number;
@@ -266,7 +265,7 @@ function variantFor(item: Product, picks: SelectedOption[]): ProductVariant {
   );
 }
 
-function card(item: Product, picks: SelectedOption[]): ProductCardProps {
+function card(item: Product, picks: SelectedOption[]): CardProduct {
   return { ...item, selectedOptions: variantFor(item, picks).selectedOptions };
 }
 

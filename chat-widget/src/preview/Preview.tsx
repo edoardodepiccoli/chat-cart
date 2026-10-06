@@ -1,4 +1,5 @@
-import type { ChatMessage, ProductCardProps } from "../../../shared/chat";
+import type { ChatMessage } from "../../../shared/chat";
+import type { Product } from "../../../shared/product";
 import { themeVars, type Theme } from "../../../shared/theme";
 import Message, { type PartContext } from "../components/Message";
 import Panel from "../components/Panel";
@@ -15,7 +16,7 @@ function variant(size: string, available: boolean) {
   };
 }
 
-const PRODUCT: ProductCardProps = {
+const PRODUCT: Product = {
   handle: "linen-shirt",
   title: "Linen shirt",
   images: [],

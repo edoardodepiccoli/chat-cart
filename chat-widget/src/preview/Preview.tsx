@@ -1,7 +1,6 @@
 import type { ChatMessage, ProductCardProps } from "../../../shared/chat";
 import { themeVars, type Theme } from "../../../shared/theme";
-import type { PartContext } from "../components";
-import Message from "../components/Message";
+import Message, { type PartContext } from "../components/Message";
 import Panel from "../components/Panel";
 import Suggestions from "../components/Suggestions";
 

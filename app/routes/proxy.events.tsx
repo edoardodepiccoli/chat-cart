@@ -1,7 +1,7 @@
 import type { ActionFunctionArgs } from "react-router";
 import { z } from "zod";
 
-import { chatEventSchema } from "../../shared/events";
+import { chatEventSchema } from "../../shared/chat";
 import { saveEvent } from "../metrics.server";
 import { authenticate } from "../shopify.server";
 

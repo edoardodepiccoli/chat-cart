@@ -1,8 +1,7 @@
 import { DefaultChatTransport } from "ai";
 import { useEffect, useState } from "react";
 
-import type { ChatMessage, Market } from "../../shared/chat";
-import type { ChatEvent } from "../../shared/events";
+import type { ChatEvent, ChatMessage, Market } from "../../shared/chat";
 
 export type Conversation = { id: string; messages: ChatMessage[] };
 

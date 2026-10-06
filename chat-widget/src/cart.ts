@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
-import type { ProductCardProps, ProductVariant } from "../../shared/chat";
-import type { ChatEvent } from "../../shared/events";
+import type { ChatEvent } from "../../shared/chat";
+import type { Product, ProductVariant } from "../../shared/product";
 
 declare global {
   interface Window {
@@ -70,7 +70,7 @@ export function useCart(record: (event: ChatEvent) => void) {
       .catch(() => {});
   }, []);
 
-  async function add(product: ProductCardProps, variant: ProductVariant) {
+  async function add(product: Product, variant: ProductVariant) {
     await addToCart(variant.id);
     record({
       type: "added_to_cart",

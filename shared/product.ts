@@ -1,4 +1,28 @@
-import type { ProductVariant, SelectedOption } from "./chat";
+export type Money = { amount: string; currencyCode: string };
+
+export type ProductOption = { name: string; values: string[] };
+
+export type SelectedOption = { name: string; value: string };
+
+export type ProductVariant = {
+  id: string;
+  selectedOptions: SelectedOption[];
+  price: Money;
+  compareAtPrice: Money | null;
+  available: boolean;
+  imageUrl: string | null;
+};
+
+export type ProductImage = { url: string; alt: string | null };
+
+export type Product = {
+  handle: string;
+  title: string;
+  images: ProductImage[];
+  options: ProductOption[];
+  variants: ProductVariant[];
+  selectedOptions: SelectedOption[];
+};
 
 function same(a: string, b: string): boolean {
   return a.trim().toLowerCase() === b.trim().toLowerCase();

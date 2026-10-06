@@ -1,10 +1,7 @@
 import type { StorefrontApiContext } from "@shopify/shopify-app-react-router/server";
 
-import type {
-  Market,
-  ProductCardProps,
-  ProductOption,
-} from "../../shared/chat";
+import type { Market } from "../../shared/chat";
+import type { Product, ProductOption } from "../../shared/product";
 
 const PRODUCTS_QUERY = `#graphql
   query Products($country: CountryCode, $language: LanguageCode) @inContext(country: $country, language: $language) {
@@ -152,7 +149,7 @@ type ProductSummary = {
   options: ProductOption[];
 };
 
-type ProductDetails = Omit<ProductCardProps, "selectedOptions"> & {
+type ProductDetails = Omit<Product, "selectedOptions"> & {
   description: string;
   tags: string[];
 };

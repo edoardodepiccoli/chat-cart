@@ -1,5 +1,4 @@
-import type { ProductCardProps, ProductCardsProps } from "../../../shared/chat";
-import { findVariant } from "../../../shared/variants";
+import { findVariant, type Product } from "../../../shared/product";
 import { productUrl } from "../cart";
 import { t } from "../i18n";
 import { HeartIcon } from "../icons";
@@ -12,7 +11,7 @@ function SimpleProductCard({
   variants,
   selectedOptions,
   onLike,
-}: ProductCardProps & { onLike: () => void }) {
+}: Product & { onLike: () => void }) {
   const shownVariant = findVariant(variants, selectedOptions) ?? variants[0];
   const shownImageUrl = shownVariant.imageUrl ?? images[0]?.url ?? null;
   const url = productUrl(handle);
@@ -54,7 +53,10 @@ function SimpleProductCard({
 export default function ProductCards({
   products,
   onLike,
-}: ProductCardsProps & { onLike: (product: ProductCardProps) => void }) {
+}: {
+  products: Product[];
+  onLike: (product: Product) => void;
+}) {
   return (
     <div className="cc-carousel">
       {products.map((product) => (

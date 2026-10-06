@@ -1,7 +1,7 @@
 import type { StorefrontApiContext } from "@shopify/shopify-app-react-router/server";
 
 import type { Market } from "../../shared/chat";
-import type { Product, ProductOption } from "../../shared/product";
+import type { Money, ProductOption } from "../../shared/product";
 
 const PRODUCTS_QUERY = `#graphql
   query Products($country: CountryCode, $language: LanguageCode) @inContext(country: $country, language: $language) {
@@ -20,6 +20,22 @@ const PRODUCTS_QUERY = `#graphql
       }
     }
   }`;
+
+type OptionNode = { name: string; optionValues: { name: string }[] };
+
+type ProductsResponse = {
+  products: {
+    nodes: {
+      handle: string;
+      title: string;
+      description: string;
+      tags: string[];
+      availableForSale: boolean;
+      priceRange: { minVariantPrice: Money; maxVariantPrice: Money };
+      options: OptionNode[];
+    }[];
+  };
+};
 
 const PRODUCT_QUERY = `#graphql
   query Product(
@@ -47,38 +63,6 @@ const PRODUCT_QUERY = `#graphql
     }
   }`;
 
-const STORE_PAGES_QUERY = `#graphql
-  query StorePages($country: CountryCode, $language: LanguageCode) @inContext(country: $country, language: $language) {
-    shop {
-      privacyPolicy { handle title body url }
-      refundPolicy { handle title body url }
-      shippingPolicy { handle title body url }
-      termsOfService { handle title body url }
-      subscriptionPolicy { handle title body url }
-    }
-    pages(first: 250) {
-      nodes { handle title body onlineStoreUrl }
-    }
-  }`;
-
-type Money = { amount: string; currencyCode: string };
-
-type OptionNode = { name: string; optionValues: { name: string }[] };
-
-type ProductsResponse = {
-  products: {
-    nodes: {
-      handle: string;
-      title: string;
-      description: string;
-      tags: string[];
-      availableForSale: boolean;
-      priceRange: { minVariantPrice: Money; maxVariantPrice: Money };
-      options: OptionNode[];
-    }[];
-  };
-};
-
 type ProductResponse = {
   product: {
     handle: string;
@@ -99,6 +83,20 @@ type ProductResponse = {
     };
   } | null;
 };
+
+const STORE_PAGES_QUERY = `#graphql
+  query StorePages($country: CountryCode, $language: LanguageCode) @inContext(country: $country, language: $language) {
+    shop {
+      privacyPolicy { handle title body url }
+      refundPolicy { handle title body url }
+      shippingPolicy { handle title body url }
+      termsOfService { handle title body url }
+      subscriptionPolicy { handle title body url }
+    }
+    pages(first: 250) {
+      nodes { handle title body onlineStoreUrl }
+    }
+  }`;
 
 type PolicyNode = {
   handle: string;
@@ -125,35 +123,6 @@ type StorePagesResponse = {
   };
 };
 
-type StorePage = {
-  handle: string;
-  title: string;
-  url: string;
-  text: string;
-};
-
-type StorePageSummary = {
-  handle: string;
-  title: string;
-  url: string;
-  summary: string;
-};
-
-type ProductSummary = {
-  handle: string;
-  title: string;
-  description: string;
-  tags: string[];
-  price: { min: string; max: string; currencyCode: string };
-  available: boolean;
-  options: ProductOption[];
-};
-
-type ProductDetails = Omit<Product, "selectedOptions"> & {
-  description: string;
-  tags: string[];
-};
-
 function options(nodes: OptionNode[]): ProductOption[] {
   return nodes
     .map((option) => ({
@@ -176,7 +145,7 @@ function inContext(market: Market) {
 export async function listProducts(
   storefront: StorefrontApiContext,
   market: Market,
-): Promise<ProductSummary[]> {
+) {
   const response = await storefront.graphql(PRODUCTS_QUERY, {
     variables: inContext(market),
   });
@@ -201,7 +170,7 @@ export async function getProduct(
   storefront: StorefrontApiContext,
   market: Market,
   handle: string,
-): Promise<ProductDetails | null> {
+) {
   const response = await storefront.graphql(PRODUCT_QUERY, {
     variables: { handle, ...inContext(market) },
   });
@@ -238,7 +207,7 @@ function plainText(html: string): string {
 async function storePages(
   storefront: StorefrontApiContext,
   market: Market,
-): Promise<StorePage[]> {
+) {
   const response = await storefront.graphql(STORE_PAGES_QUERY, {
     variables: inContext(market),
   });
@@ -272,7 +241,7 @@ async function storePages(
 export async function listStorePages(
   storefront: StorefrontApiContext,
   market: Market,
-): Promise<StorePageSummary[]> {
+) {
   return (await storePages(storefront, market)).map((page) => ({
     handle: page.handle,
     title: page.title,
@@ -285,7 +254,7 @@ export async function getStorePage(
   storefront: StorefrontApiContext,
   market: Market,
   handle: string,
-): Promise<StorePage | null> {
+) {
   return (
     (await storePages(storefront, market)).find(
       (page) => page.handle === handle,

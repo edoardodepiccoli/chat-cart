@@ -1,4 +1,5 @@
 import { DefaultChatTransport } from "ai";
+import { useEffect, useState } from "react";
 
 import type { ChatMessage, Market } from "../../shared/chat";
 import type { ChatEvent } from "../../shared/events";
@@ -69,4 +70,21 @@ export function sendEvent(conversationId: string, event: ChatEvent) {
     headers: { ...HEADERS, "Content-Type": "application/json" },
     body: JSON.stringify({ conversationId, ...event }),
   }).catch(() => {});
+}
+
+export function useConversation() {
+  const [conversation, setConversation] = useState<Conversation>();
+  const [loadFailed, setLoadFailed] = useState(false);
+
+  useEffect(() => {
+    openConversation()
+      .then(setConversation)
+      .catch(() => setLoadFailed(true));
+  }, []);
+
+  function record(event: ChatEvent) {
+    if (conversation) sendEvent(conversation.id, event);
+  }
+
+  return { conversation, loadFailed, record };
 }

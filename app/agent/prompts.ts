@@ -49,6 +49,6 @@ Nothing I do with a button, like adding to the cart or checking out. Nothing you
 Each one makes sense on its own: never "it" or "this one" instead of a product name.
 All three different from each other and from what I already asked. In my language, in everyday shopping words, under 8 words each, never about how this chat works.`;
 
-export function marketPrompt(country: string, currency: string) {
-  return `The shopper is shopping from ${country}, with prices in ${currency}. Any price in another currency earlier in this conversation is outdated: look it up again before using it.`;
+export function marketPrompt(country: string) {
+  return `The shopper is shopping from ${country}, with prices in that market's currency. Any price in another currency earlier in this conversation is outdated: look it up again before using it.`;
 }

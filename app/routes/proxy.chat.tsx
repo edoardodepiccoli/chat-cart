@@ -16,7 +16,6 @@ const bodySchema = z.object({
   text: z.string().trim().min(1).max(2000),
   country: z.string().max(10),
   language: z.string().max(20),
-  currency: z.string().max(10),
 });
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {

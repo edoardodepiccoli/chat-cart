@@ -22,6 +22,7 @@ export type Product = {
   options: ProductOption[];
   variants: ProductVariant[];
   selectedOptions: SelectedOption[];
+  unavailable?: SelectedOption[];
 };
 
 export function same(a: string, b: string): boolean {

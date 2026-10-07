@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import type { Market } from "../../shared/chat";
 import {
+  isOptionValueAvailable,
   pickOptions,
   type Product,
   type SelectedOption,
@@ -15,6 +16,12 @@ import {
   listStorePages,
 } from "./storefront.server";
 
+const optionsSchema = z
+  .array(z.object({ name: z.string(), value: z.string() }))
+  .describe(
+    "The size, color or other options the shopper asked for anywhere in the conversation, plus the size they picked for anything they added to their cart (\"I added Jacket (Harvest / L)\" means Size L), with names and values exactly as listProducts shows them. Empty only if there are none.",
+  );
+
 async function productCard(
   storefront: StorefrontApiContext,
   market: Market,
@@ -23,13 +30,24 @@ async function productCard(
 ): Promise<Product> {
   const product = await getProduct(storefront, market, handle);
   if (!product) throw new Error(`No product with handle ${handle}`);
+  const selectedOptions = pickOptions(product.variants, picks);
+  const unavailable = (picks ?? []).filter(
+    (pick) =>
+      !isOptionValueAvailable(
+        product.variants,
+        selectedOptions,
+        pick.name,
+        pick.value,
+      ),
+  );
   return {
     handle: product.handle,
     title: product.title,
     images: product.images,
     options: product.options,
     variants: product.variants,
-    selectedOptions: pickOptions(product.variants, picks),
+    selectedOptions,
+    ...(unavailable.length && { unavailable }),
   };
 }
 
@@ -72,25 +90,26 @@ export function tools(storefront: StorefrontApiContext, market: Market) {
     }),
     showProductCard: tool({
       description:
-        "Show the shopper a product card by its handle from listProducts, where they can pick size and color and add it to the cart.",
+        "Show the shopper a product card by its handle from listProducts, where they can pick size and color and add it to the cart. The result lists any option the shopper asked for that the product doesn't have in stock, under unavailable.",
       inputSchema: z.object({
         handle: z.string(),
-        options: z
-          .array(z.object({ name: z.string(), value: z.string() }))
-          .describe(
-            "The size, color or other options the shopper asked for anywhere in the conversation, plus the size they picked for anything they added to their cart (\"I added Jacket (Harvest / L)\" means Size L), with names and values exactly as listProducts shows them. Empty only if there are none.",
-          ),
+        options: optionsSchema,
       }),
       execute: ({ handle, options }) =>
         productCard(storefront, market, handle, options),
     }),
     showProductCards: tool({
       description:
-        "Show the shopper two or more products side by side, by their handles from listProducts, each with its photo, price and a button to say they like it.",
-      inputSchema: z.object({ handles: z.array(z.string()).min(2).max(6) }),
-      execute: async ({ handles }) => ({
+        "Show the shopper two or more products side by side, by their handles from listProducts, each with its photo, price and a button to say they like it. The result lists any option the shopper asked for that a product doesn't have in stock, under unavailable.",
+      inputSchema: z.object({
+        handles: z.array(z.string()).min(2).max(6),
+        options: optionsSchema,
+      }),
+      execute: async ({ handles, options }) => ({
         products: await Promise.all(
-          handles.map((handle) => productCard(storefront, market, handle)),
+          handles.map((handle) =>
+            productCard(storefront, market, handle, options),
+          ),
         ),
       }),
     }),

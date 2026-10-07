@@ -456,7 +456,7 @@ function showCards(chat: Chat, items: SeedProduct[], intro: string) {
       type: "tool-showProductCards",
       toolCallId: toolCallId(),
       state: "output-available",
-      input: { handles: items.map((item) => item.handle) },
+      input: { handles: items.map((item) => item.handle), options: [] },
       output: { products: items.map((item) => card(item, [])) },
     },
     CARDS_SUGGESTIONS,

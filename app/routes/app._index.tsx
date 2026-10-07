@@ -381,13 +381,7 @@ export default function Index() {
   return (
     <s-page heading="Home">
       <s-section heading="Funnel">
-        <s-stack gap="base">
-          <s-paragraph>
-            {fmtPct(pct(funnel.checkout, funnel.loads))} of widget loads reach
-            checkout. Each step counts conversations that got at least that far.
-          </s-paragraph>
-          <WidgetFunnel funnel={funnel} />
-        </s-stack>
+        <WidgetFunnel funnel={funnel} />
       </s-section>
       <ThemeEditor theme={theme} />
     </s-page>

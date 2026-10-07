@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react";
 import type { HeadersFunction, LoaderFunctionArgs } from "react-router";
-import { useLoaderData, useSearchParams } from "react-router";
+import { useLoaderData } from "react-router";
 import { boundary } from "@shopify/shopify-app-react-router/server";
 import {
-  Area,
-  AreaChart,
   Cell,
   Funnel,
   FunnelChart,
@@ -13,19 +11,12 @@ import {
 } from "recharts";
 
 import { authenticate } from "../shopify.server";
-import {
-  getStats,
-  type FunnelCounts,
-  type TrendDay,
-} from "../metrics.server";
-
-const RANGES = [7, 14, 30];
+import { getStats, type FunnelCounts } from "../metrics.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { session } = await authenticate.admin(request);
-  const days = Number(new URL(request.url).searchParams.get("days"));
 
-  return getStats(session.shop, RANGES.includes(days) ? days : 14);
+  return getStats(session.shop);
 };
 
 const int = (n: number) => new Intl.NumberFormat("en-US").format(n);
@@ -42,93 +33,6 @@ function useMounted() {
   useEffect(() => setMounted(true), []);
 
   return mounted;
-}
-
-function Delta({
-  now,
-  prev,
-  kind,
-}: {
-  now: number | null;
-  prev: number | null | undefined;
-  kind?: "pts";
-}) {
-  if (prev == null || now == null) {
-    return <s-text color="subdued">no prior period</s-text>;
-  }
-  const diff =
-    kind === "pts" ? now - prev : prev === 0 ? null : ((now - prev) / prev) * 100;
-  if (diff == null) return <s-text color="subdued">—</s-text>;
-  const text =
-    kind === "pts"
-      ? `${Math.abs(diff).toFixed(1)} pts`
-      : `${Math.abs(diff).toFixed(0)}%`;
-  if (Math.abs(diff) < 0.05) return <s-text color="subdued">→ {text}</s-text>;
-  return diff > 0 ? (
-    <s-text tone="success">↑ {text}</s-text>
-  ) : (
-    <s-text tone="critical">↓ {text}</s-text>
-  );
-}
-
-function Spark({
-  data,
-  dataKey,
-}: {
-  data: TrendDay[];
-  dataKey: "chats" | "value" | "checkoutValue";
-}) {
-  const mounted = useMounted();
-
-  return (
-    <div style={{ height: 36, marginTop: 6 }}>
-      {mounted && (
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart
-            data={data}
-            margin={{ top: 2, right: 0, bottom: 0, left: 0 }}
-          >
-            <Area
-              type="monotone"
-              dataKey={dataKey}
-              stroke="#2a78d6"
-              strokeWidth={1.5}
-              fill="#2a78d6"
-              fillOpacity={0.08}
-              dot={false}
-              isAnimationActive={false}
-            />
-          </AreaChart>
-        </ResponsiveContainer>
-      )}
-    </div>
-  );
-}
-
-function Tile({
-  label,
-  value,
-  delta,
-  note,
-  spark,
-}: {
-  label: string;
-  value: string;
-  delta: React.ReactNode;
-  note: string;
-  spark?: React.ReactNode;
-}) {
-  return (
-    <s-box padding="base" border="base" borderRadius="base">
-      <s-text color="subdued">{label}</s-text>
-      <s-stack direction="inline" gap="small" alignItems="baseline">
-        <s-heading>{value}</s-heading>
-        {delta}
-      </s-stack>
-      <s-text color="subdued">{note}</s-text>
-      {spark}
-    </s-box>
-  );
 }
 
 const FUNNEL_COLORS = ["#86b6ef", "#5598e7", "#2a78d6", "#1c5cab", "#104281"];
@@ -249,127 +153,17 @@ function WidgetFunnel({ funnel }: { funnel: FunnelCounts }) {
 }
 
 export default function Index() {
-  const { days, currency, current, previous, trend } =
-    useLoaderData<typeof loader>();
-  const [, setSearchParams] = useSearchParams();
-
-  const money = (n: number) =>
-    new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency,
-      maximumFractionDigits: 0,
-    }).format(n);
-
-  const f = current.funnel;
-  const pf = previous?.funnel;
-  const ctr = pct(current.actions, current.shown);
+  const funnel = useLoaderData<typeof loader>();
 
   return (
     <s-page heading="Stats">
-      <s-section>
-        <s-stack direction="inline" gap="small-200">
-          {RANGES.map((range) => (
-            <s-button
-              key={range}
-              variant={range === days ? "primary" : "secondary"}
-              onClick={() =>
-                setSearchParams((params) => {
-                  params.set("days", String(range));
-                  return params;
-                })
-              }
-            >
-              Last {range} days
-            </s-button>
-          ))}
-        </s-stack>
-      </s-section>
-
-      <s-section>
-        <s-grid
-          gridTemplateColumns="repeat(auto-fill, minmax(180px, 1fr))"
-          gap="base"
-        >
-          <Tile
-            label="Chats"
-            value={int(f.engaged)}
-            delta={<Delta now={f.engaged} prev={pf?.engaged} />}
-            note={`${fmtPct(pct(f.engaged, f.loads))} of widget loads`}
-            spark={<Spark data={trend} dataKey="chats" />}
-          />
-          <Tile
-            label="Chat → add to cart"
-            value={fmtPct(pct(f.carted, f.engaged))}
-            delta={
-              <Delta
-                now={pct(f.carted, f.engaged)}
-                prev={pf && pct(pf.carted, pf.engaged)}
-                kind="pts"
-              />
-            }
-            note={`${int(f.carted)} of ${int(f.engaged)} chats`}
-          />
-          <Tile
-            label="Chat → checkout"
-            value={fmtPct(pct(f.checkout, f.engaged))}
-            delta={
-              <Delta
-                now={pct(f.checkout, f.engaged)}
-                prev={pf && pct(pf.checkout, pf.engaged)}
-                kind="pts"
-              />
-            }
-            note={`${int(f.checkout)} of ${int(f.engaged)} chats`}
-          />
-          <Tile
-            label="Chat-assisted cart value"
-            value={money(current.cartValue)}
-            delta={<Delta now={current.cartValue} prev={previous?.cartValue} />}
-            note={
-              f.carted
-                ? `${money(current.cartValue / f.carted)} per carting chat`
-                : "—"
-            }
-            spark={<Spark data={trend} dataKey="value" />}
-          />
-          <Tile
-            label="Chat-assisted checkout value"
-            value={money(current.checkoutValue)}
-            delta={
-              <Delta
-                now={current.checkoutValue}
-                prev={previous?.checkoutValue}
-              />
-            }
-            note={
-              f.checkout
-                ? `${money(current.checkoutValue / f.checkout)} per checkout`
-                : "—"
-            }
-            spark={<Spark data={trend} dataKey="checkoutValue" />}
-          />
-          <Tile
-            label="Component click-through"
-            value={fmtPct(ctr)}
-            delta={
-              <Delta
-                now={ctr}
-                prev={previous && pct(previous.actions, previous.shown)}
-                kind="pts"
-              />
-            }
-            note={`${int(current.actions)} clicks on ${int(current.shown)} components`}
-          />
-        </s-grid>
-      </s-section>
-
       <s-section heading="Funnel">
         <s-stack gap="base">
           <s-paragraph>
-            {fmtPct(pct(f.checkout, f.loads))} of widget loads reach checkout.
-            Each step counts conversations that got at least that far.
+            {fmtPct(pct(funnel.checkout, funnel.loads))} of widget loads reach
+            checkout. Each step counts conversations that got at least that far.
           </s-paragraph>
-          <WidgetFunnel funnel={f} />
+          <WidgetFunnel funnel={funnel} />
         </s-stack>
       </s-section>
     </s-page>

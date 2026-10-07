@@ -27,6 +27,7 @@ import { tools } from "./tools.server";
 if (existsSync(".env")) process.loadEnvFile();
 
 const MODEL = "deepseek/deepseek-v4.1-flash";
+const DEBUG = process.env.NODE_ENV !== "production";
 const MAX_HISTORY = 20;
 const DATA_TOOLS: string[] = [
   "tool-listProducts",
@@ -96,6 +97,11 @@ export async function reply(
   );
   const firstReply = !messages.some((message) => message.role === "assistant");
 
+  if (DEBUG)
+    console.log(
+      `[agent] ${messages.length} saved messages, ${modelMessages.length} sent, ${JSON.stringify(modelMessages).length} bytes`,
+    );
+
   const stream = createUIMessageStream<ChatMessage>({
     originalMessages: messages,
     onEnd: async ({ responseMessage }) => {
@@ -114,6 +120,20 @@ export async function reply(
         messages: modelMessages,
         tools: tools(storefront, market),
         stopWhen: [isStepCount(10), hasToolCall(...COMPONENT_TOOLS)],
+        onStepEnd: ({ stepNumber, toolCalls, toolResults, usage }) => {
+          if (!DEBUG) return;
+          console.log(
+            `[agent] step ${stepNumber}: ${usage.inputTokens} input tokens, ${usage.outputTokens} output tokens`,
+          );
+          for (const call of toolCalls) {
+            const result = toolResults.find(
+              (item) => item.toolCallId === call.toolCallId,
+            );
+            console.log(
+              `[agent]   ${call.toolName}(${JSON.stringify(call.input)}) -> ${JSON.stringify(result?.output ?? null).length} bytes`,
+            );
+          }
+        },
         prepareStep: ({ stepNumber }) =>
           firstReply && stepNumber === 0
             ? { toolChoice: { type: "tool", toolName: "listProducts" } }

@@ -88,10 +88,12 @@ async function suggest(messages: ModelMessage[]): Promise<string[]> {
 
 export async function reply(
   conversationId: string,
-  messages: ChatMessage[],
+  history: ChatMessage[],
+  userMessage: ChatMessage,
   storefront: StorefrontApiContext,
   market: Market,
 ): Promise<Response> {
+  const messages = [...history, userMessage];
   const modelMessages = await convertToModelMessages<ChatMessage>(
     compact(messages),
   );
@@ -106,6 +108,7 @@ export async function reply(
     originalMessages: messages,
     onEnd: async ({ responseMessage }) => {
       if (responseMessage.parts.length) {
+        await saveMessage(conversationId, userMessage);
         await saveMessage(conversationId, responseMessage);
       }
     },

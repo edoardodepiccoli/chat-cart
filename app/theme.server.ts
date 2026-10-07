@@ -6,7 +6,7 @@ import {
   themeSchema,
   themeStyle,
   type Theme,
-} from "../../../shared/theme";
+} from "../shared/theme";
 
 const METAFIELD = { namespace: "chat_cart", key: "theme" };
 

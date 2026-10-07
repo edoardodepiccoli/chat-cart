@@ -21,7 +21,7 @@ Backend (`app/`)
 - `routes/proxy.chat.tsx`, `routes/proxy.events.tsx` — endpoints the widget calls.
 - `conversations.server.ts` — saving and loading conversations.
 - `metrics.server.ts` — widget events and dashboard stats.
-- `routes/app._index.tsx`, `routes/app.theme/` — admin pages: stats and widget colors.
+- `routes/app._index.tsx` — admin home page: funnel and widget colors.
 
 Widget (`chat-widget/src/`)
 - `App.tsx` — the chat: messages, suggestions, sending.

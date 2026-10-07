@@ -24,7 +24,7 @@ export type Product = {
   selectedOptions: SelectedOption[];
 };
 
-function same(a: string, b: string): boolean {
+export function same(a: string, b: string): boolean {
   return a.trim().toLowerCase() === b.trim().toLowerCase();
 }
 

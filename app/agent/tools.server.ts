@@ -37,9 +37,20 @@ export function tools(storefront: StorefrontApiContext, market: Market) {
   return {
     listProducts: tool({
       description:
-        "List every product in the store: handle, title, short description, tags, price range, whether it is on sale (onSale) with its original price (compareAtPrice), availability, options.",
-      inputSchema: z.object({}),
-      execute: () => listProducts(storefront, market),
+        "List the store's products: handle, title, short description, tags, price range, whether it is on sale (onSale) with its original price (compareAtPrice), availability, and each option's values with the ones in stock (inStock). Pass filters to get only the products that match, such as the on-sale ones, a price range or one in stock in the shopper's size. No filters lists every product.",
+      inputSchema: z.object({
+        onSale: z.boolean().optional(),
+        minPrice: z.number().optional(),
+        maxPrice: z.number().optional(),
+        availableOnly: z.boolean().optional(),
+        option: z
+          .object({ name: z.string(), value: z.string() })
+          .optional()
+          .describe(
+            "Only products with this option value in stock, like Size L, with the name and value as listProducts shows them.",
+          ),
+      }),
+      execute: (filter) => listProducts(storefront, market, filter),
     }),
     getProduct: tool({
       description:

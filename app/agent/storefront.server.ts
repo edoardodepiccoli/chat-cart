@@ -1,7 +1,7 @@
 import type { StorefrontApiContext } from "@shopify/shopify-app-react-router/server";
 
 import type { Market } from "../../shared/chat";
-import type { Money, ProductOption } from "../../shared/product";
+import { same, type Money, type ProductOption } from "../../shared/product";
 
 const PRODUCTS_QUERY = `#graphql
   query Products($country: CountryCode, $language: LanguageCode) @inContext(country: $country, language: $language) {
@@ -21,6 +21,12 @@ const PRODUCTS_QUERY = `#graphql
           maxVariantPrice { amount currencyCode }
         }
         options { name optionValues { name } }
+        variants(first: 250) {
+          nodes {
+            availableForSale
+            selectedOptions { name value }
+          }
+        }
       }
     }
   }`;
@@ -38,6 +44,12 @@ type ProductsResponse = {
       priceRange: { minVariantPrice: Money; maxVariantPrice: Money };
       compareAtPriceRange: { minVariantPrice: Money; maxVariantPrice: Money };
       options: OptionNode[];
+      variants: {
+        nodes: {
+          availableForSale: boolean;
+          selectedOptions: { name: string; value: string }[];
+        }[];
+      };
     }[];
   };
 };
@@ -147,42 +159,82 @@ function inContext(market: Market) {
   };
 }
 
+export type ProductFilter = {
+  onSale?: boolean;
+  minPrice?: number;
+  maxPrice?: number;
+  availableOnly?: boolean;
+  option?: { name: string; value: string };
+};
+
 export async function listProducts(
   storefront: StorefrontApiContext,
   market: Market,
+  filter: ProductFilter = {},
 ) {
   const response = await storefront.graphql(PRODUCTS_QUERY, {
     variables: inContext(market),
   });
   const { data } = (await response.json()) as { data: ProductsResponse };
 
-  return data.products.nodes.map((product) => {
-    const { minVariantPrice, maxVariantPrice } = product.priceRange;
-    const compareAt = product.compareAtPriceRange;
-    const onSale =
-      Number(compareAt.maxVariantPrice.amount) > Number(minVariantPrice.amount);
+  return data.products.nodes
+    .map((product) => {
+      const { minVariantPrice, maxVariantPrice } = product.priceRange;
+      const compareAt = product.compareAtPriceRange;
+      const onSale =
+        Number(compareAt.maxVariantPrice.amount) >
+        Number(minVariantPrice.amount);
+      const inStock = product.variants.nodes.filter(
+        (variant) => variant.availableForSale,
+      );
 
-    return {
-      handle: product.handle,
-      title: product.title,
-      description: product.description.slice(0, 150),
-      tags: product.tags,
-      price: {
-        min: minVariantPrice.amount,
-        max: maxVariantPrice.amount,
-        currencyCode: minVariantPrice.currencyCode,
-      },
-      onSale,
-      compareAtPrice: onSale
-        ? {
-            min: compareAt.minVariantPrice.amount,
-            max: compareAt.maxVariantPrice.amount,
-          }
-        : null,
-      available: product.availableForSale,
-      options: options(product.options),
-    };
-  });
+      return {
+        handle: product.handle,
+        title: product.title,
+        description: product.description.slice(0, 150),
+        tags: product.tags,
+        price: {
+          min: minVariantPrice.amount,
+          max: maxVariantPrice.amount,
+          currencyCode: minVariantPrice.currencyCode,
+        },
+        onSale,
+        compareAtPrice: onSale
+          ? {
+              min: compareAt.minVariantPrice.amount,
+              max: compareAt.maxVariantPrice.amount,
+            }
+          : null,
+        available: product.availableForSale,
+        options: options(product.options).map((option) => ({
+          ...option,
+          inStock: option.values.filter((value) =>
+            inStock.some((variant) =>
+              variant.selectedOptions.some(
+                (selected) =>
+                  same(selected.name, option.name) &&
+                  same(selected.value, value),
+              ),
+            ),
+          ),
+        })),
+      };
+    })
+    .filter(
+      (product) =>
+        (!filter.onSale || product.onSale) &&
+        (!filter.availableOnly || product.available) &&
+        (filter.minPrice === undefined ||
+          Number(product.price.max) >= filter.minPrice) &&
+        (filter.maxPrice === undefined ||
+          Number(product.price.min) <= filter.maxPrice) &&
+        (!filter.option ||
+          product.options.some(
+            (option) =>
+              same(option.name, filter.option!.name) &&
+              option.inStock.some((value) => same(value, filter.option!.value)),
+          )),
+    );
 }
 
 export async function getProduct(

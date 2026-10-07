@@ -37,7 +37,7 @@ export function tools(storefront: StorefrontApiContext, market: Market) {
   return {
     listProducts: tool({
       description:
-        "List every product in the store: handle, title, short description, tags, price range, availability, options.",
+        "List every product in the store: handle, title, short description, tags, price range, whether it is on sale (onSale) with its original price (compareAtPrice), availability, options.",
       inputSchema: z.object({}),
       execute: () => listProducts(storefront, market),
     }),

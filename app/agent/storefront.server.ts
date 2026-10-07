@@ -16,6 +16,10 @@ const PRODUCTS_QUERY = `#graphql
           minVariantPrice { amount currencyCode }
           maxVariantPrice { amount currencyCode }
         }
+        compareAtPriceRange {
+          minVariantPrice { amount currencyCode }
+          maxVariantPrice { amount currencyCode }
+        }
         options { name optionValues { name } }
       }
     }
@@ -32,6 +36,7 @@ type ProductsResponse = {
       tags: string[];
       availableForSale: boolean;
       priceRange: { minVariantPrice: Money; maxVariantPrice: Money };
+      compareAtPriceRange: { minVariantPrice: Money; maxVariantPrice: Money };
       options: OptionNode[];
     }[];
   };
@@ -151,19 +156,33 @@ export async function listProducts(
   });
   const { data } = (await response.json()) as { data: ProductsResponse };
 
-  return data.products.nodes.map((product) => ({
-    handle: product.handle,
-    title: product.title,
-    description: product.description.slice(0, 150),
-    tags: product.tags,
-    price: {
-      min: product.priceRange.minVariantPrice.amount,
-      max: product.priceRange.maxVariantPrice.amount,
-      currencyCode: product.priceRange.minVariantPrice.currencyCode,
-    },
-    available: product.availableForSale,
-    options: options(product.options),
-  }));
+  return data.products.nodes.map((product) => {
+    const { minVariantPrice, maxVariantPrice } = product.priceRange;
+    const compareAt = product.compareAtPriceRange;
+    const onSale =
+      Number(compareAt.maxVariantPrice.amount) > Number(minVariantPrice.amount);
+
+    return {
+      handle: product.handle,
+      title: product.title,
+      description: product.description.slice(0, 150),
+      tags: product.tags,
+      price: {
+        min: minVariantPrice.amount,
+        max: maxVariantPrice.amount,
+        currencyCode: minVariantPrice.currencyCode,
+      },
+      onSale,
+      compareAtPrice: onSale
+        ? {
+            min: compareAt.minVariantPrice.amount,
+            max: compareAt.maxVariantPrice.amount,
+          }
+        : null,
+      available: product.availableForSale,
+      options: options(product.options),
+    };
+  });
 }
 
 export async function getProduct(

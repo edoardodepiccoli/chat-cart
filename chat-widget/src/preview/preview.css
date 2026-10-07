@@ -27,3 +27,11 @@
   border-radius: 12px;
   background: #f1f2f4;
 }
+
+.cc-preview .cc-panel[data-size] {
+  left: 20px;
+  width: auto;
+  max-width: none;
+  height: calc(100% - 108px);
+  max-height: none;
+}

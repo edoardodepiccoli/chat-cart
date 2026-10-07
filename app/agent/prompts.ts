@@ -52,3 +52,7 @@ All three different from each other and from what I already asked. In my languag
 export function marketPrompt(country: string) {
   return `The shopper is shopping from ${country}, with prices in that market's currency. Any price in another currency earlier in this conversation is outdated: look it up again before using it.`;
 }
+
+export function pagePrompt(productHandle: string) {
+  return `The shopper is looking at the product page "${productHandle}". When they say "this", "it" or ask about a product without naming one, they mean this product: call getProduct with this handle.`;
+}

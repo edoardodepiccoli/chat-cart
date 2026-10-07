@@ -18,10 +18,11 @@ import {
   type ChatMessage,
   type ChatPart,
   type Market,
+  type Page,
 } from "../../shared/chat";
 import type { Product } from "../../shared/product";
 import { saveMessage } from "../conversations.server";
-import { marketPrompt, SUGGEST, SYSTEM } from "./prompts";
+import { marketPrompt, pagePrompt, SUGGEST, SYSTEM } from "./prompts";
 import { tools } from "./tools.server";
 
 if (existsSync(".env")) process.loadEnvFile();
@@ -92,6 +93,7 @@ export async function reply(
   userMessage: ChatMessage,
   storefront: StorefrontApiContext,
   market: Market,
+  page: Page,
 ): Promise<Response> {
   const messages = [...history, userMessage];
   const modelMessages = await convertToModelMessages<ChatMessage>(
@@ -116,10 +118,13 @@ export async function reply(
       const result = streamText({
         model: MODEL,
         reasoning: "none",
-        system:
-          market.country
-            ? `${SYSTEM}\n\n${marketPrompt(market.country)}`
-            : SYSTEM,
+        system: [
+          SYSTEM,
+          market.country && marketPrompt(market.country),
+          page.productHandle && pagePrompt(page.productHandle),
+        ]
+          .filter(Boolean)
+          .join("\n\n"),
         messages: modelMessages,
         tools: tools(storefront, market),
         stopWhen: [isStepCount(10), hasToolCall(...COMPONENT_TOOLS)],
@@ -138,7 +143,7 @@ export async function reply(
           }
         },
         prepareStep: ({ stepNumber }) =>
-          firstReply && stepNumber === 0
+          firstReply && !page.productHandle && stepNumber === 0
             ? { toolChoice: { type: "tool", toolName: "listProducts" } }
             : undefined,
       });

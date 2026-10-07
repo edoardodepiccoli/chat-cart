@@ -12,6 +12,7 @@ const bodySchema = z.object({
   text: z.string().trim().min(1).max(2000),
   country: z.string().max(10),
   language: z.string().max(20),
+  productHandle: z.string().max(200),
 });
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
@@ -32,7 +33,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const body = bodySchema.safeParse(await request.json().catch(() => null));
   if (!body.success) throw new Response("Bad request", { status: 400 });
 
-  const { id, text, ...market } = body.data;
+  const { id, text, productHandle, ...market } = body.data;
 
   const history = await loadMessages(session.shop, id);
   if (!history) throw new Response("Not found", { status: 404 });
@@ -43,5 +44,5 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     parts: [{ type: "text", text }],
   };
 
-  return reply(id, history, userMessage, storefront, market);
+  return reply(id, history, userMessage, storefront, market, { productHandle });
 };

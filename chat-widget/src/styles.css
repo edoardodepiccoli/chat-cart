@@ -305,6 +305,10 @@
   max-width: 100%;
 }
 
+.cc-part--tool-showProductCard {
+  max-width: 360px;
+}
+
 .cc-message:has(.cc-part--tool-showProductCards) {
   max-width: 100%;
 }

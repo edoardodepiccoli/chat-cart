@@ -5,6 +5,8 @@ import type { ChatTools } from "../app/agent/tools.server";
 
 export type Market = { country: string; language: string };
 
+export type Page = { productHandle: string };
+
 export type ChatMessage = UIMessage<never, { suggestions: string[] }, ChatTools>;
 
 export type ChatPart = ChatMessage["parts"][number];

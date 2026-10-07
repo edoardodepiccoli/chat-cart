@@ -1,7 +1,7 @@
 import { DefaultChatTransport } from "ai";
 import { useEffect, useState } from "react";
 
-import type { ChatEvent, ChatMessage, Market } from "../../shared/chat";
+import type { ChatEvent, ChatMessage, Market, Page } from "../../shared/chat";
 
 export type Conversation = { id: string; messages: ChatMessage[] };
 
@@ -11,8 +11,14 @@ const KEY = "chat-cart:conversationId";
 
 let market: Market = { country: "", language: "" };
 
+let page: Page = { productHandle: "" };
+
 export function setMarket(value: Market) {
   market = value;
+}
+
+export function setPage(value: Page) {
+  page = value;
 }
 
 export const transport = new DefaultChatTransport<ChatMessage>({
@@ -25,6 +31,7 @@ export const transport = new DefaultChatTransport<ChatMessage>({
         .map((part) => (part.type === "text" ? part.text : ""))
         .join(""),
       ...market,
+      ...page,
     },
   }),
 });

@@ -16,8 +16,10 @@ import { z } from "zod";
 import {
   COMPONENT_TOOLS,
   type ChatMessage,
+  type ChatPart,
   type Market,
 } from "../../shared/chat";
+import type { Product } from "../../shared/product";
 import { saveMessage } from "../conversations.server";
 import { marketPrompt, SUGGEST, SYSTEM } from "./prompts";
 import { tools } from "./tools.server";
@@ -25,6 +27,47 @@ import { tools } from "./tools.server";
 if (existsSync(".env")) process.loadEnvFile();
 
 const MODEL = "deepseek/deepseek-v4.1-flash";
+const MAX_HISTORY = 20;
+const DATA_TOOLS: string[] = [
+  "tool-listProducts",
+  "tool-getProduct",
+  "tool-listStorePages",
+  "tool-getStorePage",
+];
+
+function lean(product: Product): Product {
+  return { ...product, images: [], variants: [] };
+}
+
+function compact(messages: ChatMessage[]): ChatMessage[] {
+  const recent = messages.slice(-MAX_HISTORY);
+  const first = recent.findIndex((message) => message.role === "user");
+
+  return recent.slice(Math.max(first, 0)).flatMap((message) => {
+    const parts = message.parts.flatMap((part): ChatPart[] => {
+      if (DATA_TOOLS.includes(part.type)) return [];
+      if (
+        part.type === "tool-showProductCard" &&
+        part.state === "output-available"
+      )
+        return [{ ...part, output: lean(part.output) }];
+      if (
+        part.type === "tool-showProductCards" &&
+        part.state === "output-available"
+      )
+        return [
+          { ...part, output: { products: part.output.products.map(lean) } },
+        ];
+      return [part];
+    });
+
+    return parts.some(
+      (part) => part.type === "text" || part.type.startsWith("tool-"),
+    )
+      ? [{ ...message, parts }]
+      : [];
+  });
+}
 
 async function suggest(messages: ModelMessage[]): Promise<string[]> {
   const { output } = await generateText({
@@ -48,7 +91,9 @@ export async function reply(
   storefront: StorefrontApiContext,
   market: Market,
 ): Promise<Response> {
-  const modelMessages = await convertToModelMessages<ChatMessage>(messages);
+  const modelMessages = await convertToModelMessages<ChatMessage>(
+    compact(messages),
+  );
   const firstReply = !messages.some((message) => message.role === "assistant");
 
   const stream = createUIMessageStream<ChatMessage>({

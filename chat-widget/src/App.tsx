@@ -19,7 +19,7 @@ import { t } from "./i18n";
 import type { ChatMessage } from "../../shared/chat";
 import type { Product, ProductVariant } from "../../shared/product";
 
-const TEASER_DELAY = 8000;
+const TEASER_DELAY = 3000;
 
 function greeting(): ChatMessage {
   return {

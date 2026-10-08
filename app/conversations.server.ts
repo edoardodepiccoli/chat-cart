@@ -18,7 +18,7 @@ function findConversation(shop: string, id: string) {
   });
 }
 
-export async function openConversation(
+export async function findOrCreateConversation(
   shop: string,
   id: string | null,
 ): Promise<{ id: string; messages: ChatMessage[] }> {

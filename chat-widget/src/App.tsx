@@ -8,7 +8,7 @@ import Suggestions, { type ShownSuggestions } from "./components/Suggestions";
 import Teaser from "./components/Teaser";
 import {
   fetchTeaser,
-  getPage,
+  getPageContext,
   markTeaserSeen,
   sendEvent,
   teaserSeen,
@@ -69,7 +69,7 @@ export default function App() {
   }, [open, conversation]);
 
   useEffect(() => {
-    if (!conversation || !getPage().productHandle) return;
+    if (!conversation || !getPageContext().productHandle) return;
     if (open) {
       markTeaserSeen();
       setTeaser(undefined);

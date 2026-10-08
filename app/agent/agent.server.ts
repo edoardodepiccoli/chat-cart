@@ -18,15 +18,15 @@ import {
   type ChatMessage,
   type ChatPart,
   type Market,
-  type Page,
+  type PageContext,
 } from "../../shared/chat";
 import type { Product } from "../../shared/product";
 import { saveMessage } from "../conversations.server";
 import {
   marketPrompt,
   pagePrompt,
-  SUGGEST,
-  SYSTEM,
+  SUGGESTIONS_PROMPT,
+  SYSTEM_PROMPT,
   teaserPrompt,
   type TeaserProduct,
 } from "./prompts";
@@ -37,35 +37,38 @@ if (existsSync(".env")) process.loadEnvFile();
 const MODEL = "deepseek/deepseek-v4.1-flash";
 const DEBUG = process.env.NODE_ENV !== "production";
 const MAX_HISTORY = 20;
-const DATA_TOOLS: string[] = [
+const DATA_TOOL_PARTS: string[] = [
   "tool-listProducts",
   "tool-getProduct",
   "tool-listStorePages",
   "tool-getStorePage",
 ];
 
-function lean(product: Product): Product {
+function stripProductMedia(product: Product): Product {
   return { ...product, images: [], variants: [] };
 }
 
-function compact(messages: ChatMessage[]): ChatMessage[] {
+function trimHistory(messages: ChatMessage[]): ChatMessage[] {
   const recent = messages.slice(-MAX_HISTORY);
   const first = recent.findIndex((message) => message.role === "user");
 
   return recent.slice(Math.max(first, 0)).flatMap((message) => {
     const parts = message.parts.flatMap((part): ChatPart[] => {
-      if (DATA_TOOLS.includes(part.type)) return [];
+      if (DATA_TOOL_PARTS.includes(part.type)) return [];
       if (
         part.type === "tool-showProductCard" &&
         part.state === "output-available"
       )
-        return [{ ...part, output: lean(part.output) }];
+        return [{ ...part, output: stripProductMedia(part.output) }];
       if (
         part.type === "tool-showProductCards" &&
         part.state === "output-available"
       )
         return [
-          { ...part, output: { products: part.output.products.map(lean) } },
+          {
+            ...part,
+            output: { products: part.output.products.map(stripProductMedia) },
+          },
         ];
       return [part];
     });
@@ -78,7 +81,9 @@ function compact(messages: ChatMessage[]): ChatMessage[] {
   });
 }
 
-async function suggest(messages: ModelMessage[]): Promise<string[]> {
+async function generateSuggestions(
+  messages: ModelMessage[],
+): Promise<string[]> {
   const { output } = await generateText({
     model: MODEL,
     reasoning: "none",
@@ -87,14 +92,14 @@ async function suggest(messages: ModelMessage[]): Promise<string[]> {
     }),
     messages: [
       ...messages,
-      { role: "user", content: SUGGEST },
+      { role: "user", content: SUGGESTIONS_PROMPT },
     ],
   });
 
   return output.suggestions;
 }
 
-export async function teaser(
+export async function generateTeaser(
   product: TeaserProduct,
   language: string,
 ): Promise<string> {
@@ -107,17 +112,17 @@ export async function teaser(
   return text.trim();
 }
 
-export async function reply(
+export async function streamReply(
   conversationId: string,
   history: ChatMessage[],
   userMessage: ChatMessage,
   storefront: StorefrontApiContext,
   market: Market,
-  page: Page,
+  pageContext: PageContext,
 ): Promise<Response> {
   const messages = [...history, userMessage];
   const modelMessages = await convertToModelMessages<ChatMessage>(
-    compact(messages),
+    trimHistory(messages),
   );
   const firstReply = !messages.some((message) => message.role === "assistant");
 
@@ -139,9 +144,9 @@ export async function reply(
         model: MODEL,
         reasoning: "none",
         system: [
-          SYSTEM,
+          SYSTEM_PROMPT,
           market.country && marketPrompt(market.country),
-          page.productHandle && pagePrompt(page.productHandle),
+          pageContext.productHandle && pagePrompt(pageContext.productHandle),
         ]
           .filter(Boolean)
           .join("\n\n"),
@@ -163,14 +168,14 @@ export async function reply(
           }
         },
         prepareStep: ({ stepNumber }) =>
-          firstReply && !page.productHandle && stepNumber === 0
+          firstReply && !pageContext.productHandle && stepNumber === 0
             ? { toolChoice: { type: "tool", toolName: "listProducts" } }
             : undefined,
       });
 
       writer.merge(result.toUIMessageStream({ sendFinish: false }));
 
-      const suggestions = await suggest([
+      const suggestions = await generateSuggestions([
         ...modelMessages,
         ...(await result.responseMessages),
       ]);

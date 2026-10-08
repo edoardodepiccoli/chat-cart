@@ -1,3 +1,11 @@
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
+
 import type { Cart } from "../cart";
 import type { ChatMessage, ChatPart } from "../../../shared/chat";
 import type { Product, ProductVariant } from "../../../shared/product";
@@ -12,16 +20,25 @@ export type PartContext = {
   streaming: boolean;
   onLike: (product: Product) => void;
   onAdd: (product: Product, variant: ProductVariant) => Promise<void>;
+  onIdle?: (idle: boolean) => void;
 };
+
+const COMPONENT_REVEAL = 300;
 
 function renderPart(
   part: ChatPart,
   { cart, streaming, onLike, onAdd }: PartContext,
+  { animate, onRevealed }: { animate: boolean; onRevealed: () => void },
 ) {
   switch (part.type) {
     case "text":
       return part.text.trim() ? (
-        <TextMessage text={part.text.trim()} streaming={streaming} />
+        <TextMessage
+          text={part.text.trim()}
+          animate={animate}
+          done={!streaming || part.state !== "streaming"}
+          onRevealed={onRevealed}
+        />
       ) : null;
     case "tool-showProductCard":
       return part.state === "output-available" ? (
@@ -48,6 +65,24 @@ function renderPart(
   }
 }
 
+function ComponentPart({
+  onRevealed,
+  children,
+}: {
+  onRevealed: () => void;
+  children: ReactNode;
+}) {
+  const onRevealedRef = useRef(onRevealed);
+  onRevealedRef.current = onRevealed;
+
+  useEffect(() => {
+    const timer = setTimeout(() => onRevealedRef.current(), COMPONENT_REVEAL);
+    return () => clearTimeout(timer);
+  }, []);
+
+  return <>{children}</>;
+}
+
 export default function Message({
   message,
   context,
@@ -55,19 +90,37 @@ export default function Message({
   message: ChatMessage;
   context: PartContext;
 }) {
-  const parts = message.parts.map((part, index) => {
-    const node = renderPart(part, context);
-    return (
-      node && (
-        <div key={index} className={`cc-part cc-part--${part.type}`}>
-          {node}
-        </div>
-      )
+  const [live] = useState(context.streaming);
+  const [revealed, setRevealed] = useState(live ? 0 : Infinity);
+  const parts: ReactNode[] = [];
+  message.parts.forEach((part, key) => {
+    const index = parts.length;
+    const onRevealed = () =>
+      setRevealed((count) => Math.max(count, index + 1));
+    const node = renderPart(part, context, { animate: live, onRevealed });
+    if (!node) return;
+    parts.push(
+      <div key={key} className={`cc-part cc-part--${part.type}`}>
+        {part.type === "text" ? (
+          node
+        ) : (
+          <ComponentPart onRevealed={onRevealed}>{node}</ComponentPart>
+        )}
+      </div>,
     );
   });
-  if (!parts.some(Boolean)) return null;
+  const idle = revealed >= parts.length;
+  const { onIdle } = context;
+
+  useLayoutEffect(() => {
+    onIdle?.(idle);
+  }, [onIdle, idle]);
+
+  if (!parts.length) return null;
 
   return (
-    <div className={`cc-message cc-message--${message.role}`}>{parts}</div>
+    <div className={`cc-message cc-message--${message.role}`}>
+      {parts.slice(0, revealed + 1)}
+    </div>
   );
 }

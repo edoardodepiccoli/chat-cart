@@ -7,8 +7,9 @@ export type TextMessageProps = {
   onRevealed?: () => void;
 };
 
-const MIN_RATE = 0.05;
-const LAG = 600;
+const MIN_RATE = 0.04;
+const MAX_RATE = 0.2;
+const LAG = 1000;
 
 function useSteadyLength(length: number, animate: boolean) {
   const [shown, setShown] = useState(animate ? Math.min(1, length) : length);
@@ -23,7 +24,7 @@ function useSteadyLength(length: number, animate: boolean) {
     let frame = requestAnimationFrame(function tick(now) {
       const backlog = target.current - value.current;
       if (backlog > 0) {
-        const rate = Math.max(MIN_RATE, backlog / LAG);
+        const rate = Math.min(MAX_RATE, Math.max(MIN_RATE, backlog / LAG));
         value.current = Math.min(
           target.current,
           value.current + rate * (now - previous),

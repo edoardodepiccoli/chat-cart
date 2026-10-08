@@ -151,13 +151,13 @@
 
 .cc-teaser__text {
   display: block;
-  padding: calc(10px * var(--cc-space)) calc(14px * var(--cc-space));
-  border: var(--cc-border-width) solid var(--cc-color-border);
-  border-radius: var(--cc-radius);
-  background: var(--cc-color-background);
-  box-shadow: var(--cc-shadow-panel);
-  color: var(--cc-color-text);
+  padding: calc(6px * var(--cc-space)) calc(12px * var(--cc-space));
+  border: var(--cc-border-width) solid var(--cc-color-suggestion-border);
+  border-radius: var(--cc-radius-suggestion);
+  background: var(--cc-color-suggestion);
+  color: var(--cc-color-on-suggestion);
   font: inherit;
+  font-size: var(--cc-font-size-sm);
   line-height: 1.35;
   text-align: left;
   cursor: pointer;
@@ -196,6 +196,14 @@
 }
 
 @media (hover: hover) and (pointer: fine) {
+  .cc-teaser__text:hover {
+    background: color-mix(
+      in srgb,
+      var(--cc-color-suggestion),
+      var(--cc-color-on-suggestion) 10%
+    );
+  }
+
   .cc-teaser__close:hover {
     color: var(--cc-color-text);
   }

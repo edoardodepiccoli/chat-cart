@@ -58,7 +58,6 @@ async function noopAsync() {}
 
 const CONTEXT: PartContext = {
   cart: undefined,
-  streaming: false,
   onLike: noop,
   onAdd: noopAsync,
 };

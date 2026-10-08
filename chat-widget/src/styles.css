@@ -826,17 +826,6 @@ img.cc-cart__image:not([data-loaded]) {
   }
 }
 
-@keyframes cc-fade {
-  from {
-    opacity: 0;
-    filter: blur(2px);
-  }
-  to {
-    opacity: 1;
-    filter: none;
-  }
-}
-
 @property --cc-reveal {
   syntax: "<percentage>";
   inherits: false;
@@ -933,10 +922,6 @@ img.cc-cart__image:not([data-loaded]) {
   animation-delay: calc(var(--cc-i, 0) * 40ms);
 }
 
-.cc-message--assistant .cc-word {
-  animation: cc-fade 320ms var(--cc-ease) both;
-}
-
 .cc-typing__dot {
   animation: cc-bounce 1.1s var(--cc-ease) infinite;
 }
@@ -1015,7 +1000,6 @@ img.cc-cart__image:not([data-loaded]) {
 @media (prefers-reduced-motion: reduce) {
   .cc-part,
   .cc-suggestion,
-  .cc-word,
   .cc-typing__dot,
   .cc-teaser,
   .cc-launcher {

@@ -769,11 +769,11 @@ img.cc-cart__image:not([data-loaded]) {
 }
 
 .cc-carousel[data-more-start="true"] {
-  --cc-fade-start: 48px;
+  --cc-fade-start: 20px;
 }
 
 .cc-carousel[data-more-end="true"] {
-  --cc-fade-end: 48px;
+  --cc-fade-end: 20px;
 }
 
 .cc-carousel .cc-card {

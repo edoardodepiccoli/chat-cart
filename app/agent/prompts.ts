@@ -49,6 +49,18 @@ Nothing I do with a button, like adding to the cart or checking out. Nothing you
 Each one makes sense on its own: never "it" or "this one" instead of a product name.
 All three different from each other and from what I already asked. In my language, in everyday shopping words, under 8 words each, never about how this chat works.`;
 
+export function teaserPrompt(
+  product: { title: string; description: string },
+  language: string,
+) {
+  return `I'm a shopper looking at this product's page.
+
+Title: ${product.title}
+Description: ${product.description}
+
+Write one short question I might ask a shopping assistant about this product, in my words, in first person, under 10 words. Ask about something its description doesn't already answer, like sizing, fit, care, materials, shipping or returns. Language: ${language || "English"}. Answer with the question only.`;
+}
+
 export function marketPrompt(country: string) {
   return `The shopper is shopping from ${country}, with prices in that market's currency. Any price in another currency earlier in this conversation is outdated: look it up again before using it.`;
 }

@@ -22,7 +22,13 @@ import {
 } from "../../shared/chat";
 import type { Product } from "../../shared/product";
 import { saveMessage } from "../conversations.server";
-import { marketPrompt, pagePrompt, SUGGEST, SYSTEM } from "./prompts";
+import {
+  marketPrompt,
+  pagePrompt,
+  SUGGEST,
+  SYSTEM,
+  teaserPrompt,
+} from "./prompts";
 import { tools } from "./tools.server";
 
 if (existsSync(".env")) process.loadEnvFile();
@@ -85,6 +91,19 @@ async function suggest(messages: ModelMessage[]): Promise<string[]> {
   });
 
   return output.suggestions;
+}
+
+export async function teaser(
+  product: { title: string; description: string },
+  language: string,
+): Promise<string> {
+  const { text } = await generateText({
+    model: MODEL,
+    reasoning: "none",
+    prompt: teaserPrompt(product, language),
+  });
+
+  return text.trim();
 }
 
 export async function reply(

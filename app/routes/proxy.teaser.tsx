@@ -1,7 +1,7 @@
 import type { LoaderFunctionArgs } from "react-router";
 import { z } from "zod";
 
-import { teaser } from "../agent/agent.server";
+import { generateTeaser } from "../agent/agent.server";
 import { getProduct } from "../agent/storefront.server";
 import { authenticate } from "../shopify.server";
 
@@ -27,5 +27,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const product = await getProduct(storefront, market, handle);
   if (!product) throw new Response("Not found", { status: 404 });
 
-  return Response.json({ text: await teaser(product, market.language) });
+  return Response.json({
+    text: await generateTeaser(product, market.language),
+  });
 };

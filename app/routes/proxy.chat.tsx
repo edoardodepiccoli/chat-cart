@@ -3,8 +3,11 @@ import { generateId } from "ai";
 import { z } from "zod";
 
 import type { ChatMessage } from "../../shared/chat";
-import { reply } from "../agent/agent.server";
-import { loadMessages, openConversation } from "../conversations.server";
+import { streamReply } from "../agent/agent.server";
+import {
+  findOrCreateConversation,
+  loadMessages,
+} from "../conversations.server";
 import { authenticate } from "../shopify.server";
 
 const bodySchema = z.object({
@@ -21,7 +24,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   const id = new URL(request.url).searchParams.get("id");
 
-  return Response.json(await openConversation(session.shop, id));
+  return Response.json(await findOrCreateConversation(session.shop, id));
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -44,5 +47,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     parts: [{ type: "text", text }],
   };
 
-  return reply(id, history, userMessage, storefront, market, { productHandle });
+  return streamReply(id, history, userMessage, storefront, market, {
+    productHandle,
+  });
 };

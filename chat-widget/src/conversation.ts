@@ -1,7 +1,12 @@
 import { DefaultChatTransport } from "ai";
 import { useEffect, useState } from "react";
 
-import type { ChatEvent, ChatMessage, Market, Page } from "../../shared/chat";
+import type {
+  ChatEvent,
+  ChatMessage,
+  Market,
+  PageContext,
+} from "../../shared/chat";
 
 export type Conversation = { id: string; messages: ChatMessage[] };
 
@@ -11,18 +16,18 @@ const KEY = "chat-cart:conversationId";
 
 let market: Market = { country: "", language: "" };
 
-let page: Page = { productHandle: "" };
+let pageContext: PageContext = { productHandle: "" };
 
 export function setMarket(value: Market) {
   market = value;
 }
 
-export function setPage(value: Page) {
-  page = value;
+export function setPageContext(value: PageContext) {
+  pageContext = value;
 }
 
-export function getPage() {
-  return page;
+export function getPageContext() {
+  return pageContext;
 }
 
 export const transport =new DefaultChatTransport<ChatMessage>({
@@ -35,7 +40,7 @@ export const transport =new DefaultChatTransport<ChatMessage>({
         .map((part) => (part.type === "text" ? part.text : ""))
         .join(""),
       ...market,
-      ...page,
+      ...pageContext,
     },
   }),
 });
@@ -63,7 +68,7 @@ async function fetchConversation(id: string | null): Promise<Conversation> {
   return response.json();
 }
 
-export async function openConversation(): Promise<Conversation> {
+export async function loadConversation(): Promise<Conversation> {
   const id = readId();
   const conversation = await fetchConversation(id).catch((error) => {
     if (!id) throw error;
@@ -75,7 +80,7 @@ export async function openConversation(): Promise<Conversation> {
 
 export async function fetchTeaser(): Promise<string> {
   const query = new URLSearchParams({
-    handle: page.productHandle,
+    handle: pageContext.productHandle,
     country: market.country,
     language: market.language,
   });
@@ -85,7 +90,7 @@ export async function fetchTeaser(): Promise<string> {
 }
 
 function teaserKey() {
-  return `chat-cart:teaser:${page.productHandle}`;
+  return `chat-cart:teaser:${pageContext.productHandle}`;
 }
 
 export function teaserSeen() {
@@ -118,7 +123,7 @@ export function useConversation() {
   const [loadFailed, setLoadFailed] = useState(false);
 
   useEffect(() => {
-    openConversation()
+    loadConversation()
       .then(setConversation)
       .catch(() => setLoadFailed(true));
   }, []);

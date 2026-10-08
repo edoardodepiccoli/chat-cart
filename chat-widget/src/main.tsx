@@ -1,7 +1,7 @@
 import { createRoot } from "react-dom/client";
 
 import App from "./App";
-import { setMarket, setPage } from "./conversation";
+import { setMarket, setPageContext } from "./conversation";
 import { setLocale } from "./i18n";
 import "./tokens.css";
 import "./styles.css";
@@ -14,7 +14,7 @@ function mount() {
     country: el.dataset.country ?? "",
     language: el.dataset.locale ?? "",
   });
-  setPage({ productHandle: el.dataset.productHandle ?? "" });
+  setPageContext({ productHandle: el.dataset.productHandle ?? "" });
   createRoot(el).render(<App />);
 }
 

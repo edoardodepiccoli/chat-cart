@@ -21,6 +21,30 @@ import type { Product, ProductVariant } from "../../shared/product";
 
 const TEASER_DELAY = 3000;
 
+const TOOL_LABELS = {
+  listProducts: "lookingUpProducts",
+  getProduct: "lookingUpProducts",
+  listStorePages: "checkingStore",
+  getStorePage: "checkingStore",
+} as const;
+
+function typingLabel(message: ChatMessage | undefined) {
+  const part =
+    message?.role === "assistant"
+      ? message.parts
+          .filter(
+            (part) =>
+              part.type.startsWith("tool-") &&
+              "state" in part &&
+              (part.state === "input-streaming" ||
+                part.state === "input-available"),
+          )
+          .at(-1)
+      : undefined;
+  const tool = part?.type.slice("tool-".length);
+  return t(TOOL_LABELS[tool as keyof typeof TOOL_LABELS] ?? "typing");
+}
+
 function greeting(): ChatMessage {
   return {
     id: "greeting",
@@ -207,10 +231,12 @@ export default function App() {
       {busy && (
         <div className="cc-message cc-message--assistant">
           <div className="cc-part cc-typing">
-            {t("typing")}
-            <span className="cc-typing__dot">.</span>
-            <span className="cc-typing__dot">.</span>
-            <span className="cc-typing__dot">.</span>
+            {typingLabel(last)}
+            <span className="cc-typing__dots" aria-hidden="true">
+              <span className="cc-typing__dot" />
+              <span className="cc-typing__dot" />
+              <span className="cc-typing__dot" />
+            </span>
           </div>
         </div>
       )}

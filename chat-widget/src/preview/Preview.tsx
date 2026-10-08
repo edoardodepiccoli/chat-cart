@@ -84,13 +84,7 @@ export default function Preview({ theme }: { theme: Theme }) {
         {MESSAGES.map((message) => (
           <Message key={message.id} message={message} context={CONTEXT} />
         ))}
-        <Suggestions
-          id="preview"
-          items={SUGGESTIONS}
-          leaving={false}
-          onPick={noop}
-          onLeft={noop}
-        />
+        <Suggestions items={SUGGESTIONS} onPick={noop} />
       </Panel>
     </div>
   );

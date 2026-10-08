@@ -4,7 +4,7 @@ import { Fragment, useEffect, useRef, useState } from "react";
 import { CHECKOUT_URL, useCart } from "./cart";
 import Message from "./components/Message";
 import Panel, { useAnchorScroll, useIosKeyboard } from "./components/Panel";
-import Suggestions, { type ShownSuggestions } from "./components/Suggestions";
+import Suggestions from "./components/Suggestions";
 import Teaser from "./components/Teaser";
 import {
   fetchTeaser,
@@ -78,7 +78,6 @@ export default function App() {
   });
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState("");
-  const [leaving, setLeaving] = useState<ShownSuggestions>();
   const [teaser, setTeaser] = useState<string>();
   const logRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -89,13 +88,10 @@ export default function App() {
   const loading = !conversation && !loadFailed;
   const busy = loading || status === "submitted" || status === "streaming";
   const size = messages.length >= 5 ? "l" : messages.length > 1 ? "m" : "s";
-  const items =
+  const suggestions =
     status === "ready" && last?.role === "assistant"
       ? last.parts.find((part) => part.type === "data-suggestions")?.data
       : undefined;
-  const live: ShownSuggestions | undefined =
-    last && items ? { id: last.id, items } : undefined;
-  const suggestions = live ?? leaving;
 
   useEffect(() => {
     if (open && conversation)
@@ -158,12 +154,6 @@ export default function App() {
   function send(text: string) {
     if (!text || busy || !conversation) return;
     setDraft("");
-    if (live)
-      setLeaving({
-        ...live,
-        top: logRef.current?.querySelector<HTMLElement>(".cc-suggestions")
-          ?.offsetTop,
-      });
     sendMessage({ text });
   }
 
@@ -224,13 +214,8 @@ export default function App() {
                   onAdd: add,
                 }}
               />
-              {suggestions?.id === message.id && (
-                <Suggestions
-                  {...suggestions}
-                  leaving={suggestions === leaving}
-                  onPick={pick}
-                  onLeft={() => setLeaving(undefined)}
-                />
+              {message === last && suggestions && (
+                <Suggestions items={suggestions} onPick={pick} />
               )}
             </Fragment>
           ))}

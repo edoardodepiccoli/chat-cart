@@ -3,7 +3,7 @@ import { Fragment, useEffect, useRef, useState } from "react";
 
 import { CHECKOUT_URL, useCart } from "./cart";
 import Message from "./components/Message";
-import Panel, { useIosKeyboard, useStickToBottom } from "./components/Panel";
+import Panel, { useAnchorScroll, useIosKeyboard } from "./components/Panel";
 import Suggestions, { type ShownSuggestions } from "./components/Suggestions";
 import Teaser from "./components/Teaser";
 import {
@@ -59,6 +59,15 @@ function greeting(): ChatMessage {
   };
 }
 
+function groupTurns(messages: ChatMessage[]) {
+  return messages.reduce<ChatMessage[][]>((turns, message) => {
+    const current = turns.at(-1);
+    if (message.role === "user" || !current) turns.push([message]);
+    else current.push(message);
+    return turns;
+  }, []);
+}
+
 export default function App() {
   const { conversation, loadFailed, trackEvent } = useConversation();
   const { cart, add: addToCart } = useCart(trackEvent);
@@ -73,7 +82,8 @@ export default function App() {
   const [teaser, setTeaser] = useState<string>();
   const logRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const { track, pin } = useStickToBottom(logRef);
+  const turns = groupTurns(messages);
+  useAnchorScroll(logRef, turns.at(-1)?.[0].id);
   useIosKeyboard(inputRef);
   const last = messages.at(-1);
   const loading = !conversation && !loadFailed;
@@ -121,7 +131,6 @@ export default function App() {
     if (!teaser) return;
     trackEvent({ type: "teaser_clicked" });
     setTeaser(undefined);
-    pin();
     setOpen(true);
     send(teaser);
   }
@@ -166,7 +175,6 @@ export default function App() {
   function like({ handle, title }: { handle: string; title: string }) {
     if (busy || !conversation) return;
     trackEvent({ type: "product_liked", data: { handle } });
-    pin();
     send(t("liked", { title }));
   }
 
@@ -177,7 +185,6 @@ export default function App() {
       product.variants.length > 1
         ? ` (${variant.selectedOptions.map((option) => option.value).join(" / ")})`
         : "";
-    pin();
     send(t("added", { title: product.title, options: label }));
   }
 
@@ -186,7 +193,6 @@ export default function App() {
       open={open}
       size={size}
       logRef={logRef}
-      onScroll={track}
       onClickCapture={recordLink}
       composer={{
         value: draft,
@@ -206,46 +212,50 @@ export default function App() {
         ) : undefined
       }
     >
-      {messages.map((message) => (
-        <Fragment key={message.id}>
-          <Message
-            message={message}
-            context={{
-              cart,
-              streaming: status === "streaming" && message === last,
-              onLike: like,
-              onAdd: add,
-            }}
-          />
-          {suggestions?.id === message.id && (
-            <Suggestions
-              {...suggestions}
-              leaving={suggestions === leaving}
-              onPick={pick}
-              onLeft={() => setLeaving(undefined)}
-            />
+      {(turns.length ? turns : [[]]).map((turn, index, all) => (
+        <div className="cc-turn" key={turn[0]?.id ?? "start"}>
+          {turn.map((message) => (
+            <Fragment key={message.id}>
+              <Message
+                message={message}
+                context={{
+                  cart,
+                  streaming: status === "streaming" && message === last,
+                  onLike: like,
+                  onAdd: add,
+                }}
+              />
+              {suggestions?.id === message.id && (
+                <Suggestions
+                  {...suggestions}
+                  leaving={suggestions === leaving}
+                  onPick={pick}
+                  onLeft={() => setLeaving(undefined)}
+                />
+              )}
+            </Fragment>
+          ))}
+
+          {index === all.length - 1 && busy && (
+            <div className="cc-message cc-message--assistant">
+              <div className="cc-part cc-typing">
+                {typingLabel(last)}
+                <span className="cc-typing__dots" aria-hidden="true">
+                  <span className="cc-typing__dot" />
+                  <span className="cc-typing__dot" />
+                  <span className="cc-typing__dot" />
+                </span>
+              </div>
+            </div>
           )}
-        </Fragment>
+
+          {index === all.length - 1 && (error || loadFailed) && (
+            <div className="cc-message cc-message--assistant">
+              <div className="cc-part">{t("error")}</div>
+            </div>
+          )}
+        </div>
       ))}
-
-      {busy && (
-        <div className="cc-message cc-message--assistant">
-          <div className="cc-part cc-typing">
-            {typingLabel(last)}
-            <span className="cc-typing__dots" aria-hidden="true">
-              <span className="cc-typing__dot" />
-              <span className="cc-typing__dot" />
-              <span className="cc-typing__dot" />
-            </span>
-          </div>
-        </div>
-      )}
-
-      {(error || loadFailed) && (
-        <div className="cc-message cc-message--assistant">
-          <div className="cc-part">{t("error")}</div>
-        </div>
-      )}
     </Panel>
   );
 }

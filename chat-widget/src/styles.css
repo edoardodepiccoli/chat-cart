@@ -214,6 +214,7 @@
   padding: calc(16px * var(--cc-space));
   overflow-y: auto;
   overscroll-behavior: contain;
+  container-type: size;
   transition: padding-top var(--cc-duration) var(--cc-ease);
 }
 
@@ -223,6 +224,16 @@
   flex-direction: column;
   gap: calc(8px * var(--cc-space));
   overflow-y: clip;
+}
+
+.cc-turn {
+  display: flex;
+  flex-direction: column;
+  gap: calc(8px * var(--cc-space));
+}
+
+.cc-turn:last-child {
+  min-height: 100cqh;
 }
 
 @media (max-width: 480px) {

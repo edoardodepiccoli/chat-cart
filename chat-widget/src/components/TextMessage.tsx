@@ -3,8 +3,6 @@ import { useEffect, useRef, useState } from "react";
 export type TextMessageProps = {
   text: string;
   animate?: boolean;
-  done?: boolean;
-  onRevealed?: () => void;
 };
 
 const MIN_RATE = 0.04;
@@ -43,18 +41,8 @@ function useSteadyLength(length: number, animate: boolean) {
 export default function TextMessage({
   text,
   animate = false,
-  done = true,
-  onRevealed,
 }: TextMessageProps) {
   const shown = useSteadyLength(text.length, animate);
-  const revealed = done && shown >= text.length;
-  const onRevealedRef = useRef(onRevealed);
-  onRevealedRef.current = onRevealed;
-
-  useEffect(() => {
-    if (revealed) onRevealedRef.current?.();
-  }, [revealed]);
-
   const rest = text.slice(shown).search(/\s/);
   const visible =
     shown === 0 ? "" : rest < 0 ? text : text.slice(0, shown + rest);

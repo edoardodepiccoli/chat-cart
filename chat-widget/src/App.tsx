@@ -80,7 +80,6 @@ export default function App() {
   const [draft, setDraft] = useState("");
   const [leaving, setLeaving] = useState<ShownSuggestions>();
   const [teaser, setTeaser] = useState<string>();
-  const [idle, setIdle] = useState(true);
   const logRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const turns = groupTurns(messages);
@@ -91,7 +90,7 @@ export default function App() {
   const busy = loading || status === "submitted" || status === "streaming";
   const size = messages.length >= 5 ? "l" : messages.length > 1 ? "m" : "s";
   const items =
-    status === "ready" && idle && last?.role === "assistant"
+    status === "ready" && last?.role === "assistant"
       ? last.parts.find((part) => part.type === "data-suggestions")?.data
       : undefined;
   const live: ShownSuggestions | undefined =
@@ -224,7 +223,6 @@ export default function App() {
                   streaming: status === "streaming" && message === last,
                   onLike: like,
                   onAdd: add,
-                  onIdle: message === last ? setIdle : undefined,
                 }}
               />
               {suggestions?.id === message.id && (
@@ -238,7 +236,7 @@ export default function App() {
             </Fragment>
           ))}
 
-          {index === all.length - 1 && busy && idle && (
+          {index === all.length - 1 && busy && (
             <div className="cc-message cc-message--assistant">
               <div className="cc-part cc-typing">
                 {typingLabel(last)}

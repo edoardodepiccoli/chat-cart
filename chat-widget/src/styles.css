@@ -366,14 +366,6 @@
   gap: calc(6px * var(--cc-space));
 }
 
-.cc-suggestions[data-leaving="true"] {
-  position: absolute;
-  right: 0;
-  left: 0;
-  pointer-events: none;
-  animation: cc-out var(--cc-duration) var(--cc-ease) both;
-}
-
 .cc-suggestion {
   padding: calc(6px * var(--cc-space)) calc(12px * var(--cc-space));
   border: var(--cc-border-width) solid var(--cc-color-suggestion-border);
@@ -845,20 +837,6 @@ img.cc-cart__image:not([data-loaded]) {
   }
 }
 
-@keyframes cc-out {
-  to {
-    opacity: 0;
-  }
-}
-
-@keyframes cc-shift-away {
-  to {
-    opacity: 0;
-    transform: translateX(-16px);
-    filter: blur(2px);
-  }
-}
-
 @keyframes cc-launcher-in {
   from {
     opacity: 0;
@@ -915,11 +893,6 @@ img.cc-cart__image:not([data-loaded]) {
 
 .cc-message--assistant .cc-typing {
   animation-delay: 250ms;
-}
-
-.cc-suggestions[data-leaving="true"] .cc-suggestion {
-  animation: cc-shift-away var(--cc-duration-fast) var(--cc-ease) both;
-  animation-delay: calc(var(--cc-i, 0) * 40ms);
 }
 
 .cc-typing__dot {
@@ -1012,9 +985,5 @@ img.cc-cart__image:not([data-loaded]) {
   .cc-launcher__icon,
   .cc-log {
     transition: none !important;
-  }
-
-  .cc-suggestions[data-leaving="true"] {
-    display: none;
   }
 }

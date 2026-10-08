@@ -1,7 +1,11 @@
 import type { StorefrontApiContext } from "@shopify/shopify-app-react-router/server";
 
 import type { Market } from "../../shared/chat";
-import { same, type Money, type ProductOption } from "../../shared/product";
+import {
+  sameText,
+  type Money,
+  type ProductOption,
+} from "../../shared/product";
 
 const PRODUCTS_QUERY = `#graphql
   query Products($country: CountryCode, $language: LanguageCode) @inContext(country: $country, language: $language) {
@@ -212,8 +216,8 @@ export async function listProducts(
             inStock.some((variant) =>
               variant.selectedOptions.some(
                 (selected) =>
-                  same(selected.name, option.name) &&
-                  same(selected.value, value),
+                  sameText(selected.name, option.name) &&
+                  sameText(selected.value, value),
               ),
             ),
           ),
@@ -231,8 +235,10 @@ export async function listProducts(
         (!filter.option ||
           product.options.some(
             (option) =>
-              same(option.name, filter.option!.name) &&
-              option.inStock.some((value) => same(value, filter.option!.value)),
+              sameText(option.name, filter.option!.name) &&
+              option.inStock.some((value) =>
+                sameText(value, filter.option!.value),
+              ),
           )),
     );
 }

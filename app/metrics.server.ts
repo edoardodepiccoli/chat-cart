@@ -30,7 +30,7 @@ export type FunnelCounts = {
   checkout: number;
 };
 
-export async function getStats(shop: string): Promise<FunnelCounts> {
+export async function getFunnelCounts(shop: string): Promise<FunnelCounts> {
   const conversations = await prisma.conversation.findMany({
     where: { shop },
     select: {

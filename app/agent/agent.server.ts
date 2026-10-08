@@ -30,7 +30,7 @@ import {
   teaserPrompt,
   type TeaserProduct,
 } from "./prompts";
-import { tools } from "./tools.server";
+import { createTools } from "./tools.server";
 
 if (existsSync(".env")) process.loadEnvFile();
 
@@ -151,7 +151,7 @@ export async function streamReply(
           .filter(Boolean)
           .join("\n\n"),
         messages: modelMessages,
-        tools: tools(storefront, market),
+        tools: createTools(storefront, market),
         stopWhen: [isStepCount(10), hasToolCall(...COMPONENT_TOOLS)],
         onStepEnd: ({ stepNumber, toolCalls, toolResults, usage }) => {
           if (!DEBUG) return;

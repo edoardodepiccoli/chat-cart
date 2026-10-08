@@ -5,7 +5,7 @@ import { z } from "zod";
 import type { Market } from "../../shared/chat";
 import {
   isOptionValueAvailable,
-  pickOptions,
+  defaultOptions,
   type Product,
   type SelectedOption,
 } from "../../shared/product";
@@ -22,7 +22,7 @@ const optionsSchema = z
     "The size, color or other options the shopper asked for anywhere in the conversation, plus the size they picked for anything they added to their cart (\"I added Jacket (Harvest / L)\" means Size L), with names and values exactly as listProducts shows them. Empty only if there are none.",
   );
 
-async function productCard(
+async function buildProductCard(
   storefront: StorefrontApiContext,
   market: Market,
   handle: string,
@@ -30,7 +30,7 @@ async function productCard(
 ): Promise<Product> {
   const product = await getProduct(storefront, market, handle);
   if (!product) throw new Error(`No product with handle ${handle}`);
-  const selectedOptions = pickOptions(product.variants, picks);
+  const selectedOptions = defaultOptions(product.variants, picks);
   const unavailable = (picks ?? []).filter(
     (pick) =>
       !isOptionValueAvailable(
@@ -51,7 +51,10 @@ async function productCard(
   };
 }
 
-export function tools(storefront: StorefrontApiContext, market: Market) {
+export function createTools(
+  storefront: StorefrontApiContext,
+  market: Market,
+) {
   return {
     listProducts: tool({
       description:
@@ -96,7 +99,7 @@ export function tools(storefront: StorefrontApiContext, market: Market) {
         options: optionsSchema,
       }),
       execute: ({ handle, options }) =>
-        productCard(storefront, market, handle, options),
+        buildProductCard(storefront, market, handle, options),
     }),
     showProductCards: tool({
       description:
@@ -108,7 +111,7 @@ export function tools(storefront: StorefrontApiContext, market: Market) {
       execute: async ({ handles, options }) => ({
         products: await Promise.all(
           handles.map((handle) =>
-            productCard(storefront, market, handle, options),
+            buildProductCard(storefront, market, handle, options),
           ),
         ),
       }),
@@ -132,4 +135,4 @@ export function tools(storefront: StorefrontApiContext, market: Market) {
   };
 }
 
-export type ChatTools = InferUITools<ReturnType<typeof tools>>;
+export type ChatTools = InferUITools<ReturnType<typeof createTools>>;

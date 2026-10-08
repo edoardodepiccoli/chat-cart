@@ -720,42 +720,12 @@
   height: 18px;
 }
 
-@property --cc-fade-start {
-  syntax: "<length>";
-  inherits: false;
-  initial-value: 0px;
-}
-
-@property --cc-fade-end {
-  syntax: "<length>";
-  inherits: false;
-  initial-value: 0px;
-}
-
 .cc-carousel {
   display: flex;
   gap: calc(8px * var(--cc-space));
   padding-bottom: 4px;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
-  mask-image: linear-gradient(
-    to right,
-    transparent,
-    #000 var(--cc-fade-start),
-    #000 calc(100% - var(--cc-fade-end)),
-    transparent
-  );
-  transition:
-    --cc-fade-start var(--cc-duration-fast) var(--cc-ease),
-    --cc-fade-end var(--cc-duration-fast) var(--cc-ease);
-}
-
-.cc-carousel[data-more-start="true"] {
-  --cc-fade-start: 20px;
-}
-
-.cc-carousel[data-more-end="true"] {
-  --cc-fade-end: 20px;
 }
 
 .cc-carousel .cc-card {

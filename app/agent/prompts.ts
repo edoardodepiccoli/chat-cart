@@ -70,7 +70,7 @@ Description: ${product.description}
 Tags: ${product.tags.join(", ")}
 Options: ${options}
 
-Write one short question I might ask a shopping assistant about this product, in my words, in first person, under 10 words. The assistant only knows what's written above, plus the store's shipping, returns and other policy pages. So ask only about something it can answer from that: a detail the description mentions, which options it comes in, or shipping and returns. Never ask about anything the text above doesn't mention, like washing, care, materials, fit or reviews. Language: ${language || "English"}. Answer with the question only.`;
+Write one short message I might tap to send to a shopping assistant, in my words, in first person, under 10 words. It doesn't have to be a question: a request or a statement works too. Pick the one that moves me closest to buying this product, like helping me choose an option, asking what it goes well with, or removing a worry such as shipping or returns. The assistant only knows what's written above, plus the store's shipping, returns and other policy pages. So only mention something it can answer from that: a detail the description mentions, which options it comes in, or shipping and returns. Never mention anything the text above doesn't, like washing, care, materials, fit or reviews. Language: ${language || "English"}. Answer with the message only.`;
 }
 
 export function marketPrompt(country: string) {

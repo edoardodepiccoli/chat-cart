@@ -501,6 +501,21 @@
   display: block;
 }
 
+.cc-card__media,
+.cc-media__slide {
+  background: var(--cc-color-surface);
+}
+
+img.cc-card__image,
+img.cc-cart__image {
+  transition: opacity var(--cc-duration) var(--cc-ease);
+}
+
+img.cc-card__image:not([data-loaded]),
+img.cc-cart__image:not([data-loaded]) {
+  opacity: 0;
+}
+
 .cc-card__image {
   display: block;
   width: 100%;
@@ -792,6 +807,25 @@
   }
 }
 
+@property --cc-reveal {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 115%;
+}
+
+@keyframes cc-reveal {
+  from {
+    --cc-reveal: 0%;
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    --cc-reveal: 115%;
+    opacity: 1;
+    transform: none;
+  }
+}
+
 @keyframes cc-out {
   to {
     opacity: 0;
@@ -847,6 +881,21 @@
 .cc-suggestion {
   animation: cc-rise var(--cc-duration-fast) var(--cc-ease) both;
   animation-delay: calc(var(--cc-i, 0) * 90ms);
+}
+
+.cc-message--assistant .cc-part--tool-showProductCard,
+.cc-message--assistant .cc-part--tool-showProductCards,
+.cc-message--assistant .cc-part--tool-showFaqCard,
+.cc-message--assistant .cc-part--tool-showCart {
+  mask-image: linear-gradient(
+    #000 calc(var(--cc-reveal) - 15%),
+    transparent var(--cc-reveal)
+  );
+  animation: cc-reveal 600ms var(--cc-ease) both;
+}
+
+.cc-message--assistant .cc-typing {
+  animation-delay: 250ms;
 }
 
 .cc-suggestions[data-leaving="true"] .cc-suggestion {

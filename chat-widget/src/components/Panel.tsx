@@ -1,5 +1,6 @@
 import {
   useEffect,
+  useLayoutEffect,
   useRef,
   type ReactNode,
   type RefObject,
@@ -12,7 +13,6 @@ export default function Panel({
   open,
   size,
   logRef,
-  onScroll,
   onClickCapture,
   composer,
   onToggle,
@@ -22,7 +22,6 @@ export default function Panel({
   open: boolean;
   size: "s" | "m" | "l";
   logRef?: RefObject<HTMLDivElement>;
-  onScroll?: () => void;
   onClickCapture?: (event: React.MouseEvent) => void;
   composer: ComposerProps;
   onToggle?: () => void;
@@ -38,12 +37,7 @@ export default function Panel({
         data-size={size}
         aria-hidden={!open}
       >
-        <div
-          className="cc-log"
-          ref={logRef}
-          onScroll={onScroll}
-          onClickCapture={onClickCapture}
-        >
+        <div className="cc-log" ref={logRef} onClickCapture={onClickCapture}>
           <div className="cc-log__content">{children}</div>
         </div>
 
@@ -57,36 +51,20 @@ export default function Panel({
   );
 }
 
-export function useStickToBottom(logRef: RefObject<HTMLDivElement>) {
-  const pinned = useRef(true);
-  const lastTop = useRef(0);
+export function useAnchorScroll(
+  logRef: RefObject<HTMLDivElement>,
+  anchorId: string | undefined,
+) {
+  const anchored = useRef<string>();
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const log = logRef.current;
-    const content = log?.firstElementChild;
-    if (!log || !content) return;
-    const observer = new ResizeObserver(() => {
-      if (pinned.current)
-        log.scrollTo({ top: log.scrollHeight, behavior: "smooth" });
-    });
-    observer.observe(content);
-    return () => observer.disconnect();
-  }, [logRef]);
-
-  function track() {
-    const log = logRef.current;
-    if (!log) return;
-    if (log.scrollHeight - log.scrollTop - log.clientHeight < 24)
-      pinned.current = true;
-    else if (log.scrollTop < lastTop.current) pinned.current = false;
-    lastTop.current = log.scrollTop;
-  }
-
-  function pin() {
-    pinned.current = true;
-  }
-
-  return { track, pin };
+    const turn = log?.querySelector<HTMLElement>(".cc-turn:last-child");
+    if (!log || !turn || !anchorId || anchorId === anchored.current) return;
+    if (anchored.current === undefined) log.scrollTop = log.scrollHeight;
+    else log.scrollTo({ top: turn.offsetTop, behavior: "smooth" });
+    anchored.current = anchorId;
+  }, [logRef, anchorId]);
 }
 
 export function useIosKeyboard(inputRef: RefObject<HTMLInputElement>) {

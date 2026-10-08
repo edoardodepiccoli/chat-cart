@@ -28,6 +28,9 @@ export default function CartCard({ cart }: { cart: Cart | undefined }) {
                   src={item.image}
                   alt={item.product_title}
                   loading="lazy"
+                  onLoad={(event) => {
+                    event.currentTarget.dataset.loaded = "true";
+                  }}
                 />
               )}
               <div className="cc-cart__details">

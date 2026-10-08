@@ -27,6 +27,9 @@ function CompactProductCard({
             src={shownImageUrl}
             alt={images[0]?.alt ?? title}
             loading="lazy"
+            onLoad={(event) => {
+              event.currentTarget.dataset.loaded = "true";
+            }}
           />
         )}
       </a>

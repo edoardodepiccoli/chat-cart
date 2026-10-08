@@ -775,6 +775,18 @@
   }
 }
 
+@keyframes cc-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+.cc-part,
+.cc-suggestion {
+  animation: cc-rise var(--cc-duration) var(--cc-ease) both;
+}
+
 @keyframes cc-bounce {
   0%,
   60%,

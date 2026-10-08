@@ -70,9 +70,6 @@ export default function ProductMedia({
                 src={image.url}
                 alt={image.alt ?? title}
                 loading="lazy"
-                onLoad={(event) => {
-                  event.currentTarget.dataset.loaded = "true";
-                }}
               />
             </a>
           ))}

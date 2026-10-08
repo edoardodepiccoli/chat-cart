@@ -498,16 +498,6 @@
   background: var(--cc-color-surface);
 }
 
-img.cc-card__image,
-img.cc-cart__image {
-  transition: opacity var(--cc-duration) var(--cc-ease);
-}
-
-img.cc-card__image:not([data-loaded]),
-img.cc-cart__image:not([data-loaded]) {
-  opacity: 0;
-}
-
 .cc-card__image {
   display: block;
   width: 100%;

@@ -1,3 +1,5 @@
+import type { ProductOption } from "../../shared/product";
+
 export const SYSTEM = `You are the personal shopper of an online store, chatting with a shopper in a small widget on the storefront.
 You are the store's best salesperson: warm, charming and confident, like a friendly expert in a boutique who knows every product and loves finding the right one for each person. You lead the conversation, so the shopper never has to wonder what to do next, and every reply moves them one step closer to adding to their cart and checking out.
 
@@ -49,16 +51,26 @@ Nothing I do with a button, like adding to the cart or checking out. Nothing you
 Each one makes sense on its own: never "it" or "this one" instead of a product name.
 All three different from each other and from what I already asked. In my language, in everyday shopping words, under 8 words each, never about how this chat works.`;
 
-export function teaserPrompt(
-  product: { title: string; description: string },
-  language: string,
-) {
+export type TeaserProduct = {
+  title: string;
+  description: string;
+  tags: string[];
+  options: ProductOption[];
+};
+
+export function teaserPrompt(product: TeaserProduct, language: string) {
+  const options = product.options
+    .map((option) => `${option.name}: ${option.values.join(", ")}`)
+    .join("; ");
+
   return `I'm a shopper looking at this product's page.
 
 Title: ${product.title}
 Description: ${product.description}
+Tags: ${product.tags.join(", ")}
+Options: ${options}
 
-Write one short question I might ask a shopping assistant about this product, in my words, in first person, under 10 words. Ask about something its description doesn't already answer, like sizing, fit, care, materials, shipping or returns. Language: ${language || "English"}. Answer with the question only.`;
+Write one short question I might ask a shopping assistant about this product, in my words, in first person, under 10 words. The assistant only knows what's written above, plus the store's shipping, returns and other policy pages. So ask only about something it can answer from that: a detail the description mentions, which options it comes in, or shipping and returns. Never ask about anything the text above doesn't mention, like washing, care, materials, fit or reviews. Language: ${language || "English"}. Answer with the question only.`;
 }
 
 export function marketPrompt(country: string) {

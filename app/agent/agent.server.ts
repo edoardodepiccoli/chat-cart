@@ -28,6 +28,7 @@ import {
   SUGGEST,
   SYSTEM,
   teaserPrompt,
+  type TeaserProduct,
 } from "./prompts";
 import { tools } from "./tools.server";
 
@@ -94,7 +95,7 @@ async function suggest(messages: ModelMessage[]): Promise<string[]> {
 }
 
 export async function teaser(
-  product: { title: string; description: string },
+  product: TeaserProduct,
   language: string,
 ): Promise<string> {
   const { text } = await generateText({

@@ -19,8 +19,9 @@ import {
 const optionsSchema = z
   .array(z.object({ name: z.string(), value: z.string() }))
   .describe(
-    "The size, color or other options the shopper asked for anywhere in the conversation, plus the size they picked for anything they added to their cart (\"I added Jacket (Harvest / L)\" means Size L), with names and values exactly as listProducts shows them. Empty only if there are none.",
-  );
+    "The size, color or other options the shopper asked for anywhere in the conversation, plus the size they picked for anything they added to their cart (\"I added Jacket (Harvest / L)\" means Size L), with names and values exactly as listProducts shows them. Leave out if there are none.",
+  )
+  .optional();
 
 async function buildProductCard(
   storefront: StorefrontApiContext,

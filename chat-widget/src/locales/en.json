@@ -6,6 +6,8 @@
   "liked": "I like {title}, tell me more about it.",
   "added": "I added {title}{options} to my cart.",
   "typing": "Typing",
+  "lookingUpProducts": "Looking up products",
+  "checkingStore": "Checking store info",
   "error": "Something went wrong. Please try again.",
   "placeholder": "Type a message",
   "messageLabel": "Message",

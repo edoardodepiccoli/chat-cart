@@ -6,6 +6,8 @@
   "liked": "Mi piace {title}, dimmi di più.",
   "added": "Ho aggiunto {title}{options} al carrello.",
   "typing": "Sto scrivendo",
+  "lookingUpProducts": "Cerco i prodotti",
+  "checkingStore": "Controllo le info del negozio",
   "error": "Qualcosa è andato storto. Riprova.",
   "placeholder": "Scrivi un messaggio",
   "messageLabel": "Messaggio",

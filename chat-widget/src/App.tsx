@@ -5,10 +5,21 @@ import { CHECKOUT_URL, useCart } from "./cart";
 import Message from "./components/Message";
 import Panel, { useIosKeyboard, useStickToBottom } from "./components/Panel";
 import Suggestions, { type ShownSuggestions } from "./components/Suggestions";
-import { sendEvent, transport, useConversation } from "./conversation";
+import Teaser from "./components/Teaser";
+import {
+  fetchTeaser,
+  getPage,
+  markTeaserSeen,
+  sendEvent,
+  teaserSeen,
+  transport,
+  useConversation,
+} from "./conversation";
 import { t } from "./i18n";
 import type { ChatMessage } from "../../shared/chat";
 import type { Product, ProductVariant } from "../../shared/product";
+
+const TEASER_DELAY = 8000;
 
 function greeting(): ChatMessage {
   return {
@@ -35,6 +46,7 @@ export default function App() {
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState("");
   const [leaving, setLeaving] = useState<ShownSuggestions>();
+  const [teaser, setTeaser] = useState<string>();
   const logRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const { track, pin } = useStickToBottom(logRef);
@@ -55,6 +67,45 @@ export default function App() {
     if (open && conversation)
       sendEvent(conversation.id, { type: "widget_opened" });
   }, [open, conversation]);
+
+  useEffect(() => {
+    if (!conversation || !getPage().productHandle) return;
+    if (open) {
+      markTeaserSeen();
+      setTeaser(undefined);
+      return;
+    }
+    if (teaserSeen()) return;
+    let cancelled = false;
+    Promise.all([
+      fetchTeaser(),
+      new Promise((resolve) => setTimeout(resolve, TEASER_DELAY)),
+    ])
+      .then(([text]) => {
+        if (cancelled || !text) return;
+        markTeaserSeen();
+        setTeaser(text);
+        sendEvent(conversation.id, { type: "teaser_shown" });
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [open, conversation]);
+
+  function clickTeaser() {
+    if (!teaser) return;
+    record({ type: "teaser_clicked" });
+    setTeaser(undefined);
+    pin();
+    setOpen(true);
+    send(teaser);
+  }
+
+  function dismissTeaser() {
+    record({ type: "teaser_dismissed" });
+    setTeaser(undefined);
+  }
 
   function recordLink(event: React.MouseEvent) {
     const href = (event.target as Element).closest("a")?.getAttribute("href");
@@ -121,6 +172,15 @@ export default function App() {
         inputRef,
       }}
       onToggle={() => setOpen(!open)}
+      teaser={
+        !open && teaser ? (
+          <Teaser
+            text={teaser}
+            onClick={clickTeaser}
+            onDismiss={dismissTeaser}
+          />
+        ) : undefined
+      }
     >
       {messages.map((message) => (
         <Fragment key={message.id}>

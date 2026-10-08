@@ -16,6 +16,7 @@ export default function Panel({
   onClickCapture,
   composer,
   onToggle,
+  teaser,
   children,
 }: {
   open: boolean;
@@ -25,6 +26,7 @@ export default function Panel({
   onClickCapture?: (event: React.MouseEvent) => void;
   composer: ComposerProps;
   onToggle?: () => void;
+  teaser?: ReactNode;
   children: ReactNode;
 }) {
   return (
@@ -47,6 +49,8 @@ export default function Panel({
 
         <Composer {...composer} />
       </div>
+
+      {teaser}
 
       <Launcher open={open} size={size} onClick={onToggle} />
     </>

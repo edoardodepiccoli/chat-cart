@@ -21,7 +21,11 @@ export function setPage(value: Page) {
   page = value;
 }
 
-export const transport = new DefaultChatTransport<ChatMessage>({
+export function getPage() {
+  return page;
+}
+
+export const transport =new DefaultChatTransport<ChatMessage>({
   api: `${BASE}/chat`,
   headers: HEADERS,
   prepareSendMessagesRequest: ({ id, messages }) => ({
@@ -67,6 +71,37 @@ export async function openConversation(): Promise<Conversation> {
   });
   writeId(conversation.id);
   return conversation;
+}
+
+export async function fetchTeaser(): Promise<string> {
+  const query = new URLSearchParams({
+    handle: page.productHandle,
+    country: market.country,
+    language: market.language,
+  });
+  const response = await fetch(`${BASE}/teaser?${query}`, { headers: HEADERS });
+  if (!response.ok) throw new Error(`Teaser ${response.status}`);
+  return (await response.json()).text;
+}
+
+function teaserKey() {
+  return `chat-cart:teaser:${page.productHandle}`;
+}
+
+export function teaserSeen() {
+  try {
+    return sessionStorage.getItem(teaserKey()) !== null;
+  } catch {
+    return false;
+  }
+}
+
+export function markTeaserSeen() {
+  try {
+    sessionStorage.setItem(teaserKey(), "1");
+  } catch {
+    return;
+  }
 }
 
 export function sendEvent(conversationId: string, event: ChatEvent) {

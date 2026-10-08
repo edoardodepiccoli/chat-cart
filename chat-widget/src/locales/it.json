@@ -12,6 +12,7 @@
   "send": "Invia",
   "openChat": "Apri chat",
   "closeChat": "Chiudi chat",
+  "dismissTeaser": "Chiudi suggerimento",
   "cartEmpty": "Il carrello è vuoto.",
   "checkout": "Pagamento · {total}",
   "readFullPage": "Vai alla pagina",

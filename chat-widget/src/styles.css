@@ -139,6 +139,68 @@
   transform: none;
 }
 
+.cc-teaser {
+  position: fixed;
+  right: 20px;
+  bottom: 88px;
+  z-index: 2147483000;
+  max-width: min(240px, calc(100vw - 40px));
+  transform-origin: bottom right;
+  animation: cc-teaser-in var(--cc-duration) var(--cc-ease) both;
+}
+
+.cc-teaser__text {
+  display: block;
+  padding: calc(10px * var(--cc-space)) calc(14px * var(--cc-space));
+  border: var(--cc-border-width) solid var(--cc-color-border);
+  border-radius: var(--cc-radius);
+  background: var(--cc-color-background);
+  box-shadow: var(--cc-shadow-panel);
+  color: var(--cc-color-text);
+  font: inherit;
+  line-height: 1.35;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.cc-teaser__text:focus-visible,
+.cc-teaser__close:focus-visible {
+  outline: 2px solid var(--cc-color-primary);
+  outline-offset: 2px;
+}
+
+.cc-teaser__close {
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: var(--cc-border-width) solid var(--cc-color-border);
+  border-radius: 999px;
+  background: var(--cc-color-background);
+  color: var(--cc-color-text-muted);
+  cursor: pointer;
+}
+
+.cc-teaser__close svg {
+  width: 10px;
+  height: 10px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .cc-teaser__close:hover {
+    color: var(--cc-color-text);
+  }
+}
+
 .cc-log {
   flex: 1 1 auto;
   padding: calc(16px * var(--cc-space));
@@ -719,6 +781,13 @@
   }
 }
 
+@keyframes cc-teaser-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.92);
+  }
+}
+
 @keyframes cc-launcher-in-top {
   from {
     opacity: 0;
@@ -800,6 +869,16 @@
     );
   }
 
+  .cc-teaser {
+    right: max(20px, env(safe-area-inset-right));
+    bottom: calc(max(20px, env(safe-area-inset-bottom)) + 68px);
+  }
+
+  .cc-teaser__close {
+    width: 28px;
+    height: 28px;
+  }
+
   @media (max-width: 480px) {
     .cc-panel[data-size="l"] .cc-log {
       padding-top: calc(64px + env(safe-area-inset-top));
@@ -826,6 +905,7 @@
   .cc-suggestion,
   .cc-word,
   .cc-typing__dot,
+  .cc-teaser,
   .cc-launcher {
     animation: none !important;
   }

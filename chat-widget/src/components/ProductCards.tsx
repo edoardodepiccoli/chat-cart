@@ -4,7 +4,7 @@ import { t } from "../i18n";
 import { HeartIcon } from "../icons";
 import { ProductPrice } from "./Price";
 
-function SimpleProductCard({
+function CompactProductCard({
   handle,
   title,
   images,
@@ -60,7 +60,7 @@ export default function ProductCards({
   return (
     <div className="cc-carousel">
       {products.map((product) => (
-        <SimpleProductCard
+        <CompactProductCard
           key={product.handle}
           {...product}
           onLike={() => onLike(product)}

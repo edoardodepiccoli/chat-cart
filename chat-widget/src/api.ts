@@ -10,9 +10,9 @@ import type {
 
 export type Conversation = { id: string; messages: ChatMessage[] };
 
-const BASE = "/apps/chat-cart";
-const HEADERS = { "ngrok-skip-browser-warning": "true" };
-const KEY = "chat-cart:conversationId";
+const PROXY_BASE = "/apps/chat-cart";
+const PROXY_HEADERS = { "ngrok-skip-browser-warning": "true" };
+const CONVERSATION_KEY = "chat-cart:conversationId";
 
 let market: Market = { country: "", language: "" };
 
@@ -31,8 +31,8 @@ export function getPageContext() {
 }
 
 export const transport =new DefaultChatTransport<ChatMessage>({
-  api: `${BASE}/chat`,
-  headers: HEADERS,
+  api: `${PROXY_BASE}/chat`,
+  headers: PROXY_HEADERS,
   prepareSendMessagesRequest: ({ id, messages }) => ({
     body: {
       id,
@@ -47,7 +47,7 @@ export const transport =new DefaultChatTransport<ChatMessage>({
 
 function readId() {
   try {
-    return localStorage.getItem(KEY);
+    return localStorage.getItem(CONVERSATION_KEY);
   } catch {
     return null;
   }
@@ -55,7 +55,7 @@ function readId() {
 
 function writeId(id: string) {
   try {
-    localStorage.setItem(KEY, id);
+    localStorage.setItem(CONVERSATION_KEY, id);
   } catch {
     return;
   }
@@ -63,7 +63,9 @@ function writeId(id: string) {
 
 async function fetchConversation(id: string | null): Promise<Conversation> {
   const query = id ? `?id=${encodeURIComponent(id)}` : "";
-  const response = await fetch(`${BASE}/chat${query}`, { headers: HEADERS });
+  const response = await fetch(`${PROXY_BASE}/chat${query}`, {
+    headers: PROXY_HEADERS,
+  });
   if (!response.ok) throw new Error(`Conversation ${response.status}`);
   return response.json();
 }
@@ -84,7 +86,9 @@ export async function fetchTeaser(): Promise<string> {
     country: market.country,
     language: market.language,
   });
-  const response = await fetch(`${BASE}/teaser?${query}`, { headers: HEADERS });
+  const response = await fetch(`${PROXY_BASE}/teaser?${query}`, {
+    headers: PROXY_HEADERS,
+  });
   if (!response.ok) throw new Error(`Teaser ${response.status}`);
   return (await response.json()).text;
 }
@@ -110,10 +114,10 @@ export function markTeaserSeen() {
 }
 
 export function sendEvent(conversationId: string, event: ChatEvent) {
-  fetch(`${BASE}/events`, {
+  fetch(`${PROXY_BASE}/events`, {
     method: "POST",
     keepalive: true,
-    headers: { ...HEADERS, "Content-Type": "application/json" },
+    headers: { ...PROXY_HEADERS, "Content-Type": "application/json" },
     body: JSON.stringify({ conversationId, ...event }),
   }).catch(() => {});
 }
@@ -128,9 +132,9 @@ export function useConversation() {
       .catch(() => setLoadFailed(true));
   }, []);
 
-  function record(event: ChatEvent) {
+  function trackEvent(event: ChatEvent) {
     if (conversation) sendEvent(conversation.id, event);
   }
 
-  return { conversation, loadFailed, record };
+  return { conversation, loadFailed, trackEvent };
 }

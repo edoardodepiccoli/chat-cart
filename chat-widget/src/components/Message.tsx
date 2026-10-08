@@ -1,7 +1,7 @@
 import type { Cart } from "../cart";
 import type { ChatMessage, ChatPart } from "../../../shared/chat";
 import type { Product, ProductVariant } from "../../../shared/product";
-import CartSummary from "./CartSummary";
+import CartCard from "./CartCard";
 import FaqCard from "./FaqCard";
 import ProductCard from "./ProductCard";
 import ProductCards from "./ProductCards";
@@ -41,7 +41,7 @@ function renderPart(
       ) : null;
     case "tool-showCart":
       return part.state === "output-available" ? (
-        <CartSummary cart={cart} />
+        <CartCard cart={cart} />
       ) : null;
     default:
       return null;

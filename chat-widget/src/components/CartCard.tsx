@@ -3,7 +3,7 @@ import { t } from "../i18n";
 import { CartIcon } from "../icons";
 import { formatMoney } from "./Price";
 
-export default function CartSummary({ cart }: { cart: Cart | undefined }) {
+export default function CartCard({ cart }: { cart: Cart | undefined }) {
   if (cart === undefined) return null;
 
   if (cart.items.length === 0) {

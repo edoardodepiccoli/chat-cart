@@ -25,7 +25,7 @@ Backend (`app/`)
 
 Widget (`chat-widget/src/`)
 - `App.tsx` — the chat: messages, suggestions, sending.
-- `conversation.ts` — talking to the backend: open a conversation, send events.
+- `api.ts` — talking to the backend: load a conversation, send events.
 - `cart.ts` — the Shopify cart: read it, add to it.
 - `components/Message.tsx` — renders one message, picking the component for each tool.
 - `components/` — one file per component.

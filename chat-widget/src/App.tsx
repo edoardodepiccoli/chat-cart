@@ -14,7 +14,7 @@ import {
   teaserSeen,
   transport,
   useConversation,
-} from "./conversation";
+} from "./api";
 import { t } from "./i18n";
 import type { ChatMessage } from "../../shared/chat";
 import type { Product, ProductVariant } from "../../shared/product";
@@ -36,8 +36,8 @@ function greeting(): ChatMessage {
 }
 
 export default function App() {
-  const { conversation, loadFailed, record } = useConversation();
-  const { cart, add: addToCart } = useCart(record);
+  const { conversation, loadFailed, trackEvent } = useConversation();
+  const { cart, add: addToCart } = useCart(trackEvent);
   const { messages, sendMessage, status, error } = useChat<ChatMessage>({
     id: conversation?.id,
     transport,
@@ -95,7 +95,7 @@ export default function App() {
 
   function clickTeaser() {
     if (!teaser) return;
-    record({ type: "teaser_clicked" });
+    trackEvent({ type: "teaser_clicked" });
     setTeaser(undefined);
     pin();
     setOpen(true);
@@ -103,14 +103,14 @@ export default function App() {
   }
 
   function dismissTeaser() {
-    record({ type: "teaser_dismissed" });
+    trackEvent({ type: "teaser_dismissed" });
     setTeaser(undefined);
   }
 
   function recordLink(event: React.MouseEvent) {
     const href = (event.target as Element).closest("a")?.getAttribute("href");
     if (!href) return;
-    record(
+    trackEvent(
       href === CHECKOUT_URL
         ? { type: "checkout_clicked" }
         : { type: "link_clicked", data: { url: href } },
@@ -135,13 +135,13 @@ export default function App() {
   }
 
   function pick(text: string) {
-    record({ type: "suggestion_clicked", data: { text } });
+    trackEvent({ type: "suggestion_clicked", data: { text } });
     send(text);
   }
 
   function like({ handle, title }: { handle: string; title: string }) {
     if (busy || !conversation) return;
-    record({ type: "product_liked", data: { handle } });
+    trackEvent({ type: "product_liked", data: { handle } });
     pin();
     send(t("liked", { title }));
   }

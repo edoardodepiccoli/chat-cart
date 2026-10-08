@@ -61,7 +61,7 @@ export async function getCart(): Promise<Cart> {
   return response.json();
 }
 
-export function useCart(record: (event: ChatEvent) => void) {
+export function useCart(trackEvent: (event: ChatEvent) => void) {
   const [cart, setCart] = useState<Cart>();
 
   useEffect(() => {
@@ -72,7 +72,7 @@ export function useCart(record: (event: ChatEvent) => void) {
 
   async function add(product: Product, variant: ProductVariant) {
     await addToCart(variant.id);
-    record({
+    trackEvent({
       type: "added_to_cart",
       data: {
         handle: product.handle,

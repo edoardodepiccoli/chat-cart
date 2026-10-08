@@ -1,5 +1,3 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-
 import { findVariant, type Product } from "../../../shared/product";
 import { productUrl } from "../cart";
 import { t } from "../i18n";
@@ -59,35 +57,8 @@ export default function ProductCards({
   products: Product[];
   onLike: (product: Product) => void;
 }) {
-  const carouselRef = useRef<HTMLDivElement>(null);
-  const [moreStart, setMoreStart] = useState(false);
-  const [moreEnd, setMoreEnd] = useState(false);
-
-  const updateEdges = useCallback(() => {
-    const carousel = carouselRef.current;
-    if (carousel === null) return;
-    setMoreStart(carousel.scrollLeft > 1);
-    setMoreEnd(
-      carousel.scrollLeft + carousel.clientWidth < carousel.scrollWidth - 1,
-    );
-  }, []);
-
-  useEffect(() => {
-    const carousel = carouselRef.current;
-    if (carousel === null) return;
-    const observer = new ResizeObserver(updateEdges);
-    observer.observe(carousel);
-    return () => observer.disconnect();
-  }, [updateEdges]);
-
   return (
-    <div
-      className="cc-carousel"
-      ref={carouselRef}
-      data-more-start={moreStart}
-      data-more-end={moreEnd}
-      onScroll={updateEdges}
-    >
+    <div className="cc-carousel">
       {products.map((product) => (
         <CompactProductCard
           key={product.handle}

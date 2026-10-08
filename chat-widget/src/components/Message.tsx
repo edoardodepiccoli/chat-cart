@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 
 import type { Cart } from "../cart";
 import type { ChatMessage, ChatPart } from "../../../shared/chat";
@@ -7,25 +7,17 @@ import CartCard from "./CartCard";
 import FaqCard from "./FaqCard";
 import ProductCard from "./ProductCard";
 import ProductCards from "./ProductCards";
-import TextMessage from "./TextMessage";
 
 export type PartContext = {
   cart: Cart | undefined;
-  streaming: boolean;
   onLike: (product: Product) => void;
   onAdd: (product: Product, variant: ProductVariant) => Promise<void>;
 };
 
-function renderPart(
-  part: ChatPart,
-  { cart, onLike, onAdd }: PartContext,
-  animate: boolean,
-) {
+function renderPart(part: ChatPart, { cart, onLike, onAdd }: PartContext) {
   switch (part.type) {
     case "text":
-      return part.text.trim() ? (
-        <TextMessage text={part.text.trim()} animate={animate} />
-      ) : null;
+      return part.text.trim() || null;
     case "tool-showProductCard":
       return part.state === "output-available" ? (
         <ProductCard
@@ -58,10 +50,9 @@ export default function Message({
   message: ChatMessage;
   context: PartContext;
 }) {
-  const [live] = useState(context.streaming);
   const parts: ReactNode[] = [];
   message.parts.forEach((part, key) => {
-    const node = renderPart(part, context, live);
+    const node = renderPart(part, context);
     if (!node) return;
     parts.push(
       <div key={key} className={`cc-part cc-part--${part.type}`}>

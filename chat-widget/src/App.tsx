@@ -220,7 +220,6 @@ export default function App() {
                 message={message}
                 context={{
                   cart,
-                  streaming: status === "streaming" && message === last,
                   onLike: like,
                   onAdd: add,
                 }}

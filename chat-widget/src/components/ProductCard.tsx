@@ -8,7 +8,7 @@ import ProductMedia from "./ProductMedia";
 import {
   findVariant,
   isOptionValueAvailable,
-  replacePick,
+  withPick,
   type Product,
   type ProductVariant,
   type SelectedOption,
@@ -94,7 +94,7 @@ export default function ProductCard({
                   }
                   onChange={(event) =>
                     setPicks((current) =>
-                      replacePick(current, option.name, event.target.value),
+                      withPick(current, option.name, event.target.value),
                     )
                   }
                 >

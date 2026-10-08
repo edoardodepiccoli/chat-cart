@@ -25,17 +25,21 @@ export type Product = {
   unavailable?: SelectedOption[];
 };
 
-export function same(a: string, b: string): boolean {
+export function sameText(a: string, b: string): boolean {
   return a.trim().toLowerCase() === b.trim().toLowerCase();
 }
 
 function hasOption(variant: ProductVariant, pick: SelectedOption): boolean {
   return variant.selectedOptions.some(
-    (option) => same(option.name, pick.name) && same(option.value, pick.value),
+    (option) =>
+      sameText(option.name, pick.name) && sameText(option.value, pick.value),
   );
 }
 
-function hasEvery(variant: ProductVariant, picks: SelectedOption[]): boolean {
+function matchesAll(
+  variant: ProductVariant,
+  picks: SelectedOption[],
+): boolean {
   return picks.every((pick) => hasOption(variant, pick));
 }
 
@@ -46,18 +50,18 @@ export function findVariant(
   return variants.find(
     (variant) =>
       variant.selectedOptions.length === picks.length &&
-      hasEvery(variant, picks),
+      matchesAll(variant, picks),
   );
 }
 
-export function pickOptions(
+export function defaultOptions(
   variants: ProductVariant[],
   picks: SelectedOption[] = [],
 ): SelectedOption[] {
   const offered = picks.filter((pick) =>
     variants.some((variant) => hasOption(variant, pick)),
   );
-  const matching = variants.filter((variant) => hasEvery(variant, offered));
+  const matching = variants.filter((variant) => matchesAll(variant, offered));
   const candidates = matching.length ? matching : variants;
   return (
     (candidates.find((variant) => variant.available) ?? candidates[0])
@@ -65,7 +69,7 @@ export function pickOptions(
   );
 }
 
-export function replacePick(
+export function withPick(
   picks: SelectedOption[],
   name: string,
   value: string,
@@ -79,8 +83,8 @@ export function isOptionValueAvailable(
   name: string,
   value: string,
 ): boolean {
-  const candidate = replacePick(picks, name, value);
+  const candidate = withPick(picks, name, value);
   return variants.some(
-    (variant) => variant.available && hasEvery(variant, candidate),
+    (variant) => variant.available && matchesAll(variant, candidate),
   );
 }

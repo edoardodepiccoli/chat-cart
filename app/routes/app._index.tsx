@@ -10,7 +10,7 @@ import { SaveBar, useAppBridge } from "@shopify/app-bridge-react";
 import { boundary } from "@shopify/shopify-app-react-router/server";
 
 import { authenticate } from "../shopify.server";
-import { getStats, type FunnelCounts } from "../metrics.server";
+import { getFunnelCounts, type FunnelCounts } from "../metrics.server";
 import { getTheme, saveTheme } from "../theme.server";
 import {
   DEFAULT_THEME,
@@ -130,7 +130,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { admin, session } = await authenticate.admin(request);
 
   return {
-    funnel: await getStats(session.shop),
+    funnel: await getFunnelCounts(session.shop),
     theme: await getTheme(admin.graphql),
   };
 };

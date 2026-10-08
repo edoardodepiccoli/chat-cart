@@ -294,7 +294,7 @@
 .cc-typing {
   padding: calc(8px * var(--cc-space)) calc(12px * var(--cc-space));
   border-radius: var(--cc-radius);
-  white-space: pre-wrap;
+  white-space: normal;
 }
 
 .cc-part--text:empty {

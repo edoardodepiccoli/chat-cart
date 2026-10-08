@@ -33,6 +33,9 @@ export const chatEventSchema = z.discriminatedUnion("type", [
     }),
   }),
   z.object({ type: z.literal("checkout_clicked") }),
+  z.object({ type: z.literal("teaser_shown") }),
+  z.object({ type: z.literal("teaser_clicked") }),
+  z.object({ type: z.literal("teaser_dismissed") }),
   z.object({
     type: z.literal("link_clicked"),
     data: z.object({ url: z.string().max(2000) }),

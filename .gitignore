@@ -31,4 +31,5 @@ CLAUDE.md
 /extensions/chat-widget/assets/chat-widget.js
 /extensions/chat-widget/assets/chat-widget.css
 
-/.claude/
+/.claude/*
+!/.claude/agent-requirements.md

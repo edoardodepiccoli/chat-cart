@@ -85,7 +85,7 @@ const SUGGESTIONS_SCHEMA = z.object({
   suggestions: z.array(z.string().min(1).max(30)).length(3),
 });
 
-async function generateSuggestions(
+export async function generateSuggestions(
   messages: ModelMessage[],
 ): Promise<string[]> {
   for (let attempt = 1; ; attempt++) {
@@ -117,15 +117,12 @@ export async function generateTeaser(
   return text.trim();
 }
 
-export async function streamReply(
-  conversationId: string,
-  history: ChatMessage[],
-  userMessage: ChatMessage,
+export async function runAgent(
+  messages: ChatMessage[],
   storefront: StorefrontApiContext,
   market: Market,
   pageContext: PageContext,
-): Promise<Response> {
-  const messages = [...history, userMessage];
+) {
   const modelMessages = await convertToModelMessages<ChatMessage>(
     trimHistory(messages),
   );
@@ -136,6 +133,52 @@ export async function streamReply(
       `[agent] ${messages.length} saved messages, ${modelMessages.length} sent, ${JSON.stringify(modelMessages).length} bytes`,
     );
 
+  const result = streamText({
+    model: MODEL,
+    reasoning: "medium",
+    system: [
+      SYSTEM_PROMPT,
+      market.country && marketPrompt(market.country),
+      pageContext.productHandle && pagePrompt(pageContext.productHandle),
+    ]
+      .filter(Boolean)
+      .join("\n\n"),
+    messages: modelMessages,
+    tools: createTools(storefront, market),
+    stopWhen: [isStepCount(10), hasToolCall(...COMPONENT_TOOLS)],
+    onStepEnd: ({ stepNumber, toolCalls, toolResults, usage }) => {
+      if (!DEBUG) return;
+      console.log(
+        `[agent] step ${stepNumber}: ${usage.inputTokens} input tokens, ${usage.outputTokens} output tokens`,
+      );
+      for (const call of toolCalls) {
+        const result = toolResults.find(
+          (item) => item.toolCallId === call.toolCallId,
+        );
+        console.log(
+          `[agent]   ${call.toolName}(${JSON.stringify(call.input)}) -> ${JSON.stringify(result?.output ?? null).length} bytes`,
+        );
+      }
+    },
+    prepareStep: ({ stepNumber }) =>
+      firstReply && !pageContext.productHandle && stepNumber === 0
+        ? { toolChoice: { type: "tool", toolName: "listProducts" } }
+        : undefined,
+  });
+
+  return { modelMessages, result };
+}
+
+export async function streamReply(
+  conversationId: string,
+  history: ChatMessage[],
+  userMessage: ChatMessage,
+  storefront: StorefrontApiContext,
+  market: Market,
+  pageContext: PageContext,
+): Promise<Response> {
+  const messages = [...history, userMessage];
+
   const stream = createUIMessageStream<ChatMessage>({
     originalMessages: messages,
     onEnd: async ({ responseMessage }) => {
@@ -145,38 +188,12 @@ export async function streamReply(
       }
     },
     execute: async ({ writer }) => {
-      const result = streamText({
-        model: MODEL,
-        reasoning: "medium",
-        system: [
-          SYSTEM_PROMPT,
-          market.country && marketPrompt(market.country),
-          pageContext.productHandle && pagePrompt(pageContext.productHandle),
-        ]
-          .filter(Boolean)
-          .join("\n\n"),
-        messages: modelMessages,
-        tools: createTools(storefront, market),
-        stopWhen: [isStepCount(10), hasToolCall(...COMPONENT_TOOLS)],
-        onStepEnd: ({ stepNumber, toolCalls, toolResults, usage }) => {
-          if (!DEBUG) return;
-          console.log(
-            `[agent] step ${stepNumber}: ${usage.inputTokens} input tokens, ${usage.outputTokens} output tokens`,
-          );
-          for (const call of toolCalls) {
-            const result = toolResults.find(
-              (item) => item.toolCallId === call.toolCallId,
-            );
-            console.log(
-              `[agent]   ${call.toolName}(${JSON.stringify(call.input)}) -> ${JSON.stringify(result?.output ?? null).length} bytes`,
-            );
-          }
-        },
-        prepareStep: ({ stepNumber }) =>
-          firstReply && !pageContext.productHandle && stepNumber === 0
-            ? { toolChoice: { type: "tool", toolName: "listProducts" } }
-            : undefined,
-      });
+      const { modelMessages, result } = await runAgent(
+        messages,
+        storefront,
+        market,
+        pageContext,
+      );
 
       writer.merge(
         result.toUIMessageStream({ sendFinish: false, sendReasoning: false }),

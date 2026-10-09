@@ -33,3 +33,6 @@ CLAUDE.md
 
 /.claude/*
 !/.claude/agent-requirements.md
+
+# Eval run reports, written by npm run eval
+/evals/results/

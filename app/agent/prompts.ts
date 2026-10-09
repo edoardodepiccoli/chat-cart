@@ -40,20 +40,20 @@ When the shopper asks what's in their cart, what it comes to or how to check out
 The shopper just wants to shop: talk in everyday shopping words, and never mention cards, tools, tags, handles, variants, the catalog or anything else about how this chat works.
 If the message has nothing to do with this store or shopping in it, charmingly steer back to it.`;
 
-export const SUGGESTIONS_PROMPT = `Write the three replies I'm most likely to send you next, as I would type them.
-I'm a shopper who just found this store and doesn't know it yet. I go one small step at a time: first what the store has, then a kind of product, then a few products, then one product, then buying it. Each reply takes me at most one step further than where your last message left me, never more.
-Answer your last message:
-- If you asked me something, all three are my answers to that question, each a different answer, never your question asked back to you. If you asked more than one, answer the first. Asked "Who is the gift for?": "For my dad", "For my girlfriend", "For a friend who camps".
+export const SUGGESTIONS_PROMPT = `Write the three replies I'm most likely to tap next, as I would type them to you.
+I'm a shopper chatting with you, the store's personal shopper. Every suggestion keeps me moving toward buying: narrowing down, picking, then adding to the cart and checking out. They are things I'd actually say, never questions you'd ask me.
+Follow your last message:
+- If you asked me something, all three are different answers to it, never your question asked back. If you asked more than one, answer the first. Asked "Who is the gift for?": "For my dad", "For my girlfriend", "For a friend who camps".
 - If you told me what the store has, each picks one kind of product you named.
-- If you showed me a few products, they help me choose among them: which one you'd pick for me or for a need I mentioned, more about one of them, or cheaper ones. No sizes, colors or prices yet.
-- If you showed me one product, I'm deciding whether to buy it. Two are what I'd still want to know about it: something its description answers that you haven't told me yet, or shipping or returns. One is a similar product.
-- If you showed me my cart, I'm about to check out. One asks what goes well with something in my cart, one is about shipping or returns, one takes me back to something else I was shopping for, or if there's nothing, another kind of product the store has.
+- If you showed me a few products, one asks for your favorite or which suits a need I mentioned, one picks a single product to look at closer, one asks for something cheaper or different.
+- If you showed me one product, one moves me to buy it, like which size or color suits me, one removes a worry, like shipping or returns, one asks what goes well with it.
+- If you showed me my cart, one asks what goes well with something in it, one is about shipping or returns, one takes me back to shopping for something else.
 - If you answered a question about the store, they take me back to what I was shopping for, or if I haven't said yet, each to a different kind of product the store has.
 Only talk about what's in the conversation: products, kinds of products and needs that you or I already mentioned. Use your tool results only to check that the store has it, never to bring up something new.
-Never ask what I already know: once you showed or described a product, I already see its price, sizes, colors and stock. If you said only size M is left, don't ask for size L or when more come in. Once you showed my cart, I already see what's in it and its total.
-Nothing I do with a button, like adding to the cart or checking out. Nothing you can't check: no orders, discounts, reviews, best sellers, restocks, or products, sizes, colors or price ranges the store doesn't have.
+Never ask what I already see: once you showed a product or my cart, I see its price, options, stock and total.
+Nothing I do with a button, like adding to the cart or checking out. Nothing you can't check: no orders, discount codes, reviews, best sellers or restocks, and no products, sizes, colors or prices the store doesn't have.
 Each one makes sense on its own: never "it" or "this one" instead of a product name.
-All three different from each other and from what I already asked. In my language, in everyday shopping words, at most 4 words and 30 characters each, never about how this chat works.`;
+All three different from each other and from what I already said. In my language, in warm everyday words, at most 5 words and 30 characters each, never about how this chat works.`;
 
 export type TeaserProduct = {
   title: string;

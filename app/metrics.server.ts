@@ -39,17 +39,18 @@ export async function getFunnelCounts(shop: string): Promise<FunnelCounts> {
     },
   });
 
-  const count = (test: (conversation: (typeof conversations)[number]) => boolean) =>
-    conversations.filter(test).length;
-  const has = (
-    conversation: (typeof conversations)[number],
-    type: string,
-  ) => conversation.events.some((event) => event.type === type);
+  const count = (
+    test: (conversation: (typeof conversations)[number]) => boolean,
+  ) => conversations.filter(test).length;
+  const has = (conversation: (typeof conversations)[number], type: string) =>
+    conversation.events.some((event) => event.type === type);
 
   return {
     loads: conversations.length,
     opened: count((c) => has(c, "widget_opened")),
-    engaged: count((c) => c.messages.some((message) => message.role === "user")),
+    engaged: count((c) =>
+      c.messages.some((message) => message.role === "user"),
+    ),
     carted: count((c) => has(c, "added_to_cart")),
     checkout: count((c) => has(c, "checkout_clicked")),
   };

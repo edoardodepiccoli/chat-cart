@@ -32,8 +32,8 @@ const BOUNCES = 300;
 const DAYS = 30;
 const DAY = 24 * 60 * 60 * 1000;
 const HOURS = [
-  8, 9, 10, 11, 12, 12, 13, 13, 14, 15, 16, 17, 18, 19, 19, 20, 20, 21, 21,
-  21, 22, 22, 23,
+  8, 9, 10, 11, 12, 12, 13, 13, 14, 15, 16, 17, 18, 19, 19, 20, 20, 21, 21, 21,
+  22, 22, 23,
 ];
 
 const PRODUCTS: SeedProduct[] = JSON.parse(
@@ -61,7 +61,7 @@ const INFO: Record<string, { pitch: string; asks: string[] }> = {
   },
   "scout-backpack": {
     pitch:
-      "The Scout Backpack is a waxed canvas daypack with leather straps. It fits a 15\" laptop and everything you need for a day out.",
+      'The Scout Backpack is a waxed canvas daypack with leather straps. It fits a 15" laptop and everything you need for a day out.',
     asks: [
       "Do you have backpacks?",
       "I need a backpack that fits a laptop",
@@ -372,11 +372,7 @@ function faq(chat: Chat, text: string) {
   }
 }
 
-function addToCart(
-  chat: Chat,
-  item: SeedProduct,
-  picks: SelectedOption[],
-) {
+function addToCart(chat: Chat, item: SeedProduct, picks: SelectedOption[]) {
   const variant = variantFor(item, picks);
   const label =
     item.variants.length > 1
@@ -417,11 +413,7 @@ function addToCart(
   }
 }
 
-function showProduct(
-  chat: Chat,
-  item: SeedProduct,
-  picks: SelectedOption[],
-) {
+function showProduct(chat: Chat, item: SeedProduct, picks: SelectedOption[]) {
   assistant(
     chat,
     INFO[item.handle].pitch,
@@ -499,12 +491,7 @@ function showCards(chat: Chat, items: SeedProduct[], intro: string) {
 function gift(chat: Chat, text: string) {
   user(chat, text);
   if (chance(0.35)) {
-    assistant(
-      chat,
-      "Happy to help! What are they into?",
-      null,
-      GIFT_INTERESTS,
-    );
+    assistant(chat, "Happy to help! What are they into?", null, GIFT_INTERESTS);
     user(chat, pick(GIFT_INTERESTS));
   }
   showCards(chat, sample(PRODUCTS, 3), pick(GIFT_INTROS));
@@ -560,7 +547,11 @@ function browse(chat: Chat) {
     chat,
     "Hi! We sell outdoor clothing, bags and gear made to last. Are you shopping for yourself or for a gift?",
     null,
-    ["Show me your backpacks", "I'm looking for a gift", "What's good for camping?"],
+    [
+      "Show me your backpacks",
+      "I'm looking for a gift",
+      "What's good for camping?",
+    ],
   );
   const roll = random();
   if (roll < 0.3) {
@@ -654,13 +645,13 @@ if (!session) {
 } else {
   const data = [
     ...Array.from({ length: ENGAGED }, () => engaged(session.shop)),
-    ...Array.from({ length: BOUNCES }, () =>
-      bounce(session.shop, chance(0.2)),
-    ),
+    ...Array.from({ length: BOUNCES }, () => bounce(session.shop, chance(0.2))),
   ];
 
   await prisma.$transaction(
-    data.map((conversation) => prisma.conversation.create({ data: conversation })),
+    data.map((conversation) =>
+      prisma.conversation.create({ data: conversation }),
+    ),
   );
 
   console.log(

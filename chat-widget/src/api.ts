@@ -30,7 +30,7 @@ export function getPageContext() {
   return pageContext;
 }
 
-export const transport =new DefaultChatTransport<ChatMessage>({
+export const transport = new DefaultChatTransport<ChatMessage>({
   api: `${PROXY_BASE}/chat`,
   headers: PROXY_HEADERS,
   prepareSendMessagesRequest: ({ id, messages }) => ({

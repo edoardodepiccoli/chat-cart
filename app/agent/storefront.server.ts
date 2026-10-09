@@ -1,11 +1,7 @@
 import type { StorefrontApiContext } from "@shopify/shopify-app-react-router/server";
 
 import type { Market } from "../../shared/chat";
-import {
-  sameText,
-  type Money,
-  type ProductOption,
-} from "../../shared/product";
+import { sameText, type Money, type ProductOption } from "../../shared/product";
 
 const PRODUCTS_QUERY = `#graphql
   query Products($country: CountryCode, $language: LanguageCode) @inContext(country: $country, language: $language) {
@@ -278,13 +274,13 @@ export async function getProduct(
 }
 
 function plainText(html: string): string {
-  return html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  return html
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
-async function storePages(
-  storefront: StorefrontApiContext,
-  market: Market,
-) {
+async function storePages(storefront: StorefrontApiContext, market: Market) {
   const response = await storefront.graphql(STORE_PAGES_QUERY, {
     variables: inContext(market),
   });

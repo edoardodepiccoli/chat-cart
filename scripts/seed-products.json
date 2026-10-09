@@ -233,19 +233,11 @@
     "options": [
       {
         "name": "Color",
-        "values": [
-          "Harvest",
-          "Navy"
-        ]
+        "values": ["Harvest", "Navy"]
       },
       {
         "name": "Size",
-        "values": [
-          "S",
-          "M",
-          "L",
-          "XL"
-        ]
+        "values": ["S", "M", "L", "XL"]
       }
     ],
     "variants": [
@@ -455,12 +447,7 @@
     "options": [
       {
         "name": "Color",
-        "values": [
-          "Khaki",
-          "Navy Blue",
-          "Moss",
-          "Nutmeg"
-        ]
+        "values": ["Khaki", "Navy Blue", "Moss", "Nutmeg"]
       }
     ],
     "variants": [
@@ -542,9 +529,7 @@
     "options": [
       {
         "name": "Title",
-        "values": [
-          "Olive"
-        ]
+        "values": ["Olive"]
       }
     ],
     "variants": [
@@ -582,12 +567,7 @@
     "options": [
       {
         "name": "Color",
-        "values": [
-          "Khaki",
-          "Moss",
-          "Nutmeg",
-          "Navy Blue"
-        ]
+        "values": ["Khaki", "Moss", "Nutmeg", "Navy Blue"]
       }
     ],
     "variants": [
@@ -677,9 +657,7 @@
     "options": [
       {
         "name": "Color",
-        "values": [
-          "Nutmeg"
-        ]
+        "values": ["Nutmeg"]
       }
     ],
     "variants": [
@@ -732,11 +710,7 @@
     "options": [
       {
         "name": "Color",
-        "values": [
-          "Khaki",
-          "Moss",
-          "Nutmeg"
-        ]
+        "values": ["Khaki", "Moss", "Nutmeg"]
       }
     ],
     "variants": [
@@ -806,12 +780,7 @@
     "options": [
       {
         "name": "Color",
-        "values": [
-          "Heather Green",
-          "Burnt Orange",
-          "Slate Grey",
-          "Navy Blue"
-        ]
+        "values": ["Heather Green", "Burnt Orange", "Slate Grey", "Navy Blue"]
       }
     ],
     "variants": [

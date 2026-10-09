@@ -89,8 +89,7 @@ export default function ProductCard({
                 <select
                   className="cc-control cc-select"
                   value={
-                    picks.find((pick) => pick.name === option.name)?.value ??
-                    ""
+                    picks.find((pick) => pick.name === option.name)?.value ?? ""
                   }
                   onChange={(event) =>
                     setPicks((current) =>

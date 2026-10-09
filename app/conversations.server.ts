@@ -43,7 +43,10 @@ export async function loadMessages(
   return conversation && conversation.messages.map(toChatMessage);
 }
 
-export async function saveMessage(conversationId: string, message: ChatMessage) {
+export async function saveMessage(
+  conversationId: string,
+  message: ChatMessage,
+) {
   await prisma.message.create({
     data: {
       id: message.id,

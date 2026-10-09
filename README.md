@@ -14,6 +14,7 @@ Curricular stage project — Halue S.r.l. / Università degli Studi di Padova.
 ## Where things live
 
 Backend (`app/`)
+
 - `agent/agent.server.ts` — the agent: one `streamText` call, then 3 suggested replies.
 - `agent/tools.server.ts` — every tool the agent can call.
 - `agent/storefront.server.ts` — Storefront API queries.
@@ -24,6 +25,7 @@ Backend (`app/`)
 - `routes/app._index.tsx` — admin home page: funnel and widget colors.
 
 Widget (`chat-widget/src/`)
+
 - `App.tsx` — the chat: messages, suggestions, sending.
 - `api.ts` — talking to the backend: load a conversation, send events.
 - `cart.ts` — the Shopify cart: read it, add to it.
@@ -32,6 +34,7 @@ Widget (`chat-widget/src/`)
 - `preview/` — the widget preview shown on the admin Theme page.
 
 Shared (`shared/`), used by both sides
+
 - `chat.ts` — message type, widget event schema, which event counts as each component's action.
 - `product.ts` — product types and variant picking.
 - `theme.ts` — widget colors.

@@ -146,7 +146,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   return { ok: true };
 };
 
-
 const int = (n: number) => new Intl.NumberFormat("en-US").format(n);
 
 const pct = (part: number, total: number) =>

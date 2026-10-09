@@ -19,7 +19,11 @@ export default function CartCard({ cart }: { cart: Cart | undefined }) {
       <div className="cc-card__body">
         <div className="cc-cart__items">
           {cart.items.map((item) => (
-            <a className="cc-cart__item" key={item.key} href={localUrl(item.url)}>
+            <a
+              className="cc-cart__item"
+              key={item.key}
+              href={localUrl(item.url)}
+            >
               {item.image === null ? (
                 <div className="cc-cart__image" aria-hidden="true" />
               ) : (

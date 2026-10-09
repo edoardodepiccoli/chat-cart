@@ -90,10 +90,7 @@ async function generateSuggestions(
     output: Output.object({
       schema: z.object({ suggestions: z.array(z.string()).length(3) }),
     }),
-    messages: [
-      ...messages,
-      { role: "user", content: SUGGESTIONS_PROMPT },
-    ],
+    messages: [...messages, { role: "user", content: SUGGESTIONS_PROMPT }],
   });
 
   return output.suggestions;

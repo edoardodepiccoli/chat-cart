@@ -36,10 +36,7 @@ function hasOption(variant: ProductVariant, pick: SelectedOption): boolean {
   );
 }
 
-function matchesAll(
-  variant: ProductVariant,
-  picks: SelectedOption[],
-): boolean {
+function matchesAll(variant: ProductVariant, picks: SelectedOption[]): boolean {
   return picks.every((pick) => hasOption(variant, pick));
 }
 

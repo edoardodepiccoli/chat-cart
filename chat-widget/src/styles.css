@@ -1,7 +1,12 @@
 #chat-cart-root {
   all: initial;
   -webkit-text-size-adjust: 100%;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
   font-weight: var(--cc-font-weight);
 }
 

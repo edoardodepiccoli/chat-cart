@@ -7,7 +7,11 @@ export type Market = { country: string; language: string };
 
 export type PageContext = { productHandle: string };
 
-export type ChatMessage = UIMessage<never, { suggestions: string[] }, ChatTools>;
+export type ChatMessage = UIMessage<
+  never,
+  { suggestions: string[] },
+  ChatTools
+>;
 
 export type ChatPart = ChatMessage["parts"][number];
 

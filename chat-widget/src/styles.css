@@ -369,18 +369,19 @@
 
 .cc-suggestions {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: flex-end;
   gap: calc(6px * var(--cc-space));
 }
 
 .cc-suggestion {
-  padding: calc(6px * var(--cc-space)) calc(12px * var(--cc-space));
+  padding: calc(8px * var(--cc-space)) calc(12px * var(--cc-space));
   border: var(--cc-border-width) solid var(--cc-color-suggestion-border);
-  border-radius: var(--cc-radius-suggestion);
+  border-radius: var(--cc-radius);
   background: var(--cc-color-suggestion);
   color: var(--cc-color-on-suggestion);
   font: inherit;
-  max-width: 100%;
+  max-width: 80%;
   text-align: left;
   font-size: var(--cc-font-size-sm);
   cursor: pointer;

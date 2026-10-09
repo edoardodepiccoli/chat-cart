@@ -30,7 +30,7 @@ export const DEFAULT_THEME: Theme = {
   onSecondary: "#1a1a1a",
   suggestion: "#ffffff",
   onSuggestion: "#1a1a1a",
-  suggestionBorder: "#e3e3e3",
+  suggestionBorder: "#1a1a1a",
   background: "#ffffff",
   surface: "#f1f1f1",
   userBubble: "#1a1a1a",

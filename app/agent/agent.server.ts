@@ -139,7 +139,7 @@ export async function streamReply(
     execute: async ({ writer }) => {
       const result = streamText({
         model: MODEL,
-        reasoning: "none",
+        reasoning: "low",
         system: [
           SYSTEM_PROMPT,
           market.country && marketPrompt(market.country),
@@ -170,7 +170,9 @@ export async function streamReply(
             : undefined,
       });
 
-      writer.merge(result.toUIMessageStream({ sendFinish: false }));
+      writer.merge(
+        result.toUIMessageStream({ sendFinish: false, sendReasoning: false }),
+      );
 
       const suggestions = await generateSuggestions([
         ...modelMessages,

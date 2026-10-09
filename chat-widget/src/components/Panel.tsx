@@ -28,8 +28,13 @@ export default function Panel({
 }) {
   return (
     <>
-      {open && onToggle && (
-        <div className="cc-backdrop" onClick={onToggle} aria-hidden="true" />
+      {onToggle && (
+        <div
+          className="cc-backdrop"
+          data-open={open}
+          onClick={onToggle}
+          aria-hidden="true"
+        />
       )}
 
       <div

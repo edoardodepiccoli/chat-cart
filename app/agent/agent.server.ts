@@ -147,7 +147,7 @@ export async function streamReply(
     execute: async ({ writer }) => {
       const result = streamText({
         model: MODEL,
-        reasoning: "low",
+        reasoning: "medium",
         system: [
           SYSTEM_PROMPT,
           market.country && marketPrompt(market.country),

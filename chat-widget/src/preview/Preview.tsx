@@ -74,7 +74,6 @@ export default function Preview({ theme }: { theme: Theme }) {
     >
       <Panel
         open
-        size="l"
         composer={{
           value: "",
           onChange: noop,

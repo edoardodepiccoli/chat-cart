@@ -85,7 +85,6 @@ export default function App() {
   const last = messages.at(-1);
   const loading = !conversation && !loadFailed;
   const busy = loading || status === "submitted" || status === "streaming";
-  const size = messages.length >= 5 ? "l" : messages.length > 1 ? "m" : "s";
   const suggestions =
     status === "ready" && last?.role === "assistant"
       ? last.parts.find((part) => part.type === "data-suggestions")?.data
@@ -176,7 +175,6 @@ export default function App() {
   return (
     <Panel
       open={open}
-      size={size}
       logRef={logRef}
       onClickCapture={recordLink}
       composer={{

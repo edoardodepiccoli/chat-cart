@@ -3,11 +3,9 @@ import { ChatIcon, CloseIcon } from "../icons";
 
 export default function Launcher({
   open,
-  size,
   onClick,
 }: {
   open: boolean;
-  size?: "s" | "m" | "l";
   onClick?: () => void;
 }) {
   return (
@@ -15,7 +13,6 @@ export default function Launcher({
       type="button"
       className="cc-launcher"
       data-open={open}
-      data-size={size}
       aria-expanded={open}
       aria-controls="cc-panel"
       aria-label={open ? t("closeChat") : t("openChat")}

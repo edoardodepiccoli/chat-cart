@@ -11,7 +11,6 @@ import Launcher from "./Launcher";
 
 export default function Panel({
   open,
-  size,
   logRef,
   onClickCapture,
   composer,
@@ -20,7 +19,6 @@ export default function Panel({
   children,
 }: {
   open: boolean;
-  size: "s" | "m" | "l";
   logRef?: RefObject<HTMLDivElement>;
   onClickCapture?: (event: React.MouseEvent) => void;
   composer: ComposerProps;
@@ -34,7 +32,6 @@ export default function Panel({
         id="cc-panel"
         className="cc-panel"
         data-open={open}
-        data-size={size}
         aria-hidden={!open}
       >
         <div className="cc-log" ref={logRef} onClickCapture={onClickCapture}>
@@ -46,7 +43,7 @@ export default function Panel({
 
       {teaser}
 
-      <Launcher open={open} size={size} onClick={onToggle} />
+      <Launcher open={open} onClick={onToggle} />
     </>
   );
 }

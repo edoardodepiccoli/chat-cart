@@ -15,7 +15,7 @@ Curricular stage project — Halue S.r.l. / Università degli Studi di Padova.
 
 Backend (`app/`)
 
-- `agent/agent.server.ts` — the agent: one `streamText` call, then 3 suggested replies.
+- `agent/agent.server.ts` — the agent: one `streamText` call, then 3 suggested messages.
 - `agent/tools.server.ts` — every tool the agent can call.
 - `agent/storefront.server.ts` — Storefront API queries.
 - `agent/prompts.ts` — system prompt and suggestions prompt.

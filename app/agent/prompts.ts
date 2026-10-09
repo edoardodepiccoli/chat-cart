@@ -52,7 +52,7 @@ Only talk about what's in the conversation: products, kinds of products and need
 Never ask what I already know: once you showed or described a product, I already see its price, sizes, colors and stock. If you said only size M is left, don't ask for size L or when more come in. Once you showed my cart, I already see what's in it and its total.
 Nothing I do with a button, like adding to the cart or checking out. Nothing you can't check: no orders, discounts, reviews, best sellers, restocks, or products, sizes, colors or price ranges the store doesn't have.
 Each one makes sense on its own: never "it" or "this one" instead of a product name.
-All three different from each other and from what I already asked. In my language, in everyday shopping words, under 8 words each, never about how this chat works.`;
+All three different from each other and from what I already asked. In my language, in everyday shopping words, at most 4 words and 30 characters each, never about how this chat works.`;
 
 export type TeaserProduct = {
   title: string;

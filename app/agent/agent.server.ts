@@ -81,19 +81,27 @@ function trimHistory(messages: ChatMessage[]): ChatMessage[] {
   });
 }
 
+const SUGGESTIONS_SCHEMA = z.object({
+  suggestions: z.array(z.string().min(1).max(30)).length(3),
+});
+
 async function generateSuggestions(
   messages: ModelMessage[],
 ): Promise<string[]> {
-  const { output } = await generateText({
-    model: MODEL,
-    reasoning: "none",
-    output: Output.object({
-      schema: z.object({ suggestions: z.array(z.string()).length(3) }),
-    }),
-    messages: [...messages, { role: "user", content: SUGGESTIONS_PROMPT }],
-  });
+  for (let attempt = 1; ; attempt++) {
+    try {
+      const { output } = await generateText({
+        model: MODEL,
+        reasoning: "none",
+        output: Output.object({ schema: SUGGESTIONS_SCHEMA }),
+        messages: [...messages, { role: "user", content: SUGGESTIONS_PROMPT }],
+      });
 
-  return output.suggestions;
+      return output.suggestions;
+    } catch (error) {
+      if (attempt === 3) throw error;
+    }
+  }
 }
 
 export async function generateTeaser(

@@ -58,7 +58,7 @@ const COLOR_GROUPS: {
     ],
   },
   {
-    heading: "Suggested replies",
+    heading: "Suggested messages",
     fields: [
       {
         name: "suggestion",
@@ -68,12 +68,12 @@ const COLOR_GROUPS: {
       {
         name: "onSuggestion",
         label: "Text on suggestions",
-        details: "Text in suggested replies",
+        details: "Text in suggested messages",
       },
       {
         name: "suggestionBorder",
         label: "Suggestion border",
-        details: "Line around suggested replies",
+        details: "Line around suggested messages",
       },
     ],
   },

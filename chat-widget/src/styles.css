@@ -380,6 +380,8 @@
   background: var(--cc-color-suggestion);
   color: var(--cc-color-on-suggestion);
   font: inherit;
+  max-width: 100%;
+  text-align: left;
   font-size: var(--cc-font-size-sm);
   cursor: pointer;
 }

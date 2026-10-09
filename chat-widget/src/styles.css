@@ -16,6 +16,10 @@
   box-sizing: border-box;
 }
 
+.cc-backdrop {
+  display: none;
+}
+
 .cc-panel {
   position: fixed;
   right: 20px;
@@ -222,6 +226,17 @@
 }
 
 @media (max-width: 480px) {
+  html:has(.cc-panel[data-open="true"]) {
+    overflow: hidden;
+  }
+
+  .cc-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 2147482999;
+  }
+
   .cc-panel {
     height: 680px;
   }

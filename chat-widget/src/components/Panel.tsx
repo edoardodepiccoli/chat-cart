@@ -28,6 +28,10 @@ export default function Panel({
 }) {
   return (
     <>
+      {open && onToggle && (
+        <div className="cc-backdrop" onClick={onToggle} aria-hidden="true" />
+      )}
+
       <div
         id="cc-panel"
         className="cc-panel"

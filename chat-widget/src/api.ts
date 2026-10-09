@@ -93,26 +93,6 @@ export async function fetchTeaser(): Promise<string> {
   return (await response.json()).text;
 }
 
-function teaserKey() {
-  return `chat-cart:teaser:${pageContext.productHandle}`;
-}
-
-export function teaserSeen() {
-  try {
-    return sessionStorage.getItem(teaserKey()) !== null;
-  } catch {
-    return false;
-  }
-}
-
-export function markTeaserSeen() {
-  try {
-    sessionStorage.setItem(teaserKey(), "1");
-  } catch {
-    return;
-  }
-}
-
 export function sendEvent(conversationId: string, event: ChatEvent) {
   fetch(`${PROXY_BASE}/events`, {
     method: "POST",

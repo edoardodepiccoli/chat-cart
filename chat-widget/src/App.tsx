@@ -9,9 +9,7 @@ import Teaser from "./components/Teaser";
 import {
   fetchTeaser,
   getPageContext,
-  markTeaserSeen,
   sendEvent,
-  teaserSeen,
   transport,
   useConversation,
 } from "./api";
@@ -101,11 +99,9 @@ export default function App() {
   useEffect(() => {
     if (!conversation || !getPageContext().productHandle) return;
     if (open) {
-      markTeaserSeen();
       setTeaser(undefined);
       return;
     }
-    if (teaserSeen()) return;
     let cancelled = false;
     Promise.all([
       fetchTeaser(),
@@ -113,7 +109,6 @@ export default function App() {
     ])
       .then(([text]) => {
         if (cancelled || !text) return;
-        markTeaserSeen();
         setTeaser(text);
         sendEvent(conversation.id, { type: "teaser_shown" });
       })

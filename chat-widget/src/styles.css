@@ -156,14 +156,14 @@
 
 .cc-teaser__text {
   display: block;
-  padding: calc(6px * var(--cc-space)) calc(12px * var(--cc-space));
-  border: var(--cc-border-width) solid var(--cc-color-suggestion-border);
-  border-radius: var(--cc-radius-suggestion);
-  background: var(--cc-color-suggestion);
-  color: var(--cc-color-on-suggestion);
+  position: relative;
+  isolation: isolate;
+  padding: calc(8px * var(--cc-space)) calc(12px * var(--cc-space));
+  border: 0;
+  border-radius: var(--cc-radius);
+  background: var(--cc-color-user-bubble);
+  color: var(--cc-color-on-user-bubble);
   font: inherit;
-  font-size: var(--cc-font-size-sm);
-  line-height: 1.35;
   text-align: left;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
@@ -204,8 +204,8 @@
   .cc-teaser__text:hover {
     background: color-mix(
       in srgb,
-      var(--cc-color-suggestion),
-      var(--cc-color-on-suggestion) 10%
+      var(--cc-color-user-bubble),
+      var(--cc-color-on-user-bubble) 10%
     );
   }
 
@@ -343,7 +343,8 @@
 }
 
 .cc-part--text:not(:has(~ .cc-part--text))::after,
-.cc-typing::after {
+.cc-typing::after,
+.cc-teaser__text::after {
   content: "";
   position: absolute;
   bottom: 0;
@@ -355,7 +356,8 @@
     no-repeat;
 }
 
-.cc-message--user .cc-part--text::after {
+.cc-message--user .cc-part--text::after,
+.cc-teaser__text::after {
   right: -6px;
 }
 

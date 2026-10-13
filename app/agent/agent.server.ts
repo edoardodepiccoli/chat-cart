@@ -39,6 +39,7 @@ const DEBUG = process.env.NODE_ENV !== "production";
 const MAX_HISTORY = 20;
 const DATA_TOOL_PARTS: string[] = [
   "tool-listProducts",
+  "tool-listCollections",
   "tool-getProduct",
   "tool-listStorePages",
   "tool-getStorePage",

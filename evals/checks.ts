@@ -17,6 +17,7 @@ export type Check = { name: string; run: (turn: Turn) => string | null };
 
 export const DATA_TOOLS = [
   "listProducts",
+  "listCollections",
   "getProduct",
   "listStorePages",
   "getStorePage",

@@ -210,6 +210,19 @@ export const SCENARIOS: Scenario[] = [
     ],
   },
   {
+    name: "collection",
+    covers: ["R2", "R3"],
+    turns: [
+      {
+        user: "what do you have in your Gift Sets range?",
+        expect: [
+          looksUp("listProducts", { collection: "gift-sets" }),
+          shows("showProductCards"),
+        ],
+      },
+    ],
+  },
+  {
     name: "cart",
     covers: ["B1", "C4"],
     turns: [{ user: "what's in my cart?", expect: [shows("showCart")] }],

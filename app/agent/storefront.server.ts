@@ -11,6 +11,9 @@ const PRODUCTS_QUERY = `#graphql
         title
         description
         tags
+        productType
+        vendor
+        collections(first: 20) { nodes { handle } }
         availableForSale
         priceRange {
           minVariantPrice { amount currencyCode }
@@ -40,6 +43,9 @@ type ProductsResponse = {
       title: string;
       description: string;
       tags: string[];
+      productType: string;
+      vendor: string;
+      collections: { nodes: { handle: string }[] };
       availableForSale: boolean;
       priceRange: { minVariantPrice: Money; maxVariantPrice: Money };
       compareAtPriceRange: { minVariantPrice: Money; maxVariantPrice: Money };
@@ -165,6 +171,9 @@ export type ProductFilter = {
   maxPrice?: number;
   availableOnly?: boolean;
   option?: { name: string; value: string };
+  collection?: string;
+  productType?: string;
+  vendor?: string;
 };
 
 export async function listProducts(
@@ -193,6 +202,9 @@ export async function listProducts(
         title: product.title,
         description: product.description.slice(0, 150),
         tags: product.tags,
+        productType: product.productType,
+        vendor: product.vendor,
+        collections: product.collections.nodes.map(({ handle }) => handle),
         price: {
           min: minVariantPrice.amount,
           max: maxVariantPrice.amount,
@@ -224,6 +236,13 @@ export async function listProducts(
       (product) =>
         (!filter.onSale || product.onSale) &&
         (!filter.availableOnly || product.available) &&
+        (!filter.productType ||
+          sameText(product.productType, filter.productType)) &&
+        (!filter.vendor || sameText(product.vendor, filter.vendor)) &&
+        (!filter.collection ||
+          product.collections.some((handle) =>
+            sameText(handle, filter.collection!),
+          )) &&
         (filter.minPrice === undefined ||
           Number(product.price.max) >= filter.minPrice) &&
         (filter.maxPrice === undefined ||
@@ -271,6 +290,39 @@ export async function getProduct(
       imageUrl: variant.image?.url ?? null,
     })),
   };
+}
+
+const COLLECTIONS_QUERY = `#graphql
+  query Collections($country: CountryCode, $language: LanguageCode) @inContext(country: $country, language: $language) {
+    collections(first: 250) {
+      nodes { handle title description }
+    }
+  }`;
+
+type CollectionsResponse = {
+  collections: {
+    nodes: { handle: string; title: string; description: string }[];
+  };
+};
+
+export async function listCollections(
+  storefront: StorefrontApiContext,
+  market: Market,
+) {
+  const response = await storefront.graphql(COLLECTIONS_QUERY, {
+    variables: inContext(market),
+  });
+  const { data } = (await response.json()) as { data: CollectionsResponse };
+  const products = await listProducts(storefront, market);
+
+  return data.collections.nodes.map((collection) => ({
+    handle: collection.handle,
+    title: collection.title,
+    description: collection.description.slice(0, 150),
+    productCount: products.filter((product) =>
+      product.collections.includes(collection.handle),
+    ).length,
+  }));
 }
 
 function plainText(html: string): string {

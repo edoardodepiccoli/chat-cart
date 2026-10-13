@@ -22,6 +22,7 @@ const TEASER_DELAY = 3000;
 
 const TOOL_LABELS = {
   listProducts: "lookingUpProducts",
+  listCollections: "lookingUpProducts",
   getProduct: "lookingUpProducts",
   listStorePages: "checkingStore",
   getStorePage: "checkingStore",

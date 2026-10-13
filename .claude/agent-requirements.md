@@ -26,8 +26,8 @@ Everything below comes from the **Storefront API** through the app proxy's `stor
 ### Products and variants
 
 - **R1** MUST search products by free text across title, description, tags, product type, vendor and variant titles (`search(query, types: PRODUCT)` or `products(query:)`), with typo tolerance and synonyms handled by Shopify search. ❌
-- **R2** MUST filter by product type, vendor, tag, collection, price range, availability, option value (e.g. a size or shade in stock) and on-sale, and sort by relevance, price, newest or best-selling (`productFilters`, `sortKey`). ⚠️ (price, sale, availability and one option, in memory)
-- **R3** MUST be able to describe what the store sells: its collections (title, description), product types, vendors and tags (`collections`, `productTypes`, `productTags`, search facets `filters`). This is what lets the agent ask good questions and answer "what do you have?". ❌
+- **R2** MUST filter by product type, vendor, tag, collection, price range, availability, option value (e.g. a size or shade in stock) and on-sale, and sort by relevance, price, newest or best-selling (`productFilters`, `sortKey`). ⚠️ (type, vendor, collection, price, sale, availability and one option, in memory; no tag filter or sorting)
+- **R3** MUST be able to describe what the store sells: its collections (title, description), product types, vendors and tags (`collections`, `productTypes`, `productTags`, search facets `filters`). This is what lets the agent ask good questions and answer "what do you have?". ⚠️ (collections with product counts; product type and vendor only per product)
 - **R4** MUST read one product in full: title, full description, product type, vendor, tags, collections, options, every variant (price, compare-at price, availability, SKU), images with alt text, and media (video, 3D) when present. ⚠️ (no type, vendor, collections, SKU, media)
 - **R5** MUST read product and variant metafields exposed to the storefront, in any namespace, resolving references (product, collection, file, metaobject) into readable values. The agent cannot know metafield keys in advance, so the tool discovers the storefront-visible definitions (Admin API `metafieldDefinitions`, cached) and requests them with `metafields(identifiers:)`. ❌
 - **R6** MUST read metaobjects referenced by metafields (ingredients, size charts, designers, materials) and SHOULD read standalone metaobjects by type (`metaobjects(type:)`, scope `unauthenticated_read_metaobjects`). ❌
@@ -184,7 +184,7 @@ Each scenario checks the listed requirements. These are the roadmap's eval set.
 1. **Reply shape** is enforced only by the prompt (Q4, B1–B5): the loop stops on the first component, but text and component order aren't guaranteed.
 2. **Search doesn't scale** (G2, R1, R2): `listProducts` pulls the first 250 products, has no text search, and filters in memory.
 3. **Product detail is thin** (R4, R5, R8): no type, vendor, collections, metafields, quantity or backorder.
-4. **No overview of the catalog** (R3): collections, types, vendors and tags are missing.
+4. **No overview of the catalog** (R3): product types, vendors and tags have no list of their own.
 5. **No recommendations** (R7).
 6. **No blog articles or shop basics** (R13, R14).
 7. **The agent can't see the cart** (R17, B33).

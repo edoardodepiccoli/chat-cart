@@ -12,6 +12,7 @@ import {
 import {
   getProduct,
   getStorePage,
+  listCollections,
   listProducts,
   listStorePages,
 } from "./storefront.server";
@@ -56,12 +57,18 @@ export function createTools(storefront: StorefrontApiContext, market: Market) {
   return {
     listProducts: tool({
       description:
-        "List the store's products with short details: handle, title, the start of the description, tags, price range, whether it is on sale (onSale) with its original price (compareAtPrice), availability, and each option's values with the ones in stock (inStock). Pass filters to get only the products that match: on sale, a price range, in stock, or a specific option value in stock. No filters lists every product.",
+        "List the store's products with short details: handle, title, the start of the description, tags, product type, vendor, the handles of the collections it belongs to, price range, whether it is on sale (onSale) with its original price (compareAtPrice), availability, and each option's values with the ones in stock (inStock). Pass filters to get only the products that match: on sale, a price range, in stock, a collection, a product type, a vendor, or a specific option value in stock. No filters lists every product.",
       inputSchema: z.object({
         onSale: z.boolean().optional(),
         minPrice: z.number().optional(),
         maxPrice: z.number().optional(),
         availableOnly: z.boolean().optional(),
+        collection: z
+          .string()
+          .optional()
+          .describe("A collection handle from listCollections."),
+        productType: z.string().optional(),
+        vendor: z.string().optional(),
         option: z
           .object({ name: z.string(), value: z.string() })
           .optional()
@@ -70,6 +77,12 @@ export function createTools(storefront: StorefrontApiContext, market: Market) {
           ),
       }),
       execute: (filter) => listProducts(storefront, market, filter),
+    }),
+    listCollections: tool({
+      description:
+        "List the store's collections, the ranges the merchant groups products into: handle, title, the start of the description and how many products it holds. Use a handle as the collection filter of listProducts.",
+      inputSchema: z.object({}),
+      execute: () => listCollections(storefront, market),
     }),
     getProduct: tool({
       description:

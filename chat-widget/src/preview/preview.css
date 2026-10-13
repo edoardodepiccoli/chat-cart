@@ -28,7 +28,7 @@
   background: #f1f2f4;
 }
 
-.cc-preview .cc-panel[data-size] {
+.cc-preview .cc-panel {
   left: 20px;
   width: auto;
   max-width: none;

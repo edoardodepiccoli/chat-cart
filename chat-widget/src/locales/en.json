@@ -17,6 +17,8 @@
   "dismissTeaser": "Dismiss",
   "cartEmpty": "Your cart is empty.",
   "checkout": "Checkout · {total}",
+  "checkoutButton": "Checkout",
+  "cartCount": "{count} in cart",
   "readFullPage": "Read full page",
   "inCart": "Added",
   "soldOut": "Sold out",

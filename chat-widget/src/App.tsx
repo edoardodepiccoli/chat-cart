@@ -2,6 +2,7 @@ import { useChat } from "@ai-sdk/react";
 import { Fragment, useEffect, useRef, useState } from "react";
 
 import { CHECKOUT_URL, useCart } from "./cart";
+import CheckoutBar from "./components/CheckoutBar";
 import Message from "./components/Message";
 import Panel, { useAnchorScroll, useIosKeyboard } from "./components/Panel";
 import Suggestions from "./components/Suggestions";
@@ -177,6 +178,14 @@ export default function App() {
       open={open}
       logRef={logRef}
       onClickCapture={recordLink}
+      bar={
+        cart && cart.items.length > 0 ? (
+          <CheckoutBar
+            cart={cart}
+            onCheckout={() => trackEvent({ type: "checkout_clicked" })}
+          />
+        ) : undefined
+      }
       composer={{
         value: draft,
         onChange: setDraft,

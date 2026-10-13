@@ -1,6 +1,7 @@
 import type { RefObject } from "react";
 
 import { t } from "../i18n";
+import { SendIcon } from "../icons";
 
 export type ComposerProps = {
   value: string;
@@ -29,8 +30,13 @@ export default function Composer({
         aria-label={t("messageLabel")}
         disabled={disabled}
       />
-      <button className="cc-btn" type="submit" disabled={disabled}>
-        {t("send")}
+      <button
+        className="cc-btn cc-btn--secondary cc-btn--icon"
+        type="submit"
+        aria-label={t("send")}
+        disabled={disabled}
+      >
+        <SendIcon className="cc-icon" />
       </button>
     </form>
   );

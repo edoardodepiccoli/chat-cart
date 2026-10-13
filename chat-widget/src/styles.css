@@ -467,8 +467,66 @@
   cursor: default;
 }
 
-.cc-composer .cc-btn {
-  padding: calc(8px * var(--cc-space)) calc(16px * var(--cc-space));
+.cc-btn--icon {
+  align-self: stretch;
+  aspect-ratio: 1;
+  padding: 0;
+}
+
+@keyframes cc-checkout-in {
+  from {
+    grid-template-rows: 0fr;
+    opacity: 0;
+  }
+}
+
+.cc-checkout {
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-rows: 1fr;
+  animation: cc-checkout-in var(--cc-duration) var(--cc-ease);
+}
+
+.cc-checkout__clip {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.cc-checkout__row {
+  display: flex;
+  gap: calc(12px * var(--cc-space));
+  align-items: center;
+  padding: calc(10px * var(--cc-space)) calc(12px * var(--cc-space));
+  border-top: var(--cc-border-width) solid var(--cc-color-border);
+}
+
+.cc-checkout__image {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--cc-radius);
+  background: var(--cc-color-surface);
+  object-fit: cover;
+}
+
+.cc-checkout__summary {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.cc-checkout__total {
+  font-weight: var(--cc-font-weight-heading);
+}
+
+.cc-checkout .cc-btn {
+  min-height: 44px;
+}
+
+.cc-checkout + .cc-composer {
+  border-top: 0;
+  padding-top: 0;
 }
 
 .cc-card {

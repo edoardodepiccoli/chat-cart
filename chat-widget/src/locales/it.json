@@ -17,6 +17,8 @@
   "dismissTeaser": "Chiudi suggerimento",
   "cartEmpty": "Il carrello è vuoto.",
   "checkout": "Pagamento · {total}",
+  "checkoutButton": "Pagamento",
+  "cartCount": "{count} nel carrello",
   "readFullPage": "Vai alla pagina",
   "inCart": "Aggiunto",
   "soldOut": "Esaurito",

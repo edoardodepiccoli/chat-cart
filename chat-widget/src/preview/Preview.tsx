@@ -72,6 +72,14 @@ export default function Preview({ theme }: { theme: Theme }) {
         if ((event.target as Element).closest("a")) event.preventDefault();
       }}
     >
+      <div className="cc-preview-site" aria-hidden="true">
+        <div className="cc-preview-site__bar" />
+        <div className="cc-preview-site__grid">
+          {Array.from({ length: 9 }, (_, i) => (
+            <div key={i} />
+          ))}
+        </div>
+      </div>
       <Panel
         open
         composer={{

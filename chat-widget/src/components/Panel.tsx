@@ -46,6 +46,7 @@ export default function Panel({
         className="cc-panel"
         data-open={open}
         aria-hidden={!open}
+        onClickCapture={onClickCapture}
       >
         {onToggle && (
           <button
@@ -58,7 +59,7 @@ export default function Panel({
           </button>
         )}
 
-        <div className="cc-log" ref={logRef} onClickCapture={onClickCapture}>
+        <div className="cc-log" ref={logRef}>
           <div className="cc-log__content">{children}</div>
         </div>
 

@@ -19,6 +19,7 @@ import type { ChatMessage } from "../../shared/chat";
 import type { Product, ProductVariant } from "../../shared/product";
 
 const TEASER_DELAY = 3000;
+const CLOSE_DELAY = 480;
 
 const TOOL_LABELS = {
   listProducts: "lookingUpProducts",
@@ -132,14 +133,27 @@ export default function App() {
     setTeaser(undefined);
   }
 
-  function recordLink(event: React.MouseEvent) {
-    const href = (event.target as Element).closest("a")?.getAttribute("href");
-    if (!href) return;
+  function followLink(event: React.MouseEvent) {
+    const link = (event.target as Element).closest("a");
+    const href = link?.getAttribute("href");
+    if (!link || !href) return;
     trackEvent(
       href === CHECKOUT_URL
         ? { type: "checkout_clicked" }
         : { type: "link_clicked", data: { url: href } },
     );
+    if (
+      event.button !== 0 ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey ||
+      (link.target && link.target !== "_self")
+    )
+      return;
+    event.preventDefault();
+    setOpen(false);
+    setTimeout(() => window.location.assign(link.href), CLOSE_DELAY);
   }
 
   function submit(event: React.FormEvent) {
@@ -178,14 +192,9 @@ export default function App() {
     <Panel
       open={open}
       logRef={logRef}
-      onClickCapture={recordLink}
+      onClickCapture={followLink}
       bar={
-        cart && cart.items.length > 0 ? (
-          <CheckoutBar
-            cart={cart}
-            onCheckout={() => trackEvent({ type: "checkout_clicked" })}
-          />
-        ) : undefined
+        cart && cart.items.length > 0 ? <CheckoutBar cart={cart} /> : undefined
       }
       composer={{
         value: draft,

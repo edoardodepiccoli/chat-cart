@@ -3,13 +3,7 @@ import { t } from "../i18n";
 import { CartIcon } from "../icons";
 import { formatMoney } from "./Price";
 
-export default function CheckoutBar({
-  cart,
-  onCheckout,
-}: {
-  cart: Cart;
-  onCheckout: () => void;
-}) {
+export default function CheckoutBar({ cart }: { cart: Cart }) {
   const image = cart.items[0].image;
   const count = cart.items.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -30,7 +24,7 @@ export default function CheckoutBar({
               {formatMoney(cart.total_price / 100, cart.currency)}
             </span>
           </div>
-          <a className="cc-btn" href={CHECKOUT_URL} onClick={onCheckout}>
+          <a className="cc-btn" href={CHECKOUT_URL}>
             <CartIcon className="cc-icon" />
             {t("checkoutButton")}
           </a>

@@ -279,6 +279,15 @@
     margin-right: 400px;
   }
 
+  .theme-drawer__dialog {
+    transition: right 480ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  html:has(#chat-cart-root:not(.cc-preview) .cc-panel[data-open="true"])
+    .theme-drawer__dialog {
+    right: 400px;
+  }
+
   html:has(#chat-cart-root:not(.cc-preview)) {
     transition: margin-right 480ms cubic-bezier(0.2, 0.8, 0.2, 1);
   }

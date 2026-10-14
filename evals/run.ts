@@ -69,6 +69,7 @@ async function runTurn(
   storefront: StorefrontApiContext,
   market: Market,
   page: string,
+  teaser: boolean,
 ): Promise<{ turn: Turn; history: ChatMessage[] }> {
   const userMessage: ChatMessage = {
     id: randomUUID(),
@@ -81,6 +82,7 @@ async function runTurn(
     storefront,
     market,
     { productHandle: page },
+    teaser,
   );
 
   let reply: ChatMessage | undefined;
@@ -141,13 +143,14 @@ async function runScenario(
   const turns: TurnResult[] = [];
   let history: ChatMessage[] = [];
   try {
-    for (const { user, expect = [] } of scenario.turns) {
+    for (const { user, teaser = false, expect = [] } of scenario.turns) {
       const result = await runTurn(
         history,
         user,
         storefront,
         scenario.market ?? DEFAULT_MARKET,
         scenario.page ?? "",
+        teaser,
       );
       history = result.history;
       const failures = [...CONTRACT, ...expect].flatMap((check) => {

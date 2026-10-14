@@ -16,7 +16,7 @@ export type Scenario = {
   covers: string[];
   page?: string;
   market?: Market;
-  turns: { user: string; expect?: Check[] }[];
+  turns: { user: string; teaser?: boolean; expect?: Check[] }[];
 };
 
 export const SCENARIOS: Scenario[] = [
@@ -256,6 +256,22 @@ export const SCENARIOS: Scenario[] = [
         ],
       },
       { user: "how do I use it?", expect: [showsNothing()] },
+    ],
+  },
+  {
+    name: "teaser-priority",
+    covers: ["B32"],
+    page: "caffeine-eye-elixir",
+    turns: [
+      { user: "show me a night cream" },
+      {
+        user: "which skin type is this good for?",
+        teaser: true,
+        expect: [
+          looksUp("getProduct", { handle: "caffeine-eye-elixir" }),
+          showsNothing(),
+        ],
+      },
     ],
   },
 ];

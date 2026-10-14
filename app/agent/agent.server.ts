@@ -28,6 +28,7 @@ import {
   SUGGESTIONS_PROMPT,
   SYSTEM_PROMPT,
   teaserPrompt,
+  teaserTurnPrompt,
   type TeaserProduct,
 } from "./prompts";
 import { createTools } from "./tools.server";
@@ -123,6 +124,7 @@ export async function runAgent(
   storefront: StorefrontApiContext,
   market: Market,
   pageContext: PageContext,
+  teaser = false,
 ) {
   const modelMessages = await convertToModelMessages<ChatMessage>(
     trimHistory(messages),
@@ -141,6 +143,9 @@ export async function runAgent(
       SYSTEM_PROMPT,
       market.country && marketPrompt(market.country),
       pageContext.productHandle && pagePrompt(pageContext.productHandle),
+      teaser &&
+        pageContext.productHandle &&
+        teaserTurnPrompt(pageContext.productHandle),
     ]
       .filter(Boolean)
       .join("\n\n"),
@@ -177,6 +182,7 @@ export async function streamReply(
   storefront: StorefrontApiContext,
   market: Market,
   pageContext: PageContext,
+  teaser = false,
 ): Promise<Response> {
   const messages = [...history, userMessage];
 
@@ -194,6 +200,7 @@ export async function streamReply(
         storefront,
         market,
         pageContext,
+        teaser,
       );
 
       writer.merge(

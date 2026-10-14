@@ -124,7 +124,7 @@ export default function App() {
     trackEvent({ type: "teaser_clicked" });
     setTeaser(undefined);
     setOpen(true);
-    send(teaser);
+    send(teaser, true);
   }
 
   function dismissTeaser() {
@@ -147,10 +147,10 @@ export default function App() {
     send(draft.trim());
   }
 
-  function send(text: string) {
+  function send(text: string, isTeaser = false) {
     if (!text || busy || !conversation) return;
     setDraft("");
-    sendMessage({ text });
+    sendMessage({ text }, isTeaser ? { body: { teaser: true } } : undefined);
   }
 
   function pick(text: string) {

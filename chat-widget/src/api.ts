@@ -33,8 +33,9 @@ export function getPageContext() {
 export const transport = new DefaultChatTransport<ChatMessage>({
   api: `${PROXY_BASE}/chat`,
   headers: PROXY_HEADERS,
-  prepareSendMessagesRequest: ({ id, messages }) => ({
+  prepareSendMessagesRequest: ({ id, messages, body }) => ({
     body: {
+      ...body,
       id,
       text: messages[messages.length - 1].parts
         .map((part) => (part.type === "text" ? part.text : ""))

@@ -6,18 +6,18 @@ What the chat-cart shopping agent must do to be truly useful to shoppers, on **a
 - **SHOULD**: expected; skip only with a reason.
 - **MAY**: nice to have.
 
-Status at the end of each line: ✅ done, ⚠️ partial, ❌ missing. It describes the code as of this writing.
+Status at the end of each line: done, partial, missing. It describes the code as of this writing.
 
 ---
 
 ## 1. Store-agnostic by design
 
-- **G1** MUST assume nothing about the niche, vocabulary, option names (Size, Shade, Volume, Taglia, Material…), units, currency or language. Prompts never contain store-specific facts or examples from one vertical. ⚠️
-- **G2** MUST work with catalogs from 1 to 10,000+ products without loading the whole catalog into context: search, filters and pagination happen in the Storefront API, not in memory. ❌ (`listProducts` loads the first 250 products and filters in memory)
-- **G3** MUST handle products with no options (`Default Title`), one variant, up to 3 options and up to 2048 variants. ✅
-- **G4** MUST handle missing data gracefully: no description, no images, no tags, no product type, no vendor, empty collections, no pages or policies. ⚠️
-- **G5** MUST answer in the shopper's language and the shopper's market currency (`@inContext(country, language)`), using translated content when the store has it. ✅
-- **G6** MUST NOT hardcode store facts (free-shipping threshold, brands, categories, return window) in prompts. Every store fact comes from a tool. ✅
+- **G1** MUST assume nothing about the niche, vocabulary, option names (Size, Shade, Volume, Taglia, Material…), units, currency or language. Prompts never contain store-specific facts or examples from one vertical.
+- **G2** MUST work with catalogs from 1 to 10,000+ products without loading the whole catalog into context: search, filters and pagination happen in the Storefront API, not in memory.
+- **G3** MUST handle products with no options (`Default Title`), one variant, up to 3 options and up to 2048 variants.
+- **G4** MUST handle missing data gracefully: no description, no images, no tags, no product type, no vendor, empty collections, no pages or policies.
+- **G5** MUST answer in the shopper's language and the shopper's market currency (`@inContext(country, language)`), using translated content when the store has it.
+- **G6** MUST NOT hardcode store facts (free-shipping threshold, brands, categories, return window) in prompts. Every store fact comes from a tool.
 
 ## 2. What the agent must be able to find
 
@@ -25,42 +25,42 @@ Everything below comes from the **Storefront API** through the app proxy's `stor
 
 ### Products and variants
 
-- **R1** MUST search products by free text across title, description, tags, product type, vendor and variant titles (`search(query, types: PRODUCT)` or `products(query:)`), with typo tolerance and synonyms handled by Shopify search. ❌
-- **R2** MUST filter by product type, vendor, tag, collection, price range, availability, option value (e.g. a size or shade in stock) and on-sale, and sort by relevance, price, newest or best-selling (`productFilters`, `sortKey`). ⚠️ (type, vendor, collection, price, sale, availability and one option, in memory; no tag filter or sorting)
-- **R3** MUST be able to describe what the store sells: its collections (title, description), product types, vendors and tags (`collections`, `productTypes`, `productTags`, search facets `filters`). This is what lets the agent ask good questions and answer "what do you have?". ⚠️ (collections with product counts; product type and vendor only per product)
-- **R4** MUST read one product in full: title, full description, product type, vendor, tags, collections, options, every variant (price, compare-at price, availability, SKU), images with alt text, and media (video, 3D) when present. ⚠️ (no type, vendor, collections, SKU, media)
-- **R5** MUST read product and variant metafields exposed to the storefront, in any namespace, resolving references (product, collection, file, metaobject) into readable values. The agent cannot know metafield keys in advance, so the tool discovers the storefront-visible definitions (Admin API `metafieldDefinitions`, cached) and requests them with `metafields(identifiers:)`. ❌
-- **R6** MUST read metaobjects referenced by metafields (ingredients, size charts, designers, materials) and SHOULD read standalone metaobjects by type (`metaobjects(type:)`, scope `unauthenticated_read_metaobjects`). ❌
-- **R7** MUST get related and complementary products (`productRecommendations(intent: RELATED | COMPLEMENTARY)`) and merchant-defined links (product-reference metafields like "pairs well with" or "set contents"). ❌
+- **R1** MUST search products by free text across title, description, tags, product type, vendor and variant titles (`search(query, types: PRODUCT)` or `products(query:)`), with typo tolerance and synonyms handled by Shopify search.
+- **R2** MUST filter by product type, vendor, tag, collection, price range, availability, option value (e.g. a size or shade in stock) and on-sale, and sort by relevance, price, newest or best-selling (`productFilters`, `sortKey`).
+- **R3** MUST be able to describe what the store sells: its collections (title, description), product types, vendors and tags (`collections`, `productTypes`, `productTags`, search facets `filters`). This is what lets the agent ask good questions and answer "what do you have?".
+- **R4** MUST read one product in full: title, full description, product type, vendor, tags, collections, options, every variant (price, compare-at price, availability, SKU), images with alt text, and media (video, 3D) when present.
+- **R5** MUST read product and variant metafields exposed to the storefront, in any namespace, resolving references (product, collection, file, metaobject) into readable values. The agent cannot know metafield keys in advance, so the tool discovers the storefront-visible definitions (Admin API `metafieldDefinitions`, cached) and requests them with `metafields(identifiers:)`.
+- **R6** MUST read metaobjects referenced by metafields (ingredients, size charts, designers, materials) and SHOULD read standalone metaobjects by type (`metaobjects(type:)`, scope `unauthenticated_read_metaobjects`).
+- **R7** MUST get related and complementary products (`productRecommendations(intent: RELATED | COMPLEMENTARY)`) and merchant-defined links (product-reference metafields like "pairs well with" or "set contents").
 - **R8** Stock:
-  - availability per variant (`availableForSale`) MUST ✅
-  - exact quantity (`quantityAvailable`, scope `unauthenticated_read_product_inventory`) SHOULD, so "only 3 left" is a real fact ❌
-  - backorder (`currentlyNotInStock`: sellable but out of stock) MUST, so the agent can say it ships later ❌
-  - store pickup availability per location (`storeAvailability`, scope `unauthenticated_read_product_pickup_locations`) MAY ❌
+  - availability per variant (`availableForSale`) MUST
+  - exact quantity (`quantityAvailable`, scope `unauthenticated_read_product_inventory`) SHOULD, so "only 3 left" is a real fact
+  - backorder (`currentlyNotInStock`: sellable but out of stock) MUST, so the agent can say it ships later
+  - store pickup availability per location (`storeAvailability`, scope `unauthenticated_read_product_pickup_locations`) MAY
 - **R9** Pricing:
-  - price and compare-at price per variant MUST ✅
-  - unit price (`unitPrice`, `unitPriceMeasurement`), required by law in the EU, SHOULD ❌
-  - subscriptions (`sellingPlanGroups`, scope `unauthenticated_read_selling_plans`) SHOULD ❌
-  - bundles (`requiresComponents`, variant `components`) SHOULD ❌
-  - gift cards (`isGiftCard`) MAY ❌
-- **R10** MUST show the variant image matching the selected options, so the card shows the right color or shade. ✅
+  - price and compare-at price per variant MUST
+  - unit price (`unitPrice`, `unitPriceMeasurement`), required by law in the EU, SHOULD
+  - subscriptions (`sellingPlanGroups`, scope `unauthenticated_read_selling_plans`) SHOULD
+  - bundles (`requiresComponents`, variant `components`) SHOULD
+  - gift cards (`isGiftCard`) MAY
+- **R10** MUST show the variant image matching the selected options, so the card shows the right color or shade.
 
 ### Store content
 
-- **R11** MUST read the shop policies: shipping, refund, privacy, terms, subscription. ✅
-- **R12** MUST read the online store pages (FAQ, about, contact, size guide, care…). ✅ (first 250)
-- **R13** MUST search blog articles (guides, routines, how-tos) by text, tag and blog (`articles(query:)`, scope `unauthenticated_read_content`). ❌
-- **R14** MUST know the shop basics: name, brand description and slogan (`shop.brand`), countries it ships to (`localization.availableCountries`) and accepted payment methods (`shop.paymentSettings`). ❌
-- **R15** MAY read navigation menus (`menu(handle:)`) to learn how the merchant groups the catalog. ❌
-- **R16** MUST find a way to reach a human: the contact page, email or phone from the pages or shop info. ⚠️ (only when a page exists)
+- **R11** MUST read the shop policies: shipping, refund, privacy, terms, subscription.
+- **R12** MUST read the online store pages (FAQ, about, contact, size guide, care…).
+- **R13** MUST search blog articles (guides, routines, how-tos) by text, tag and blog (`articles(query:)`, scope `unauthenticated_read_content`).
+- **R14** MUST know the shop basics: name, brand description and slogan (`shop.brand`), countries it ships to (`localization.availableCountries`) and accepted payment methods (`shop.paymentSettings`).
+- **R15** MAY read navigation menus (`menu(handle:)`) to learn how the merchant groups the catalog.
+- **R16** MUST find a way to reach a human: the contact page, email or phone from the pages or shop info.
 
 ### Cart and checkout
 
-- **R17** MUST know the cart: lines, options, quantities, subtotal and applied discounts. The widget already has it from the AJAX cart and sends it with each message. ❌ (roadmap: cart sent to the agent)
-- **R18** The shopper adds to cart from the product card ✅. The agent MAY add to the cart itself on an explicit request ❌.
-- **R19** SHOULD know the free-shipping threshold and automatic offers. The Storefront API cannot list discounts, so the source is the store's own content (shipping policy, pages) or app settings, never a guess. ❌
-- **R20** MUST NOT invent or promise discount codes. MAY check that a code the shopper has applies, using the cart's `discountCodes`. ❌ (out of v1)
-- **R21** MAY estimate shipping options and costs using the cart's `deliveryGroups` once the shopper gives a destination. ❌
+- **R17** MUST know the cart: lines, options, quantities, subtotal and applied discounts. The widget already has it from the AJAX cart and sends it with each message.
+- **R18** The shopper adds to cart from the product card. The agent MAY add to the cart itself on an explicit request.
+- **R19** SHOULD know the free-shipping threshold and automatic offers. The Storefront API cannot list discounts, so the source is the store's own content (shipping policy, pages) or app settings, never a guess.
+- **R20** MUST NOT invent or promise discount codes. MAY check that a code the shopper has applies, using the cart's `discountCodes`.
+- **R21** MAY estimate shipping options and costs using the cart's `deliveryGroups` once the shopper gives a destination.
 
 Orders, order status and customer accounts are out of v1 (DE2).
 
@@ -124,11 +124,11 @@ Orders, order status and customer accounts are out of v1 (DE2).
 
 ## 4. Components
 
-- **C1** Product card: image, title, price, compare-at price, options with availability, add to cart, with the shopper's options preselected. ✅
-- **C2** Product carousel (2–6): image, title, price, a button to say they like it. ✅
-- **C3** FAQ card: an answer of at most 2 sentences taken from a page, plus a link to that page. ✅
-- **C4** Cart card: lines, total, checkout button. ✅
-- **C5** Planned on the roadmap: contact/handoff card, newsletter signup with discount code. ❌
+- **C1** Product card: image, title, price, compare-at price, options with availability, add to cart, with the shopper's options preselected.
+- **C2** Product carousel (2–6): image, title, price, a button to say they like it.
+- **C3** FAQ card: an answer of at most 2 sentences taken from a page, plus a link to that page.
+- **C4** Cart card: lines, total, checkout button.
+- **C5** Planned: contact/handoff card, newsletter signup with discount code.
 - **C6** A new component is a tool in `tools()`, a case in `Message.tsx`, an entry in `COMPONENT_ACTIONS` and a line in the prompt.
 
 ## 5. Suggested replies
@@ -150,11 +150,11 @@ Orders, order status and customer accounts are out of v1 (DE2).
 - **Q1** First text in under 3 s, full reply in under 8 s in the typical case.
 - **Q2** Bounded context: trimmed history, compact tool results, never the full catalog.
 - **Q3** When a tool fails, retry once. Otherwise apologize in one sentence and offer the contact page. Never return an empty reply.
-- **Q4** Reply shape enforced in code wherever a prompt is not enough (step control, tool choice), not only by the prompt. ❌
+- **Q4** Reply shape enforced in code wherever a prompt is not enough (step control, tool choice), not only by the prompt.
 
 ## 8. Eval conversations
 
-Each scenario checks the listed requirements. These are the roadmap's eval set.
+Each scenario checks the listed requirements. These are the eval set.
 
 | Scenario                                                     | Checks      |
 | ------------------------------------------------------------ | ----------- |
@@ -178,14 +178,3 @@ Each scenario checks the listed requirements. These are the roadmap's eval set.
 | "What's in my cart?"                                         | B1, C4      |
 | Shopper switches language                                    | G5          |
 | Second "no thanks" to checkout                               | B23         |
-
-## 9. Current gaps, by priority
-
-1. **Reply shape** is enforced only by the prompt (Q4, B1–B5): the loop stops on the first component, but text and component order aren't guaranteed.
-2. **Search doesn't scale** (G2, R1, R2): `listProducts` pulls the first 250 products, has no text search, and filters in memory.
-3. **Product detail is thin** (R4, R5, R8): no type, vendor, collections, metafields, quantity or backorder.
-4. **No overview of the catalog** (R3): product types, vendors and tags have no list of their own.
-5. **No recommendations** (R7).
-6. **No blog articles or shop basics** (R13, R14).
-7. **The agent can't see the cart** (R17, B33).
-8. **No unit price, subscriptions or bundles** (R9).

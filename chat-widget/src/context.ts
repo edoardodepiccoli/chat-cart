@@ -16,16 +16,22 @@ let language = "";
 let page: PageContext = { type: "other" };
 let previousHistory: Visit[] = [];
 
+const MAX_LENGTH = 200;
+
+function fits(value: string | undefined): value is string {
+  return !!value && value.length <= MAX_LENGTH;
+}
+
 export function pageFromDataset(dataset: DOMStringMap): PageContext {
   const { pageType, productHandle, collectionHandle, searchTerms } = dataset;
-  if (pageType === "product" && productHandle) {
+  if (pageType === "product" && fits(productHandle)) {
     return { type: "product", handle: productHandle };
   }
-  if (pageType === "collection" && collectionHandle) {
+  if (pageType === "collection" && fits(collectionHandle)) {
     return { type: "collection", handle: collectionHandle };
   }
-  if (pageType === "search") {
-    return { type: "search", terms: (searchTerms ?? "").slice(0, 200) };
+  if (pageType === "search" && fits(searchTerms)) {
+    return { type: "search", terms: searchTerms };
   }
   return { type: "other" };
 }
@@ -60,8 +66,10 @@ function getStorage(): Storage | undefined {
   }
 }
 
-export function recordVisit(current: PageContext) {
-  const storage = getStorage();
+export function recordVisit(
+  current: PageContext,
+  storage: Storage | undefined = getStorage(),
+) {
   previousHistory = readHistory(storage);
   if (current.type === "other") return;
   try {
@@ -70,7 +78,7 @@ export function recordVisit(current: PageContext) {
       JSON.stringify(addVisit(previousHistory, current, Date.now())),
     );
   } catch {
-    return;
+    // storage unavailable
   }
 }
 

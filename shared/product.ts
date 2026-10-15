@@ -1,14 +1,20 @@
-export type Money = { amount: string; currencyCode: string };
+import { z } from "zod";
+
+const moneySchema = z.object({ amount: z.string(), currencyCode: z.string() });
+
+export type Money = z.infer<typeof moneySchema>;
 
 export type ProductOption = { name: string; values: string[] };
 
-export type ProductSummary = {
-  handle: string;
-  title: string;
-  image: { url: string; alt: string | null } | null;
-  price: Money;
-  compareAtPrice: Money | null;
-};
+export const productSummarySchema = z.object({
+  handle: z.string(),
+  title: z.string(),
+  image: z.object({ url: z.string(), alt: z.string().nullable() }).nullable(),
+  price: moneySchema,
+  compareAtPrice: moneySchema.nullable(),
+});
+
+export type ProductSummary = z.infer<typeof productSummarySchema>;
 
 export function sameText(a: string, b: string): boolean {
   return a.trim().toLowerCase() === b.trim().toLowerCase();

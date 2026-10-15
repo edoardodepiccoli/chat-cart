@@ -1,7 +1,7 @@
 import type { UIMessage } from "ai";
 import { z } from "zod";
 
-import type { ChatTools } from "../app/agent/tools.server";
+import type { ChatTools, DisplayTool } from "./tools";
 
 export type Market = { country: string; language: string };
 
@@ -36,9 +36,7 @@ export const chatEventSchema = z.discriminatedUnion("type", [
 
 export type ChatEvent = z.infer<typeof chatEventSchema>;
 
-export const COMPONENT_ACTIONS: Record<string, ChatEvent["type"]> = {
+export const COMPONENT_ACTIONS: Record<DisplayTool, ChatEvent["type"]> = {
   showProducts: "product_clicked",
   showFaqCard: "link_clicked",
 };
-
-export const COMPONENT_TOOLS = Object.keys(COMPONENT_ACTIONS);

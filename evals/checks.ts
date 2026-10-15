@@ -1,4 +1,5 @@
 import type { ProductSummary } from "../shared/product";
+import { DATA_TOOLS, type DataTool } from "../shared/tools";
 
 export type Call = { name: string; input: unknown };
 
@@ -14,14 +15,6 @@ export type Turn = {
 };
 
 export type Check = { name: string; run: (turn: Turn) => string | null };
-
-export const DATA_TOOLS = [
-  "listProducts",
-  "listCollections",
-  "getProduct",
-  "listStorePages",
-  "getStorePage",
-];
 
 export function check(name: string, run: Check["run"]): Check {
   return { name, run };
@@ -134,7 +127,7 @@ export const CONTRACT: Check[] = [
       (step) =>
         step.text &&
         step.calls.length &&
-        step.calls.every((call) => DATA_TOOLS.includes(call.name)),
+        step.calls.every((call) => DATA_TOOLS.includes(call.name as DataTool)),
     );
     return step ? `wrote "${step.text}" before ${step.calls[0].name}` : null;
   }),

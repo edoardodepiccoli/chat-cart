@@ -15,16 +15,9 @@ import {
 import { t } from "./i18n";
 import { ROOT } from "./urls";
 import type { ChatMessage } from "../../shared/chat";
+import { TOOLS, type ToolName } from "../../shared/tools";
 
 const TEASER_DELAY = 3000;
-
-const TOOL_LABELS = {
-  listProducts: "lookingUpProducts",
-  listCollections: "lookingUpProducts",
-  getProduct: "lookingUpProducts",
-  listStorePages: "checkingStore",
-  getStorePage: "checkingStore",
-} as const;
 
 function typingLabel(message: ChatMessage | undefined) {
   const part =
@@ -40,7 +33,7 @@ function typingLabel(message: ChatMessage | undefined) {
           .at(-1)
       : undefined;
   const tool = part?.type.slice("tool-".length);
-  return t(TOOL_LABELS[tool as keyof typeof TOOL_LABELS] ?? "typing");
+  return t(TOOLS[tool as ToolName]?.label ?? "typing");
 }
 
 function greeting(): ChatMessage {

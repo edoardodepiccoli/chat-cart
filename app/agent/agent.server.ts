@@ -13,14 +13,10 @@ import type { StorefrontApiContext } from "@shopify/shopify-app-react-router/ser
 import { existsSync } from "node:fs";
 import { z } from "zod";
 
-import {
-  COMPONENT_TOOLS,
-  type ChatMessage,
-  type ChatPart,
-  type Market,
-  type PageContext,
-} from "../../shared/chat";
+import type { ChatMessage, Market, PageContext } from "../../shared/chat";
+import { DISPLAY_TOOLS } from "../../shared/tools";
 import { saveMessage } from "../conversations.server";
+import { trimHistory } from "./history";
 import {
   marketPrompt,
   pagePrompt,
@@ -36,48 +32,6 @@ if (existsSync(".env")) process.loadEnvFile();
 
 const MODEL = "deepseek/deepseek-v4.1-flash";
 const DEBUG = process.env.NODE_ENV !== "production";
-const MAX_HISTORY = 20;
-const DATA_TOOL_PARTS: string[] = [
-  "tool-listProducts",
-  "tool-listCollections",
-  "tool-getProduct",
-  "tool-listStorePages",
-  "tool-getStorePage",
-];
-
-function trimHistory(messages: ChatMessage[]): ChatMessage[] {
-  const recent = messages.slice(-MAX_HISTORY);
-  const first = recent.findIndex((message) => message.role === "user");
-
-  return recent.slice(Math.max(first, 0)).flatMap((message) => {
-    const parts = message.parts.flatMap((part): ChatPart[] => {
-      if (DATA_TOOL_PARTS.includes(part.type)) return [];
-      if (
-        part.type === "tool-showProducts" &&
-        part.state === "output-available"
-      )
-        return [
-          {
-            ...part,
-            output: {
-              products: part.output.products.map((product) => ({
-                ...product,
-                image: null,
-              })),
-            },
-          },
-        ];
-      return [part];
-    });
-
-    return parts.some(
-      (part) => part.type === "text" || part.type.startsWith("tool-"),
-    )
-      ? [{ ...message, parts }]
-      : [];
-  });
-}
-
 const SUGGESTIONS_SCHEMA = z.object({
   suggestions: z.array(z.string().min(1).max(30)).length(3),
 });
@@ -146,7 +100,7 @@ export async function runAgent(
       .join("\n\n"),
     messages: modelMessages,
     tools: createTools(storefront, market),
-    stopWhen: [isStepCount(10), hasToolCall(...COMPONENT_TOOLS)],
+    stopWhen: [isStepCount(10), hasToolCall(...DISPLAY_TOOLS)],
     onStepEnd: ({ stepNumber, toolCalls, toolResults, usage }) => {
       if (!DEBUG) return;
       console.log(

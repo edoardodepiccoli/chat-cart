@@ -9,8 +9,14 @@ import {
 
 import { generateSuggestions, runAgent } from "../app/agent/agent.server";
 import prisma from "../app/db.server";
-import { COMPONENT_TOOLS, type ChatMessage, type Market } from "../shared/chat";
-import { CONTRACT, DATA_TOOLS, type Shown, type Turn } from "./checks";
+import type { ChatMessage, Market } from "../shared/chat";
+import {
+  DATA_TOOLS,
+  DISPLAY_TOOLS,
+  type DataTool,
+  type DisplayTool,
+} from "../shared/tools";
+import { CONTRACT, type Shown, type Turn } from "./checks";
 import { SCENARIOS, type Scenario } from "./scenarios";
 
 const DEFAULT_MARKET: Market = { country: "US", language: "en" };
@@ -107,7 +113,7 @@ async function runTurn(
   const shown: Shown[] = parts.flatMap((part) =>
     isToolUIPart(part) &&
     part.state === "output-available" &&
-    COMPONENT_TOOLS.includes(getToolName(part))
+    DISPLAY_TOOLS.includes(getToolName(part) as DisplayTool)
       ? [{ name: getToolName(part), input: part.input, output: part.output }]
       : [],
   );
@@ -127,7 +133,7 @@ async function runTurn(
         .join(" "),
       lookups: steps
         .flatMap((step) => step.calls)
-        .filter((call) => DATA_TOOLS.includes(call.name)),
+        .filter((call) => DATA_TOOLS.includes(call.name as DataTool)),
       shown,
       suggestions,
     },

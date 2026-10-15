@@ -21,23 +21,21 @@ export default function Panel({
   children,
 }: {
   open: boolean;
-  logRef?: RefObject<HTMLDivElement>;
+  logRef: RefObject<HTMLDivElement>;
   onClickCapture?: (event: React.MouseEvent) => void;
   composer: ComposerProps;
-  onToggle?: () => void;
+  onToggle: () => void;
   teaser?: ReactNode;
   children: ReactNode;
 }) {
   return (
     <>
-      {onToggle && (
-        <div
-          className="cc-backdrop"
-          data-open={open}
-          onClick={onToggle}
-          aria-hidden="true"
-        />
-      )}
+      <div
+        className="cc-backdrop"
+        data-open={open}
+        onClick={onToggle}
+        aria-hidden="true"
+      />
 
       <div
         id="cc-panel"
@@ -46,16 +44,14 @@ export default function Panel({
         aria-hidden={!open}
         onClickCapture={onClickCapture}
       >
-        {onToggle && (
-          <button
-            type="button"
-            className="cc-panel__close"
-            aria-label={t("closeChat")}
-            onClick={onToggle}
-          >
-            <CloseIcon />
-          </button>
-        )}
+        <button
+          type="button"
+          className="cc-panel__close"
+          aria-label={t("closeChat")}
+          onClick={onToggle}
+        >
+          <CloseIcon />
+        </button>
 
         <div className="cc-log" ref={logRef}>
           <div className="cc-log__content">{children}</div>

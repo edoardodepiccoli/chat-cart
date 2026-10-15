@@ -55,7 +55,7 @@ Shared (`shared/`), used by both sides
 
 ## Adding a display tool
 
-1. An entry in `shared/tools.ts`, with kind `display`, its input and output schemas, and an action in `COMPONENT_ACTIONS` in `shared/chat.ts`.
+1. An entry in `shared/tools.ts`, with kind `display`, and its input and output schemas.
 2. Its `execute` in `app/agent/tools.server.ts`, returning the output.
 3. The component in `chat-widget/src/parts/`, and its line in `PARTS` in `parts/index.tsx`.
 4. A line about it in the system prompt, `app/agent/prompts/system.ts`.

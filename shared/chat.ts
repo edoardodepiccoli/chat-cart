@@ -37,8 +37,3 @@ export const chatEventSchema = z.discriminatedUnion("type", [
 ]);
 
 export type ChatEvent = z.infer<typeof chatEventSchema>;
-
-export const COMPONENT_ACTIONS: Record<DisplayTool, ChatEvent["type"]> = {
-  showProducts: "product_clicked",
-  showFaqCard: "link_clicked",
-};

@@ -10,7 +10,3 @@ export const ROOT =
 export function productUrl(handle: string) {
   return `${ROOT}products/${handle}`;
 }
-
-export function localUrl(path: string) {
-  return ROOT + path.replace(/^\//, "");
-}

@@ -1,24 +1,21 @@
 import type { ReactNode } from "react";
 
 import type { ChatMessage, ChatPart } from "../../../shared/chat";
-import FaqCard from "./FaqCard";
-import ProductCards from "./ProductCards";
+import { DISPLAY_TOOLS, type DisplayTool } from "../../../shared/tools";
+import { PARTS } from "../parts";
 
 function renderPart(part: ChatPart) {
-  switch (part.type) {
-    case "text":
-      return part.text.trim() || null;
-    case "tool-showProducts":
-      return part.state === "output-available" ? (
-        <ProductCards {...part.output} />
-      ) : null;
-    case "tool-showFaqCard":
-      return part.state === "output-available" ? (
-        <FaqCard {...part.output} />
-      ) : null;
-    default:
-      return null;
-  }
+  if (part.type === "text") return part.text.trim() || null;
+  const name = part.type.slice("tool-".length) as DisplayTool;
+  if (
+    !part.type.startsWith("tool-") ||
+    !DISPLAY_TOOLS.includes(name) ||
+    !("state" in part) ||
+    part.state !== "output-available"
+  )
+    return null;
+  const Part = PARTS[name] as (props: { output: unknown }) => JSX.Element;
+  return <Part output={part.output} />;
 }
 
 export default function Message({ message }: { message: ChatMessage }) {

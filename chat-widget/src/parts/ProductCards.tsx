@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import type { ProductSummary } from "../../../shared/product";
 import { productUrl } from "../urls";
-import { ProductPrice } from "./Price";
+import { ProductPrice } from "../components/Price";
 
 function CompactProductCard({
   handle,

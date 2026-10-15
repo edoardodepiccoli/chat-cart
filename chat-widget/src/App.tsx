@@ -1,159 +1,65 @@
-import { useChat } from "@ai-sdk/react";
 import { Fragment, useEffect, useRef, useState } from "react";
 
 import Message from "./components/Message";
 import Panel, { useAnchorScroll, useIosKeyboard } from "./components/Panel";
 import Suggestions from "./components/Suggestions";
 import Teaser from "./components/Teaser";
-import {
-  fetchTeaser,
-  getPageContext,
-  sendEvent,
-  transport,
-  useConversation,
-} from "./api";
+import { useChatSession } from "./hooks/useChatSession";
+import { useLinkTracking } from "./hooks/useLinkTracking";
+import { useTeasers } from "./hooks/useTeasers";
+import { sendEvent } from "./api";
 import { t } from "./i18n";
-import { ROOT } from "./urls";
-import type { ChatMessage } from "../../shared/chat";
-import { TOOLS, type ToolName } from "../../shared/tools";
-
-const TEASER_DELAY = 3000;
-
-function typingLabel(message: ChatMessage | undefined) {
-  const part =
-    message?.role === "assistant"
-      ? message.parts
-          .filter(
-            (part) =>
-              part.type.startsWith("tool-") &&
-              "state" in part &&
-              (part.state === "input-streaming" ||
-                part.state === "input-available"),
-          )
-          .at(-1)
-      : undefined;
-  const tool = part?.type.slice("tool-".length);
-  return t(TOOLS[tool as ToolName]?.label ?? "typing");
-}
-
-function greeting(): ChatMessage {
-  return {
-    id: "greeting",
-    role: "assistant",
-    parts: [
-      { type: "text", text: t("greeting") },
-      {
-        type: "data-suggestions",
-        data: [t("suggestion1"), t("suggestion2"), t("suggestion3")],
-      },
-    ],
-  };
-}
-
-function productHandle(href: string) {
-  const path = new URL(href, window.location.href).pathname;
-  const prefix = `${ROOT}products/`;
-  return path.startsWith(prefix) ? path.slice(prefix.length).split("/")[0] : "";
-}
-
-function groupTurns(messages: ChatMessage[]) {
-  return messages.reduce<ChatMessage[][]>((turns, message) => {
-    const current = turns.at(-1);
-    if (message.role === "user" || !current) turns.push([message]);
-    else current.push(message);
-    return turns;
-  }, []);
-}
+import { groupTurns, typingLabel } from "./turns";
 
 export default function App() {
-  const { conversation, loadFailed, trackEvent } = useConversation();
-  const { messages, sendMessage, status, error } = useChat<ChatMessage>({
-    id: conversation?.id,
-    transport,
-    messages: conversation ? [greeting(), ...conversation.messages] : [],
-  });
+  const {
+    conversation,
+    loadFailed,
+    messages,
+    error,
+    busy,
+    suggestions,
+    send,
+    trackEvent,
+  } = useChatSession();
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState("");
-  const [teaser, setTeaser] = useState<string>();
   const logRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const turns = groupTurns(messages);
   useAnchorScroll(logRef, turns.at(-1)?.[0].id);
   useIosKeyboard(inputRef);
   const last = messages.at(-1);
-  const loading = !conversation && !loadFailed;
-  const busy = loading || status === "submitted" || status === "streaming";
-  const suggestions =
-    status === "ready" && last?.role === "assistant"
-      ? last.parts.find((part) => part.type === "data-suggestions")?.data
-      : undefined;
+  const trackLink = useLinkTracking(trackEvent);
+  const teasers = useTeasers({
+    open,
+    conversationId: conversation?.id,
+    trackEvent,
+    onPick: (text) => {
+      setOpen(true);
+      submitText(text, true);
+    },
+  });
 
   useEffect(() => {
     if (open && conversation)
       sendEvent(conversation.id, { type: "widget_opened" });
   }, [open, conversation]);
 
-  useEffect(() => {
-    if (!conversation || !getPageContext().productHandle) return;
-    if (open) {
-      setTeaser(undefined);
-      return;
-    }
-    let cancelled = false;
-    Promise.all([
-      fetchTeaser(),
-      new Promise((resolve) => setTimeout(resolve, TEASER_DELAY)),
-    ])
-      .then(([text]) => {
-        if (cancelled || !text) return;
-        setTeaser(text);
-        sendEvent(conversation.id, { type: "teaser_shown" });
-      })
-      .catch(() => {});
-    return () => {
-      cancelled = true;
-    };
-  }, [open, conversation]);
-
-  function clickTeaser() {
-    if (!teaser) return;
-    trackEvent({ type: "teaser_clicked" });
-    setTeaser(undefined);
-    setOpen(true);
-    send(teaser, true);
-  }
-
-  function dismissTeaser() {
-    trackEvent({ type: "teaser_dismissed" });
-    setTeaser(undefined);
-  }
-
-  function trackLink(event: React.MouseEvent) {
-    const link = (event.target as Element).closest("a");
-    const href = link?.getAttribute("href");
-    if (!link || !href) return;
-    const handle = productHandle(href);
-    trackEvent(
-      handle
-        ? { type: "product_clicked", data: { handle } }
-        : { type: "link_clicked", data: { url: href } },
-    );
+  function submitText(text: string, teaser = false) {
+    if (!text || busy || !conversation) return;
+    setDraft("");
+    send(text, { teaser });
   }
 
   function submit(event: React.FormEvent) {
     event.preventDefault();
-    send(draft.trim());
-  }
-
-  function send(text: string, isTeaser = false) {
-    if (!text || busy || !conversation) return;
-    setDraft("");
-    sendMessage({ text }, isTeaser ? { body: { teaser: true } } : undefined);
+    submitText(draft.trim());
   }
 
   function pick(text: string) {
     trackEvent({ type: "suggestion_clicked", data: { text } });
-    send(text);
+    submitText(text);
   }
 
   return (
@@ -170,11 +76,11 @@ export default function App() {
       }}
       onToggle={() => setOpen(!open)}
       teaser={
-        !open && teaser ? (
+        !open && teasers.teaser ? (
           <Teaser
-            text={teaser}
-            onClick={clickTeaser}
-            onDismiss={dismissTeaser}
+            text={teasers.teaser}
+            onClick={teasers.click}
+            onDismiss={teasers.dismiss}
           />
         ) : undefined
       }

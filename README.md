@@ -1,52 +1,64 @@
 # chat-cart
 
-Conversational assistant with a generative UI for a Shopify store. Each reply is either a text message or a UI component, like a product card, rendered by a chat widget in the storefront.
+Shopping assistant with a generative UI for a Shopify store. It talks with the shopper, finds products, and sends them to the product page. It never reads or changes the cart. Each reply is either text or a UI part, like a product card, rendered by a chat widget in the storefront.
 
 Curricular stage project — Halue S.r.l. / Università degli Studi di Padova.
 
 ## How a message flows
 
-1. The shopper types in the widget. `chat-widget/src/App.tsx` sends it with `useChat` to `/apps/chat-cart/chat`.
+1. The shopper types in the widget. `chat-widget/src/App.tsx` sends it with `useChat` to `/apps/chat-cart/chat`. The body also carries the shopper context from `chat-widget/src/context.ts`: country, language, the current page, and the last 10 visits.
 2. Shopify's app proxy forwards it to `app/routes/proxy.chat.tsx`, which loads the conversation from the DB and calls the agent.
-3. `app/agent/agent.server.ts` runs the model with the tools in `app/agent/tools.server.ts`. Data tools read the store through `app/agent/storefront.server.ts`. A component tool (`showProductCard`, ...) returns the props of a widget component.
+3. `app/agent/agent.server.ts` resolves the page and visits against the catalog, then runs the model with the tools in `app/agent/tools.server.ts`. Data tools read the store through `app/agent/storefront.server.ts`. A display tool (`showProducts`, `showFaqCard`) ends the reply and returns the props of a widget part.
 4. The reply streams back. `chat-widget/src/components/Message.tsx` turns each part into text or a component.
+
+Product, collection and search pages also get three teasers, 3 seconds after load, from `app/routes/proxy.teasers.tsx`.
 
 ## Where things live
 
 Backend (`app/`)
 
-- `agent/agent.server.ts` — the agent: one `streamText` call, then 3 suggested messages.
-- `agent/tools.server.ts` — every tool the agent can call.
+- `agent/agent.server.ts` — the agent: one `streamText` call, then suggested messages.
+- `agent/tools.server.ts` — every tool the agent can call, built from `shared/tools.ts`.
 - `agent/storefront.server.ts` — Storefront API queries.
-- `agent/prompts/` — system, suggestions, teaser and context prompts.
-- `routes/proxy.chat.tsx`, `routes/proxy.events.tsx` — endpoints the widget calls.
+- `agent/context.server.ts` — resolves the shopper's page and visits against the catalog.
+- `agent/teasers.server.ts` — the three teasers for a page.
+- `agent/history.ts` — trims saved messages before they go to the model.
+- `agent/prompts/` — system, context, suggestions and teaser prompts.
+- `routes/proxy.chat.tsx`, `routes/proxy.events.tsx`, `routes/proxy.teasers.tsx` — endpoints the widget calls.
 - `conversations.server.ts` — saving and loading conversations.
 - `metrics.server.ts` — widget events and dashboard stats.
-- `routes/app._index.tsx` — admin home page: funnel and widget colors.
+- `routes/app._index.tsx` — admin home page: funnel.
 
 Widget (`chat-widget/src/`)
 
 - `App.tsx` — the chat: messages, suggestions, sending.
-- `api.ts` — talking to the backend: load a conversation, send events.
-- `cart.ts` — the Shopify cart: read it, add to it.
-- `components/Message.tsx` — renders one message, picking the component for each tool.
+- `api.ts` — talking to the backend: load a conversation, send events, fetch teasers.
+- `context.ts` — the shopper context: country, language, page and visits, kept in `chat-cart:history`.
+- `hooks/` — `useChatSession.ts`, `useTeasers.ts`, `useLinkTracking.ts`.
+- `components/Message.tsx` — renders one message, picking the part for each tool.
 - `components/` — one file per component.
-- `preview/` — the widget preview shown on the admin Theme page.
+- `parts/` — one file per display tool, and `index.tsx` with the `PARTS` map.
+- `i18n.ts`, `locales/` — English and Italian strings.
 
 Shared (`shared/`), used by both sides
 
-- `chat.ts` — message type, widget event schema, which event counts as each component's action.
+- `tools.ts` — every tool, with its input and output schemas.
+- `chat.ts` — message type, widget event schema, which event counts as each part's action.
+- `context.ts` — shopper context and page schemas.
 - `product.ts` — product types and variant picking.
-- `theme.ts` — widget colors.
 
 `extensions/chat-widget/` is the theme app extension that mounts the widget bundle.
 
-## Adding a component
+`evals/` holds the scenarios and checks that run the real model.
 
-1. A tool in `app/agent/tools.server.ts` that returns the component's props.
-2. The component in `chat-widget/src/components/`, and a case for it in `Message.tsx`.
-3. An entry in `COMPONENT_ACTIONS` in `shared/chat.ts`.
+## Adding a display tool
+
+1. An entry in `shared/tools.ts`, with kind `display`, its input and output schemas, and an action in `COMPONENT_ACTIONS` in `shared/chat.ts`.
+2. Its `execute` in `app/agent/tools.server.ts`, returning the output.
+3. The component in `chat-widget/src/parts/`, and its line in `PARTS` in `parts/index.tsx`.
 4. A line about it in the system prompt, `app/agent/prompts/system.ts`.
+
+The compiler enforces steps 1 to 3. Step 4 is plain text, so the model only uses a tool the prompt describes.
 
 ## Development
 
@@ -57,4 +69,12 @@ npm run dev
 
 `npm run dev` resets and seeds conversations, then runs the app over an ngrok tunnel and the widget watcher together.
 
-Turn the widget on in the theme editor, under App embeds → Chat Cart.
+Tests and evals:
+
+```bash
+npm test                   # unit tests
+npm run eval -- --runs 3   # agent evals, against the real model and Storefront API
+npm run eval:teasers       # teaser evals
+```
+
+Evals need a fresh offline session: run `npm run dev` and open the app once before you run them.

@@ -22,28 +22,38 @@
 
 .cc-panel {
   position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
+  right: 20px;
+  bottom: 88px;
   z-index: 2147483000;
   display: flex;
   flex-direction: column;
   width: 400px;
-  max-width: 100vw;
+  max-width: calc(100vw - 40px);
+  height: 640px;
+  max-height: calc(var(--cc-viewport-height, 100dvh) - 108px);
   overflow: hidden;
-  border-left: var(--cc-border-width) solid var(--cc-color-border);
+  border: var(--cc-border-width) solid var(--cc-color-border);
+  border-radius: var(--cc-radius);
   background: var(--cc-color-background);
   color: var(--cc-color-text);
+  box-shadow: var(--cc-shadow-panel);
   font-size: var(--cc-font-size);
   line-height: 1.45;
-  transform: translateX(100%);
+  transform-origin: calc(100% - 28px) calc(100% + 40px);
+  clip-path: circle(0 at calc(100% - 28px) calc(100% + 40px));
+  opacity: 0;
+  transform: translateY(12px) scale(0.92);
   visibility: hidden;
   transition:
+    clip-path var(--cc-duration) var(--cc-ease),
+    opacity var(--cc-duration-fast) var(--cc-ease),
     transform var(--cc-duration) var(--cc-ease),
     visibility 0s linear var(--cc-duration);
 }
 
 .cc-panel[data-open="true"] {
+  clip-path: circle(150% at calc(100% - 28px) calc(100% + 40px));
+  opacity: 1;
   transform: none;
   visibility: visible;
   transition-delay: 0s;
@@ -246,58 +256,13 @@
   }
 
   .cc-panel {
-    right: 20px;
     bottom: calc(88px + var(--cc-keyboard, 0px));
-    top: auto;
     width: 720px;
-    max-width: calc(100vw - 40px);
     height: 680px;
-    max-height: calc(var(--cc-viewport-height, 100dvh) - 108px);
-    border: var(--cc-border-width) solid var(--cc-color-border);
-    border-radius: var(--cc-radius);
-    box-shadow: var(--cc-shadow-panel);
-    transform-origin: calc(100% - 28px) calc(100% + 40px);
-    clip-path: circle(0 at calc(100% - 28px) calc(100% + 40px));
-    opacity: 0;
-    transform: translateY(12px) scale(0.92);
-    transition:
-      clip-path var(--cc-duration) var(--cc-ease),
-      opacity var(--cc-duration-fast) var(--cc-ease),
-      transform var(--cc-duration) var(--cc-ease),
-      visibility 0s linear var(--cc-duration);
-  }
-
-  .cc-panel[data-open="true"] {
-    clip-path: circle(150% at calc(100% - 28px) calc(100% + 40px));
-    opacity: 1;
-    transform: none;
   }
 }
 
 @media (min-width: 481px) {
-  html:has(#chat-cart-root:not(.cc-preview) .cc-panel[data-open="true"]) {
-    margin-right: 400px;
-  }
-
-  .theme-drawer__dialog {
-    transition: right 480ms cubic-bezier(0.2, 0.8, 0.2, 1);
-  }
-
-  html:has(#chat-cart-root:not(.cc-preview) .cc-panel[data-open="true"])
-    .theme-drawer__dialog {
-    right: 400px;
-  }
-
-  html:has(#chat-cart-root:not(.cc-preview)) {
-    transition: margin-right 480ms cubic-bezier(0.2, 0.8, 0.2, 1);
-  }
-
-  .cc-launcher[data-open="true"] {
-    opacity: 0;
-    pointer-events: none;
-    transform: scale(0.5);
-  }
-
   .cc-panel__close {
     position: absolute;
     top: 8px;

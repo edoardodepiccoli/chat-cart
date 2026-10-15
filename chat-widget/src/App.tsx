@@ -17,7 +17,6 @@ import { ROOT } from "./urls";
 import type { ChatMessage } from "../../shared/chat";
 
 const TEASER_DELAY = 3000;
-const CLOSE_DELAY = 480;
 
 const TOOL_LABELS = {
   listProducts: "lookingUpProducts",
@@ -136,7 +135,7 @@ export default function App() {
     setTeaser(undefined);
   }
 
-  function followLink(event: React.MouseEvent) {
+  function trackLink(event: React.MouseEvent) {
     const link = (event.target as Element).closest("a");
     const href = link?.getAttribute("href");
     if (!link || !href) return;
@@ -146,18 +145,6 @@ export default function App() {
         ? { type: "product_clicked", data: { handle } }
         : { type: "link_clicked", data: { url: href } },
     );
-    if (
-      event.button !== 0 ||
-      event.metaKey ||
-      event.ctrlKey ||
-      event.shiftKey ||
-      event.altKey ||
-      (link.target && link.target !== "_self")
-    )
-      return;
-    event.preventDefault();
-    setOpen(false);
-    setTimeout(() => window.location.assign(link.href), CLOSE_DELAY);
   }
 
   function submit(event: React.FormEvent) {
@@ -180,7 +167,7 @@ export default function App() {
     <Panel
       open={open}
       logRef={logRef}
-      onClickCapture={followLink}
+      onClickCapture={trackLink}
       composer={{
         value: draft,
         onChange: setDraft,

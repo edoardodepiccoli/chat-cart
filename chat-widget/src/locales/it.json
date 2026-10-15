@@ -3,8 +3,6 @@
   "suggestion1": "Cosa vendete?",
   "suggestion2": "Aiutami a trovare un regalo",
   "suggestion3": "Quanto tempo richiede la spedizione?",
-  "liked": "Mi piace {title}, dimmi di più.",
-  "added": "Ho aggiunto {title}{options} al carrello.",
   "typing": "Sto scrivendo",
   "lookingUpProducts": "Cerco i prodotti",
   "checkingStore": "Controllo le info del negozio",
@@ -15,18 +13,5 @@
   "openChat": "Apri chat",
   "closeChat": "Chiudi chat",
   "dismissTeaser": "Chiudi suggerimento",
-  "cartEmpty": "Il carrello è vuoto.",
-  "checkout": "Pagamento · {total}",
-  "checkoutButton": "Pagamento",
-  "cartCount": "{count} nel carrello",
-  "readFullPage": "Vai alla pagina",
-  "inCart": "Aggiunto",
-  "soldOut": "Esaurito",
-  "adding": "Aggiunta…",
-  "tryAgain": "Riprova",
-  "addToCart": "Aggiungi al carrello",
-  "seeProduct": "Vedi la pagina del prodotto",
-  "iLikeThis": "Mi piace",
-  "previousImage": "Immagine precedente",
-  "nextImage": "Immagine successiva"
+  "readFullPage": "Vai alla pagina"
 }

@@ -21,25 +21,13 @@ export const chatEventSchema = z.discriminatedUnion("type", [
     type: z.literal("suggestion_clicked"),
     data: z.object({ text: z.string().max(500) }),
   }),
-  z.object({
-    type: z.literal("product_liked"),
-    data: z.object({ handle: z.string().max(200) }),
-  }),
-  z.object({
-    type: z.literal("added_to_cart"),
-    data: z.object({
-      handle: z.string().max(200),
-      variantId: z.string().max(200),
-      price: z.object({
-        amount: z.string().max(50),
-        currencyCode: z.string().max(10),
-      }),
-    }),
-  }),
-  z.object({ type: z.literal("checkout_clicked") }),
   z.object({ type: z.literal("teaser_shown") }),
   z.object({ type: z.literal("teaser_clicked") }),
   z.object({ type: z.literal("teaser_dismissed") }),
+  z.object({
+    type: z.literal("product_clicked"),
+    data: z.object({ handle: z.string().max(200) }),
+  }),
   z.object({
     type: z.literal("link_clicked"),
     data: z.object({ url: z.string().max(2000) }),
@@ -49,10 +37,8 @@ export const chatEventSchema = z.discriminatedUnion("type", [
 export type ChatEvent = z.infer<typeof chatEventSchema>;
 
 export const COMPONENT_ACTIONS: Record<string, ChatEvent["type"]> = {
-  showProductCard: "added_to_cart",
-  showProductCards: "product_liked",
+  showProducts: "product_clicked",
   showFaqCard: "link_clicked",
-  showCart: "checkout_clicked",
 };
 
 export const COMPONENT_TOOLS = Object.keys(COMPONENT_ACTIONS);

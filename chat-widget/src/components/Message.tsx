@@ -1,58 +1,30 @@
 import type { ReactNode } from "react";
 
-import type { Cart } from "../cart";
 import type { ChatMessage, ChatPart } from "../../../shared/chat";
-import type { Product, ProductVariant } from "../../../shared/product";
-import CartCard from "./CartCard";
 import FaqCard from "./FaqCard";
-import ProductCard from "./ProductCard";
 import ProductCards from "./ProductCards";
 
-export type PartContext = {
-  cart: Cart | undefined;
-  onLike: (product: Product) => void;
-  onAdd: (product: Product, variant: ProductVariant) => Promise<void>;
-};
-
-function renderPart(part: ChatPart, { cart, onLike, onAdd }: PartContext) {
+function renderPart(part: ChatPart) {
   switch (part.type) {
     case "text":
       return part.text.trim() || null;
-    case "tool-showProductCard":
+    case "tool-showProducts":
       return part.state === "output-available" ? (
-        <ProductCard
-          {...part.output}
-          cartVariantIds={cart?.items.map((item) => item.variant_id) ?? []}
-          onAdd={(variant) => onAdd(part.output, variant)}
-        />
-      ) : null;
-    case "tool-showProductCards":
-      return part.state === "output-available" ? (
-        <ProductCards {...part.output} onLike={onLike} />
+        <ProductCards {...part.output} />
       ) : null;
     case "tool-showFaqCard":
       return part.state === "output-available" ? (
         <FaqCard {...part.output} />
-      ) : null;
-    case "tool-showCart":
-      return part.state === "output-available" ? (
-        <CartCard cart={cart} />
       ) : null;
     default:
       return null;
   }
 }
 
-export default function Message({
-  message,
-  context,
-}: {
-  message: ChatMessage;
-  context: PartContext;
-}) {
+export default function Message({ message }: { message: ChatMessage }) {
   const parts: ReactNode[] = [];
   message.parts.forEach((part, key) => {
-    const node = renderPart(part, context);
+    const node = renderPart(part);
     if (!node) return;
     parts.push(
       <div key={key} className={`cc-part cc-part--${part.type}`}>

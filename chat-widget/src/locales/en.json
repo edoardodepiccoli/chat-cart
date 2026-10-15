@@ -3,8 +3,6 @@
   "suggestion1": "What do you sell?",
   "suggestion2": "Help me find a gift",
   "suggestion3": "How long does shipping take?",
-  "liked": "I like {title}, tell me more about it.",
-  "added": "I added {title}{options} to my cart.",
   "typing": "Typing",
   "lookingUpProducts": "Looking up products",
   "checkingStore": "Checking store info",
@@ -15,18 +13,5 @@
   "openChat": "Open chat",
   "closeChat": "Close chat",
   "dismissTeaser": "Dismiss",
-  "cartEmpty": "Your cart is empty.",
-  "checkout": "Checkout · {total}",
-  "checkoutButton": "Checkout",
-  "cartCount": "{count} in cart",
-  "readFullPage": "Read full page",
-  "inCart": "Added",
-  "soldOut": "Sold out",
-  "adding": "Adding…",
-  "tryAgain": "Try again",
-  "addToCart": "Add to cart",
-  "seeProduct": "See product page",
-  "iLikeThis": "I like this",
-  "previousImage": "Previous image",
-  "nextImage": "Next image"
+  "readFullPage": "Read full page"
 }

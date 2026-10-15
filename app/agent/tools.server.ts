@@ -3,12 +3,7 @@ import type { StorefrontApiContext } from "@shopify/shopify-app-react-router/ser
 import { z } from "zod";
 
 import type { Market } from "../../shared/chat";
-import {
-  isOptionValueAvailable,
-  defaultOptions,
-  type Product,
-  type SelectedOption,
-} from "../../shared/product";
+import { toProductSummary } from "../../shared/product";
 import {
   getProduct,
   getStorePage,
@@ -16,42 +11,6 @@ import {
   listProducts,
   listStorePages,
 } from "./storefront.server";
-
-const optionsSchema = z
-  .array(z.object({ name: z.string(), value: z.string() }))
-  .describe(
-    'The options the shopper asked for anywhere in the conversation, like a size, color or shade, plus the options of anything they added to their cart ("I added Serum (50 ml)" means the 50 ml option), with names and values exactly as listProducts shows them. Leave out if there are none.',
-  )
-  .optional();
-
-async function buildProductCard(
-  storefront: StorefrontApiContext,
-  market: Market,
-  handle: string,
-  picks?: SelectedOption[],
-): Promise<Product> {
-  const product = await getProduct(storefront, market, handle);
-  if (!product) throw new Error(`No product with handle ${handle}`);
-  const selectedOptions = defaultOptions(product.variants, picks);
-  const unavailable = (picks ?? []).filter(
-    (pick) =>
-      !isOptionValueAvailable(
-        product.variants,
-        selectedOptions,
-        pick.name,
-        pick.value,
-      ),
-  );
-  return {
-    handle: product.handle,
-    title: product.title,
-    images: product.images,
-    options: product.options,
-    variants: product.variants,
-    selectedOptions,
-    ...(unavailable.length && { unavailable }),
-  };
-}
 
 export function createTools(storefront: StorefrontApiContext, market: Market) {
   return {
@@ -102,30 +61,21 @@ export function createTools(storefront: StorefrontApiContext, market: Market) {
       inputSchema: z.object({ handle: z.string() }),
       execute: ({ handle }) => getStorePage(storefront, market, handle),
     }),
-    showProductCard: tool({
+    showProducts: tool({
       description:
-        "Show the shopper one product, by its handle, where they can choose its options and add it to the cart. Ends your reply: write your sentences first. The result lists any requested option the product doesn't have in stock, under unavailable.",
-      inputSchema: z.object({
-        handle: z.string(),
-        options: optionsSchema,
-      }),
-      execute: ({ handle, options }) =>
-        buildProductCard(storefront, market, handle, options),
-    }),
-    showProductCards: tool({
-      description:
-        "Show the shopper two to four products side by side, by their handles, best first, each with its photo, price and a button to say they like it. Ends your reply: write your sentences first. The result lists any requested option a product doesn't have in stock, under unavailable.",
-      inputSchema: z.object({
-        handles: z.array(z.string()).min(2).max(6),
-        options: optionsSchema,
-      }),
-      execute: async ({ handles, options }) => ({
-        products: await Promise.all(
-          handles.map((handle) =>
-            buildProductCard(storefront, market, handle, options),
-          ),
-        ),
-      }),
+        "Show the shopper one to four products, by their handles, best first, each with its photo and price, linking to its page. Ends your reply: write your sentences first.",
+      inputSchema: z.object({ handles: z.array(z.string()).min(1).max(4) }),
+      execute: async ({ handles }) => {
+        const products = (
+          await Promise.all(
+            handles.map((handle) => getProduct(storefront, market, handle)),
+          )
+        )
+          .filter((product) => product !== null)
+          .map(toProductSummary);
+        if (!products.length) throw new Error("No product with those handles");
+        return { products };
+      },
     }),
     showFaqCard: tool({
       description:
@@ -136,12 +86,6 @@ export function createTools(storefront: StorefrontApiContext, market: Market) {
         if (!page) throw new Error(`No store page with handle ${handle}`);
         return { title: page.title, answer, url: page.url };
       },
-    }),
-    showCart: tool({
-      description:
-        "Show the shopper their cart, with what's in it, the total and a button to check out. Ends your reply: write your sentence first.",
-      inputSchema: z.object({}),
-      execute: async () => ({}),
     }),
   };
 }

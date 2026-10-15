@@ -1,28 +1,16 @@
 import type { ChatMessage } from "../../../shared/chat";
-import type { Product } from "../../../shared/product";
+import type { ProductSummary } from "../../../shared/product";
 import { themeVars, type Theme } from "../../../shared/theme";
-import Message, { type PartContext } from "../components/Message";
+import Message from "../components/Message";
 import Panel from "../components/Panel";
 import Suggestions from "../components/Suggestions";
 
-function variant(size: string, available: boolean) {
-  return {
-    id: `gid://shopify/ProductVariant/linen-shirt-${size}`,
-    selectedOptions: [{ name: "Size", value: size }],
-    price: { amount: "49.00", currencyCode: "EUR" },
-    compareAtPrice: { amount: "59.00", currencyCode: "EUR" },
-    available,
-    imageUrl: null,
-  };
-}
-
-const PRODUCT: Product = {
+const PRODUCT: ProductSummary = {
   handle: "linen-shirt",
   title: "Linen shirt",
-  images: [],
-  options: [{ name: "Size", values: ["S", "M", "L"] }],
-  variants: [variant("S", true), variant("M", true), variant("L", false)],
-  selectedOptions: [{ name: "Size", value: "M" }],
+  image: null,
+  price: { amount: "49.00", currencyCode: "EUR" },
+  compareAtPrice: { amount: "59.00", currencyCode: "EUR" },
 };
 
 const MESSAGES: ChatMessage[] = [
@@ -40,11 +28,11 @@ const MESSAGES: ChatMessage[] = [
         text: "This linen shirt is on sale and makes a great gift.",
       },
       {
-        type: "tool-showProductCard",
+        type: "tool-showProducts",
         toolCallId: "preview",
         state: "output-available",
-        input: { handle: PRODUCT.handle, options: PRODUCT.selectedOptions },
-        output: PRODUCT,
+        input: { handles: [PRODUCT.handle] },
+        output: { products: [PRODUCT] },
       },
     ],
   },
@@ -53,14 +41,6 @@ const MESSAGES: ChatMessage[] = [
 const SUGGESTIONS = ["Show me more", "What sizes are there?", "Any discounts?"];
 
 function noop() {}
-
-async function noopAsync() {}
-
-const CONTEXT: PartContext = {
-  cart: undefined,
-  onLike: noop,
-  onAdd: noopAsync,
-};
 
 export default function Preview({ theme }: { theme: Theme }) {
   return (
@@ -89,7 +69,7 @@ export default function Preview({ theme }: { theme: Theme }) {
         }}
       >
         {MESSAGES.map((message) => (
-          <Message key={message.id} message={message} context={CONTEXT} />
+          <Message key={message.id} message={message} />
         ))}
         <Suggestions items={SUGGESTIONS} onPick={noop} />
       </Panel>

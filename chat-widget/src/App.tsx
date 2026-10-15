@@ -1,8 +1,6 @@
 import { useChat } from "@ai-sdk/react";
 import { Fragment, useEffect, useRef, useState } from "react";
 
-import { CHECKOUT_URL, useCart } from "./cart";
-import CheckoutBar from "./components/CheckoutBar";
 import Message from "./components/Message";
 import Panel, { useAnchorScroll, useIosKeyboard } from "./components/Panel";
 import Suggestions from "./components/Suggestions";
@@ -15,8 +13,8 @@ import {
   useConversation,
 } from "./api";
 import { t } from "./i18n";
+import { ROOT } from "./urls";
 import type { ChatMessage } from "../../shared/chat";
-import type { Product, ProductVariant } from "../../shared/product";
 
 const TEASER_DELAY = 3000;
 const CLOSE_DELAY = 480;
@@ -60,6 +58,12 @@ function greeting(): ChatMessage {
   };
 }
 
+function productHandle(href: string) {
+  const path = new URL(href, window.location.href).pathname;
+  const prefix = `${ROOT}products/`;
+  return path.startsWith(prefix) ? path.slice(prefix.length).split("/")[0] : "";
+}
+
 function groupTurns(messages: ChatMessage[]) {
   return messages.reduce<ChatMessage[][]>((turns, message) => {
     const current = turns.at(-1);
@@ -71,7 +75,6 @@ function groupTurns(messages: ChatMessage[]) {
 
 export default function App() {
   const { conversation, loadFailed, trackEvent } = useConversation();
-  const { cart, add: addToCart } = useCart(trackEvent);
   const { messages, sendMessage, status, error } = useChat<ChatMessage>({
     id: conversation?.id,
     transport,
@@ -137,9 +140,10 @@ export default function App() {
     const link = (event.target as Element).closest("a");
     const href = link?.getAttribute("href");
     if (!link || !href) return;
+    const handle = productHandle(href);
     trackEvent(
-      href === CHECKOUT_URL
-        ? { type: "checkout_clicked" }
+      handle
+        ? { type: "product_clicked", data: { handle } }
         : { type: "link_clicked", data: { url: href } },
     );
     if (
@@ -172,30 +176,11 @@ export default function App() {
     send(text);
   }
 
-  function like({ handle, title }: { handle: string; title: string }) {
-    if (busy || !conversation) return;
-    trackEvent({ type: "product_liked", data: { handle } });
-    send(t("liked", { title }));
-  }
-
-  async function add(product: Product, variant: ProductVariant) {
-    if (busy || !conversation) return;
-    await addToCart(product, variant);
-    const label =
-      product.variants.length > 1
-        ? ` (${variant.selectedOptions.map((option) => option.value).join(" / ")})`
-        : "";
-    send(t("added", { title: product.title, options: label }));
-  }
-
   return (
     <Panel
       open={open}
       logRef={logRef}
       onClickCapture={followLink}
-      bar={
-        cart && cart.items.length > 0 ? <CheckoutBar cart={cart} /> : undefined
-      }
       composer={{
         value: draft,
         onChange: setDraft,
@@ -218,14 +203,7 @@ export default function App() {
         <div className="cc-turn" key={turn[0]?.id ?? "start"}>
           {turn.map((message) => (
             <Fragment key={message.id}>
-              <Message
-                message={message}
-                context={{
-                  cart,
-                  onLike: like,
-                  onAdd: add,
-                }}
-              />
+              <Message message={message} />
               {message === last && suggestions && (
                 <Suggestions items={suggestions} onPick={pick} />
               )}

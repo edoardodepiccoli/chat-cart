@@ -15,7 +15,6 @@ export default function Panel({
   open,
   logRef,
   onClickCapture,
-  bar,
   composer,
   onToggle,
   teaser,
@@ -24,7 +23,6 @@ export default function Panel({
   open: boolean;
   logRef?: RefObject<HTMLDivElement>;
   onClickCapture?: (event: React.MouseEvent) => void;
-  bar?: ReactNode;
   composer: ComposerProps;
   onToggle?: () => void;
   teaser?: ReactNode;
@@ -62,8 +60,6 @@ export default function Panel({
         <div className="cc-log" ref={logRef}>
           <div className="cc-log__content">{children}</div>
         </div>
-
-        {bar}
 
         <Composer {...composer} />
       </div>

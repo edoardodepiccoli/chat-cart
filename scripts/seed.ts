@@ -3,20 +3,26 @@ import { readFileSync } from "node:fs";
 import { PrismaClient, type Prisma } from "@prisma/client";
 
 import type { ChatEvent, ChatPart } from "../shared/chat";
-import type {
-  Product,
-  ProductImage,
-  ProductOption,
-  ProductVariant,
-  SelectedOption,
+import {
+  toProductSummary,
+  type Money,
+  type ProductOption,
 } from "../shared/product";
+
+type SeedVariant = {
+  selectedOptions: { name: string; value: string }[];
+  price: Money;
+  compareAtPrice: Money | null;
+  available: boolean;
+  imageUrl: string | null;
+};
 
 type SeedProduct = {
   handle: string;
   title: string;
-  images: ProductImage[];
+  images: { url: string; alt: string | null }[];
   options: ProductOption[];
-  variants: ProductVariant[];
+  variants: SeedVariant[];
 };
 
 type Chat = {
@@ -216,12 +222,6 @@ const CARDS_SUGGESTIONS = [
   "How much is shipping?",
 ];
 
-const CART_SUGGESTIONS = [
-  "Do you offer free shipping?",
-  "How long does delivery take?",
-  "Show me something to go with it",
-];
-
 let seed = 20260930;
 
 function random() {
@@ -256,28 +256,6 @@ function product(handle: string): SeedProduct {
   const found = PRODUCTS.find((item) => item.handle === handle);
   if (!found) throw new Error(`No seed product ${handle}`);
   return found;
-}
-
-function variantFor(
-  item: SeedProduct,
-  picks: SelectedOption[],
-): ProductVariant {
-  const matches = (variant: ProductVariant) =>
-    picks.every((choice) =>
-      variant.selectedOptions.some(
-        (option) =>
-          option.name === choice.name && option.value === choice.value,
-      ),
-    );
-  return (
-    item.variants.find((variant) => variant.available && matches(variant)) ??
-    item.variants.find((variant) => variant.available) ??
-    item.variants[0]
-  );
-}
-
-function card(item: SeedProduct, picks: SelectedOption[]): Product {
-  return { ...item, selectedOptions: variantFor(item, picks).selectedOptions };
 }
 
 function toolCallId() {
@@ -325,12 +303,6 @@ function user(chat: Chat, text: string) {
   say(chat, "user", [{ type: "text", text }]);
 }
 
-function act(chat: Chat, event: ChatEvent, text: string) {
-  wait(chat, 5, 40);
-  record(chat, event);
-  say(chat, "user", [{ type: "text", text }]);
-}
-
 function assistant(
   chat: Chat,
   text: string,
@@ -344,11 +316,6 @@ function assistant(
   parts.push({ type: "data-suggestions", data: suggestions });
   say(chat, "assistant", parts);
   chat.suggestions = suggestions;
-}
-
-function checkout(chat: Chat) {
-  wait(chat, 3, 45);
-  record(chat, { type: "checkout_clicked" });
 }
 
 function faq(chat: Chat, text: string) {
@@ -372,67 +339,26 @@ function faq(chat: Chat, text: string) {
   }
 }
 
-function addToCart(chat: Chat, item: SeedProduct, picks: SelectedOption[]) {
-  const variant = variantFor(item, picks);
-  const label =
-    item.variants.length > 1
-      ? ` (${variant.selectedOptions.map((option) => option.value).join(" / ")})`
-      : "";
-  act(
-    chat,
-    {
-      type: "added_to_cart",
-      data: {
-        handle: item.handle,
-        variantId: variant.id,
-        price: variant.price,
-      },
-    },
-    `I added ${item.title}${label} to my cart.`,
-  );
-  assistant(
-    chat,
-    pick([
-      "Great choice! Here's your cart, you can check out whenever you're ready.",
-      "Nice pick! Here's what's in your cart.",
-      "Added! Here's your cart.",
-    ]),
-    {
-      type: "tool-showCart",
-      toolCallId: toolCallId(),
-      state: "output-available",
-      input: {},
-      output: {},
-    },
-    CART_SUGGESTIONS,
-  );
-  if (chance(0.4)) return checkout(chat);
-  if (chance(0.35)) {
-    faq(chat, pick(CART_SUGGESTIONS.slice(0, 2)));
-    if (chance(0.4)) checkout(chat);
-  }
+function productCards(items: SeedProduct[]): ChatPart {
+  return {
+    type: "tool-showProducts",
+    toolCallId: toolCallId(),
+    state: "output-available",
+    input: { handles: items.map((item) => item.handle) },
+    output: { products: items.map(toProductSummary) },
+  };
 }
 
-function showProduct(chat: Chat, item: SeedProduct, picks: SelectedOption[]) {
+function showProduct(chat: Chat, item: SeedProduct) {
   assistant(
     chat,
     INFO[item.handle].pitch,
-    {
-      type: "tool-showProductCard",
-      toolCallId: toolCallId(),
-      state: "output-available",
-      input: { handle: item.handle, options: picks },
-      output: card(item, picks),
-    },
+    productCards([item]),
     CARD_SUGGESTIONS,
   );
   const roll = random();
-  if (roll < 0.35) return addToCart(chat, item, picks);
-  if (roll < 0.6) {
-    faq(chat, pick(CARD_SUGGESTIONS.slice(0, 2)));
-    if (chance(0.25)) addToCart(chat, item, picks);
-    return;
-  }
+  if (roll < 0.35) return clickProduct(chat, item);
+  if (roll < 0.6) return faq(chat, pick(CARD_SUGGESTIONS.slice(0, 2)));
   if (roll < 0.7) {
     user(chat, "Show me something similar");
     const others = PRODUCTS.filter((other) => other.handle !== item.handle);
@@ -440,28 +366,16 @@ function showProduct(chat: Chat, item: SeedProduct, picks: SelectedOption[]) {
   }
 }
 
+function clickProduct(chat: Chat, item: SeedProduct) {
+  wait(chat, 5, 40);
+  record(chat, { type: "product_clicked", data: { handle: item.handle } });
+}
+
 function showCards(chat: Chat, items: SeedProduct[], intro: string) {
-  assistant(
-    chat,
-    intro,
-    {
-      type: "tool-showProductCards",
-      toolCallId: toolCallId(),
-      state: "output-available",
-      input: { handles: items.map((item) => item.handle), options: [] },
-      output: { products: items.map((item) => card(item, [])) },
-    },
-    CARDS_SUGGESTIONS,
-  );
+  assistant(chat, intro, productCards(items), CARDS_SUGGESTIONS);
   const roll = random();
   if (roll < 0.5) {
-    const liked = pick(items);
-    act(
-      chat,
-      { type: "product_liked", data: { handle: liked.handle } },
-      `I like ${liked.title}, tell me more about it.`,
-    );
-    return showProduct(chat, liked, []);
+    return clickProduct(chat, pick(items));
   }
   if (roll < 0.65) {
     user(chat, "Which one is the most popular?");
@@ -475,7 +389,7 @@ function showCards(chat: Chat, items: SeedProduct[], intro: string) {
     );
     if (chance(0.5)) {
       user(chat, show);
-      showProduct(chat, best, []);
+      showProduct(chat, best);
     }
     return;
   }
@@ -518,9 +432,9 @@ function productSearch(chat: Chat) {
     );
     const size = pick(chat.suggestions);
     user(chat, size);
-    return showProduct(chat, item, [{ name: "Size", value: size }]);
+    return showProduct(chat, item);
   }
-  showProduct(chat, item, []);
+  showProduct(chat, item);
 }
 
 function question(chat: Chat) {
@@ -655,7 +569,7 @@ if (!session) {
   );
 
   console.log(
-    `Seeded ${session.shop}: ${data.length} loads, ${eventCount(data, "widget_opened")} opened, ${ENGAGED} engaged, ${eventCount(data, "added_to_cart")} added to cart, ${eventCount(data, "checkout_clicked")} checkout.`,
+    `Seeded ${session.shop}: ${data.length} loads, ${eventCount(data, "widget_opened")} opened, ${ENGAGED} engaged, ${eventCount(data, "product_clicked")} product clicks.`,
   );
 }
 

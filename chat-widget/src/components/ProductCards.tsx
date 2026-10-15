@@ -1,63 +1,43 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { findVariant, type Product } from "../../../shared/product";
-import { productUrl } from "../cart";
-import { t } from "../i18n";
-import { HeartIcon } from "../icons";
+import type { ProductSummary } from "../../../shared/product";
+import { productUrl } from "../urls";
 import { ProductPrice } from "./Price";
 
 function CompactProductCard({
   handle,
   title,
-  images,
-  variants,
-  selectedOptions,
-  onLike,
-}: Product & { onLike: () => void }) {
-  const shownVariant = findVariant(variants, selectedOptions) ?? variants[0];
-  const shownImageUrl = shownVariant.imageUrl ?? images[0]?.url ?? null;
-  const url = productUrl(handle);
-
+  image,
+  price,
+  compareAtPrice,
+}: ProductSummary) {
   return (
-    <div className="cc-card">
-      <a className="cc-card__media" href={url}>
-        {shownImageUrl === null ? (
+    <a className="cc-card" href={productUrl(handle)}>
+      <div className="cc-card__media">
+        {image === null ? (
           <div className="cc-card__image-placeholder" aria-hidden="true" />
         ) : (
           <img
             className="cc-card__image"
-            src={shownImageUrl}
-            alt={images[0]?.alt ?? title}
+            src={image.url}
+            alt={image.alt ?? title}
             loading="lazy"
           />
         )}
-      </a>
+      </div>
 
       <div className="cc-card__body">
-        <a className="cc-card__title" href={url}>
-          {title}
-        </a>
-
-        <ProductPrice
-          price={shownVariant.price}
-          compareAtPrice={shownVariant.compareAtPrice}
-        />
-
-        <button className="cc-btn" type="button" onClick={onLike}>
-          <HeartIcon className="cc-icon" />
-          {t("iLikeThis")}
-        </button>
+        <div className="cc-card__title">{title}</div>
+        <ProductPrice price={price} compareAtPrice={compareAtPrice} />
       </div>
-    </div>
+    </a>
   );
 }
 
 export default function ProductCards({
   products,
-  onLike,
 }: {
-  products: Product[];
-  onLike: (product: Product) => void;
+  products: ProductSummary[];
 }) {
   const carouselRef = useRef<HTMLDivElement>(null);
   const [moreStart, setMoreStart] = useState(false);
@@ -89,11 +69,7 @@ export default function ProductCards({
       onScroll={updateEdges}
     >
       {products.map((product) => (
-        <CompactProductCard
-          key={product.handle}
-          {...product}
-          onLike={() => onLike(product)}
-        />
+        <CompactProductCard key={product.handle} {...product} />
       ))}
     </div>
   );

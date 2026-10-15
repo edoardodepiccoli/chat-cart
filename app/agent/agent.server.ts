@@ -20,7 +20,6 @@ import {
   type Market,
   type PageContext,
 } from "../../shared/chat";
-import type { Product } from "../../shared/product";
 import { saveMessage } from "../conversations.server";
 import {
   marketPrompt,
@@ -46,10 +45,6 @@ const DATA_TOOL_PARTS: string[] = [
   "tool-getStorePage",
 ];
 
-function stripProductMedia(product: Product): Product {
-  return { ...product, images: [], variants: [] };
-}
-
 function trimHistory(messages: ChatMessage[]): ChatMessage[] {
   const recent = messages.slice(-MAX_HISTORY);
   const first = recent.findIndex((message) => message.role === "user");
@@ -58,18 +53,18 @@ function trimHistory(messages: ChatMessage[]): ChatMessage[] {
     const parts = message.parts.flatMap((part): ChatPart[] => {
       if (DATA_TOOL_PARTS.includes(part.type)) return [];
       if (
-        part.type === "tool-showProductCard" &&
-        part.state === "output-available"
-      )
-        return [{ ...part, output: stripProductMedia(part.output) }];
-      if (
-        part.type === "tool-showProductCards" &&
+        part.type === "tool-showProducts" &&
         part.state === "output-available"
       )
         return [
           {
             ...part,
-            output: { products: part.output.products.map(stripProductMedia) },
+            output: {
+              products: part.output.products.map((product) => ({
+                ...product,
+                image: null,
+              })),
+            },
           },
         ];
       return [part];

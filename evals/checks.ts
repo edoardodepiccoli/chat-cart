@@ -1,4 +1,4 @@
-import type { Product } from "../shared/product";
+import type { ProductSummary } from "../shared/product";
 
 export type Call = { name: string; input: unknown };
 
@@ -27,13 +27,12 @@ export function check(name: string, run: Check["run"]): Check {
   return { name, run };
 }
 
-function shownProducts(turn: Turn): Product[] {
-  return turn.shown.flatMap(({ name, output }) => {
-    if (name === "showProductCard") return [output as Product];
-    if (name === "showProductCards")
-      return (output as { products: Product[] }).products;
-    return [];
-  });
+function shownProducts(turn: Turn): ProductSummary[] {
+  return turn.shown.flatMap(({ name, output }) =>
+    name === "showProducts"
+      ? (output as { products: ProductSummary[] }).products
+      : [],
+  );
 }
 
 function matches(input: unknown, expected: Record<string, unknown>): boolean {
@@ -108,10 +107,7 @@ export function notSays(pattern: RegExp): Check {
 export function pricesAtMost(max: number): Check {
   return check(`shown prices at most ${max}`, (turn) => {
     const over = shownProducts(turn).filter(
-      (product) =>
-        Math.min(
-          ...product.variants.map((variant) => Number(variant.price.amount)),
-        ) > max,
+      (product) => Number(product.price.amount) > max,
     );
     return over.length
       ? `over budget: ${over.map((product) => product.handle).join(", ")}`
@@ -127,7 +123,7 @@ export function suggestionsSay(pattern: RegExp): Check {
   );
 }
 
-const PRODUCT_OR_CART = ["showProductCard", "showProductCards", "showCart"];
+const PRODUCT_OR_CART = ["showProducts"];
 
 export const CONTRACT: Check[] = [
   check("reply is not empty", (turn) =>

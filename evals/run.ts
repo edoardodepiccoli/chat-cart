@@ -7,7 +7,8 @@ import {
   type StorefrontApiContext,
 } from "@shopify/shopify-app-react-router/server";
 
-import { generateSuggestions, runAgent } from "../app/agent/agent.server";
+import { runAgent } from "../app/agent/agent.server";
+import { generateSuggestions } from "../app/agent/suggestions.server";
 import prisma from "../app/db.server";
 import type { ChatMessage, Market } from "../shared/chat";
 import {

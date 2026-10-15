@@ -2,71 +2,23 @@ import {
   convertToModelMessages,
   createUIMessageStream,
   createUIMessageStreamResponse,
-  generateText,
   hasToolCall,
   isStepCount,
-  Output,
   streamText,
-  type ModelMessage,
 } from "ai";
 import type { StorefrontApiContext } from "@shopify/shopify-app-react-router/server";
-import { existsSync } from "node:fs";
-import { z } from "zod";
 
 import type { ChatMessage, Market, PageContext } from "../../shared/chat";
 import { DISPLAY_TOOLS } from "../../shared/tools";
 import { saveMessage } from "../conversations.server";
 import { trimHistory } from "./history";
-import {
-  marketPrompt,
-  pagePrompt,
-  SUGGESTIONS_PROMPT,
-  SYSTEM_PROMPT,
-  teaserPrompt,
-  teaserTurnPrompt,
-  type TeaserProduct,
-} from "./prompts";
+import { MODEL } from "./model";
+import { marketPrompt, pagePrompt, teaserTurnPrompt } from "./prompts/context";
+import { SYSTEM_PROMPT } from "./prompts/system";
+import { generateSuggestions } from "./suggestions.server";
 import { createTools } from "./tools.server";
 
-if (existsSync(".env")) process.loadEnvFile();
-
-const MODEL = "deepseek/deepseek-v4.1-flash";
 const DEBUG = process.env.NODE_ENV !== "production";
-const SUGGESTIONS_SCHEMA = z.object({
-  suggestions: z.array(z.string().min(1).max(30)).length(3),
-});
-
-export async function generateSuggestions(
-  messages: ModelMessage[],
-): Promise<string[]> {
-  for (let attempt = 1; ; attempt++) {
-    try {
-      const { output } = await generateText({
-        model: MODEL,
-        reasoning: "none",
-        output: Output.object({ schema: SUGGESTIONS_SCHEMA }),
-        messages: [...messages, { role: "user", content: SUGGESTIONS_PROMPT }],
-      });
-
-      return output.suggestions;
-    } catch (error) {
-      if (attempt === 3) throw error;
-    }
-  }
-}
-
-export async function generateTeaser(
-  product: TeaserProduct,
-  language: string,
-): Promise<string> {
-  const { text } = await generateText({
-    model: MODEL,
-    reasoning: "none",
-    prompt: teaserPrompt(product, language),
-  });
-
-  return text.trim();
-}
 
 export async function runAgent(
   messages: ChatMessage[],

@@ -18,7 +18,7 @@ Backend (`app/`)
 - `agent/agent.server.ts` — the agent: one `streamText` call, then 3 suggested messages.
 - `agent/tools.server.ts` — every tool the agent can call.
 - `agent/storefront.server.ts` — Storefront API queries.
-- `agent/prompts.ts` — system prompt and suggestions prompt.
+- `agent/prompts/` — system, suggestions, teaser and context prompts.
 - `routes/proxy.chat.tsx`, `routes/proxy.events.tsx` — endpoints the widget calls.
 - `conversations.server.ts` — saving and loading conversations.
 - `metrics.server.ts` — widget events and dashboard stats.
@@ -46,7 +46,7 @@ Shared (`shared/`), used by both sides
 1. A tool in `app/agent/tools.server.ts` that returns the component's props.
 2. The component in `chat-widget/src/components/`, and a case for it in `Message.tsx`.
 3. An entry in `COMPONENT_ACTIONS` in `shared/chat.ts`.
-4. A line about it in the system prompt, `app/agent/prompts.ts`.
+4. A line about it in the system prompt, `app/agent/prompts/system.ts`.
 
 ## Development
 

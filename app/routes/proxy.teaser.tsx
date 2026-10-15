@@ -1,7 +1,7 @@
 import type { LoaderFunctionArgs } from "react-router";
 import { z } from "zod";
 
-import { generateTeaser } from "../agent/agent.server";
+import { generateTeaser } from "../agent/teasers.server";
 import { getProduct } from "../agent/storefront.server";
 import { authenticate } from "../shopify.server";
 

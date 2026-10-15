@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import type { StorefrontApiContext } from "@shopify/shopify-app-react-router/server";
 
-import { loadCatalog, needsCatalog, resolveContext } from "./context.server";
+import { loadCatalog, resolveContext } from "./context.server";
 import { contextPrompt } from "./prompts/context";
 
 const catalog = {
@@ -114,34 +114,16 @@ describe("resolveContext by type", () => {
   });
 });
 
-describe("needsCatalog", () => {
-  it("needs nothing for other pages and searches", () => {
-    expect(
-      needsCatalog({
-        ...base,
-        page: { type: "other" },
-        history: [{ type: "search", terms: "x", at: 1 }],
-      }),
-    ).toEqual({ products: false, collections: false });
-  });
-
-  it("needs products and collections only when handles are present", () => {
-    expect(
-      needsCatalog({
-        ...base,
-        page: { type: "collection", handle: "a" },
-        history: [],
-      }),
-    ).toEqual({ products: false, collections: true });
-    expect(
-      needsCatalog({
-        ...base,
-        page: { type: "other" },
-        history: [{ type: "product", handle: "a", at: 1 }],
-      }),
-    ).toEqual({ products: true, collections: false });
-  });
-});
+function fakeStorefront(data: unknown) {
+  const calls: { query: string; variables: Record<string, string> }[] = [];
+  const storefront = {
+    graphql: (query: string, options: { variables: never }) => {
+      calls.push({ query, variables: options.variables });
+      return Promise.resolve({ json: () => Promise.resolve({ data }) });
+    },
+  } as unknown as StorefrontApiContext;
+  return { storefront, calls };
+}
 
 describe("loadCatalog", () => {
   it("falls back to an empty catalog when the storefront fails", async () => {
@@ -155,5 +137,46 @@ describe("loadCatalog", () => {
         history: [],
       }),
     ).toEqual({ products: [], collections: [] });
+  });
+
+  it("queries nothing for other pages and searches", async () => {
+    const { storefront, calls } = fakeStorefront({});
+    expect(
+      await loadCatalog(storefront, {
+        ...base,
+        page: { type: "other" },
+        history: [{ type: "search", terms: "x", at: 1 }],
+      }),
+    ).toEqual({ products: [], collections: [] });
+    expect(calls).toHaveLength(0);
+  });
+
+  it("fetches exactly the needed handles in one query", async () => {
+    const { storefront, calls } = fakeStorefront({
+      p0: { handle: "serum", title: "Vitamin C Serum" },
+      p1: null,
+      c0: { handle: "eyes", title: "Eye Care" },
+    });
+    const catalog = await loadCatalog(storefront, {
+      ...base,
+      page: { type: "collection", handle: "eyes" },
+      history: [
+        { type: "product", handle: "serum", at: 1 },
+        { type: "product", handle: "gone-x", at: 2 },
+        { type: "product", handle: "serum", at: 3 },
+      ],
+    });
+    expect(catalog).toEqual({
+      products: [{ handle: "serum", title: "Vitamin C Serum" }],
+      collections: [{ handle: "eyes", title: "Eye Care" }],
+    });
+    expect(calls).toHaveLength(1);
+    expect(calls[0].variables).toMatchObject({
+      country: "IT",
+      p0: "serum",
+      p1: "gone-x",
+      c0: "eyes",
+    });
+    expect(calls[0].query).not.toContain("products(first");
   });
 });

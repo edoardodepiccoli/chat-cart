@@ -1,7 +1,7 @@
 import type { StorefrontApiContext } from "@shopify/shopify-app-react-router/server";
 
 import type { ShopperContext } from "../../shared/context";
-import { listCollections, listProducts } from "./storefront.server";
+import { resolveTitles } from "./storefront.server";
 
 type Titled = { handle: string; title: string };
 
@@ -18,28 +18,23 @@ export type ResolvedContext = {
   history: Exclude<ResolvedPage, { type: "other" }>[];
 };
 
-export function needsCatalog(context: ShopperContext) {
-  const pages = [context.page, ...context.history];
-  return {
-    products: pages.some((page) => page.type === "product"),
-    collections: pages.some((page) => page.type === "collection"),
-  };
-}
-
 export async function loadCatalog(
   storefront: StorefrontApiContext,
   context: ShopperContext,
 ): Promise<Catalog> {
   const market = { country: context.country, language: context.language };
-  const needs = needsCatalog(context);
+  const handles = (type: "product" | "collection") => [
+    ...new Set(
+      [context.page, ...context.history].flatMap((page) =>
+        page.type === type ? [page.handle] : [],
+      ),
+    ),
+  ];
   try {
-    const products = needs.products
-      ? await listProducts(storefront, market)
-      : [];
-    const collections = needs.collections
-      ? await listCollections(storefront, market, products)
-      : [];
-    return { products, collections };
+    return await resolveTitles(storefront, market, {
+      products: handles("product"),
+      collections: handles("collection"),
+    });
   } catch {
     return { products: [], collections: [] };
   }

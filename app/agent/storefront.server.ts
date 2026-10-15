@@ -467,3 +467,48 @@ export async function searchProducts(
     .filter((node): node is ProductSummaryNode => !!node.handle)
     .map(summarize);
 }
+
+type Titled = { handle: string; title: string };
+
+type TitlesResponse = Record<string, Titled | null>;
+
+export async function resolveTitles(
+  storefront: StorefrontApiContext,
+  market: Market,
+  handles: { products: string[]; collections: string[] },
+) {
+  const fields = [
+    ...handles.products.map((_, i) => ["product", `p${i}`] as const),
+    ...handles.collections.map((_, i) => ["collection", `c${i}`] as const),
+  ];
+  const values = [...handles.products, ...handles.collections];
+  if (!fields.length) return { products: [], collections: [] };
+
+  const declarations = fields.map(([, alias]) => `$${alias}: String!`);
+  const selections = fields.map(
+    ([field, alias]) =>
+      `${alias}: ${field}(handle: $${alias}) { handle title }`,
+  );
+  const query = `#graphql
+  query Titles(
+    $country: CountryCode
+    $language: LanguageCode
+    ${declarations.join("\n    ")}
+  ) @inContext(country: $country, language: $language) {
+    ${selections.join("\n    ")}
+  }`;
+
+  const response = await storefront.graphql(query, {
+    variables: {
+      ...inContext(market),
+      ...Object.fromEntries(fields.map(([, alias], i) => [alias, values[i]])),
+    },
+  });
+  const { data } = (await response.json()) as { data: TitlesResponse };
+  const found = (prefix: string) =>
+    fields
+      .filter(([, alias]) => alias.startsWith(prefix))
+      .flatMap(([, alias]) => data[alias] ?? []);
+
+  return { products: found("p"), collections: found("c") };
+}

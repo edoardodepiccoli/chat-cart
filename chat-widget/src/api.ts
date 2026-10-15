@@ -1,5 +1,6 @@
 import { DefaultChatTransport } from "ai";
 import { useEffect, useState } from "react";
+import { z } from "zod";
 
 import type { ChatEvent, ChatMessage } from "../../shared/chat";
 import { getShopperContext } from "./context";
@@ -9,6 +10,8 @@ export type Conversation = { id: string; messages: ChatMessage[] };
 const PROXY_BASE = "/apps/chat-cart";
 const PROXY_HEADERS = { "ngrok-skip-browser-warning": "true" };
 const CONVERSATION_KEY = "chat-cart:conversationId";
+const TEASERS_TIMEOUT = 12000;
+const teasersResponseSchema = z.object({ teasers: z.array(z.string()) });
 
 export const transport = new DefaultChatTransport<ChatMessage>({
   api: `${PROXY_BASE}/chat`,
@@ -60,18 +63,20 @@ export async function loadConversation(): Promise<Conversation> {
   return conversation;
 }
 
-export async function fetchTeaser(): Promise<string> {
-  const { country, language, page } = getShopperContext();
-  const query = new URLSearchParams({
-    handle: page.type === "product" ? page.handle : "",
-    country,
-    language,
-  });
-  const response = await fetch(`${PROXY_BASE}/teaser?${query}`, {
-    headers: PROXY_HEADERS,
-  });
-  if (!response.ok) throw new Error(`Teaser ${response.status}`);
-  return (await response.json()).text;
+export async function fetchTeasers(conversationId: string): Promise<string[]> {
+  try {
+    const response = await fetch(`${PROXY_BASE}/teasers`, {
+      method: "POST",
+      headers: { ...PROXY_HEADERS, "Content-Type": "application/json" },
+      body: JSON.stringify({ conversationId, context: getShopperContext() }),
+      signal: AbortSignal.timeout(TEASERS_TIMEOUT),
+    });
+    if (!response.ok) return [];
+    const parsed = teasersResponseSchema.safeParse(await response.json());
+    return parsed.success ? parsed.data.teasers : [];
+  } catch {
+    return [];
+  }
 }
 
 export function sendEvent(conversationId: string, event: ChatEvent) {

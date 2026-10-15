@@ -3,7 +3,7 @@ import { Fragment, useEffect, useRef, useState } from "react";
 import Message from "./components/Message";
 import Panel, { useAnchorScroll, useIosKeyboard } from "./components/Panel";
 import Suggestions from "./components/Suggestions";
-import Teaser from "./components/Teaser";
+import Teasers from "./components/Teasers";
 import { useChatSession } from "./hooks/useChatSession";
 import { useLinkTracking } from "./hooks/useLinkTracking";
 import { useTeasers } from "./hooks/useTeasers";
@@ -76,10 +76,10 @@ export default function App() {
       }}
       onToggle={() => setOpen(!open)}
       teaser={
-        !open && teasers.teaser ? (
-          <Teaser
-            text={teasers.teaser}
-            onClick={teasers.click}
+        !open && teasers.teasers.length ? (
+          <Teasers
+            items={teasers.teasers}
+            onPick={teasers.pick}
             onDismiss={teasers.dismiss}
           />
         ) : undefined

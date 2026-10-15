@@ -1,10 +1,19 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-import { fetchTeaser, sendEvent } from "../api";
+import { fetchTeasers, sendEvent } from "../api";
 import { getShopperContext } from "../context";
 import type { ChatEvent } from "../../../shared/chat";
+import type { PageContext } from "../../../shared/context";
 
 const TEASER_DELAY = 3000;
+
+export function teasersApply(page: PageContext) {
+  return (
+    page.type === "product" ||
+    page.type === "collection" ||
+    page.type === "search"
+  );
+}
 
 export function useTeasers({
   open,
@@ -17,41 +26,46 @@ export function useTeasers({
   trackEvent: (event: ChatEvent) => void;
   onPick: (text: string) => void;
 }) {
-  const [teaser, setTeaser] = useState<string>();
+  const [teasers, setTeasers] = useState<string[]>([]);
+  const dismissed = useRef(false);
+  const shown = useRef(false);
 
   useEffect(() => {
-    if (!conversationId || getShopperContext().page.type !== "product") return;
+    if (!conversationId || !teasersApply(getShopperContext().page)) return;
     if (open) {
-      setTeaser(undefined);
+      setTeasers([]);
       return;
     }
+    if (dismissed.current || shown.current) return;
     let cancelled = false;
     Promise.all([
-      fetchTeaser(),
+      fetchTeasers(conversationId),
       new Promise((resolve) => setTimeout(resolve, TEASER_DELAY)),
-    ])
-      .then(([text]) => {
-        if (cancelled || !text) return;
-        setTeaser(text);
-        sendEvent(conversationId, { type: "teaser_shown" });
-      })
-      .catch(() => {});
+    ]).then(([items]) => {
+      if (cancelled || !items.length) return;
+      shown.current = true;
+      setTeasers(items);
+      sendEvent(conversationId, {
+        type: "teaser_shown",
+        data: { count: items.length },
+      });
+    });
     return () => {
       cancelled = true;
     };
   }, [open, conversationId]);
 
-  function click() {
-    if (!teaser) return;
-    trackEvent({ type: "teaser_clicked" });
-    setTeaser(undefined);
-    onPick(teaser);
+  function pick(text: string) {
+    trackEvent({ type: "teaser_clicked", data: { text } });
+    setTeasers([]);
+    onPick(text);
   }
 
   function dismiss() {
+    dismissed.current = true;
     trackEvent({ type: "teaser_dismissed" });
-    setTeaser(undefined);
+    setTeasers([]);
   }
 
-  return { teaser, click, dismiss };
+  return { teasers, pick, dismiss };
 }

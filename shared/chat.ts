@@ -17,8 +17,14 @@ export const chatEventSchema = z.discriminatedUnion("type", [
     type: z.literal("suggestion_clicked"),
     data: z.object({ text: z.string().max(500) }),
   }),
-  z.object({ type: z.literal("teaser_shown") }),
-  z.object({ type: z.literal("teaser_clicked") }),
+  z.object({
+    type: z.literal("teaser_shown"),
+    data: z.object({ count: z.number().int().min(0).max(10) }),
+  }),
+  z.object({
+    type: z.literal("teaser_clicked"),
+    data: z.object({ text: z.string().max(500) }),
+  }),
   z.object({ type: z.literal("teaser_dismissed") }),
   z.object({
     type: z.literal("product_clicked"),

@@ -295,6 +295,7 @@ export const SCENARIOS: Scenario[] = [
         expect: [
           shows("showProducts"),
           notShows("showProducts", ["caffeine-eye-elixir"]),
+          says(/eye|dark circle/i),
         ],
       },
     ],

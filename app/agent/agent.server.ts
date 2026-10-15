@@ -31,7 +31,7 @@ export async function runAgent(
   const market = { country: context.country, language: context.language };
   const resolved = resolveContext(
     context,
-    await loadCatalog(storefront, market),
+    await loadCatalog(storefront, context),
   );
   const modelMessages = await convertToModelMessages<ChatMessage>(
     trimHistory(messages),
@@ -71,7 +71,7 @@ export async function runAgent(
       }
     },
     prepareStep: ({ stepNumber }) =>
-      firstReply && context.page.type === "other" && stepNumber === 0
+      firstReply && resolved.page.type === "other" && stepNumber === 0
         ? { toolChoice: { type: "tool", toolName: "listProducts" } }
         : undefined,
   });

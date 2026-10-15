@@ -21,7 +21,8 @@ function pageLine(page: ResolvedPage) {
 
 export function contextPrompt(context: ResolvedContext) {
   const lines = [
-    `The shopper is shopping from ${context.country}, and prices are in that market's currency. Any price in another currency earlier in the conversation is outdated: look it up again before you use it.`,
+    context.country &&
+      `The shopper is shopping from ${context.country}, and prices are in that market's currency. Any price in another currency earlier in the conversation is outdated: look it up again before you use it.`,
     pageLine(context.page),
   ];
   if (context.history.length)
@@ -33,10 +34,12 @@ export function contextPrompt(context: ResolvedContext) {
 
 export function teaserTurnPrompt(page: ResolvedPage) {
   const about =
-    page.type === "product" || page.type === "collection"
-      ? `the ${page.type} with handle "${page.handle}"`
-      : page.type === "search"
-        ? `the search for "${page.terms}"`
-        : "the current page";
-  return `The shopper's last message is a suggested question about ${about}, tapped on purpose. It has priority over everything earlier in the conversation: answer exactly that message, about the current page, looked up with the matching tool. Earlier products and topics matter only if the message names them. Keep what the shopper told you, like size, budget or style.`;
+    page.type === "product"
+      ? `the product with handle "${page.handle}", looked up with getProduct`
+      : page.type === "collection"
+        ? `the collection with handle "${page.handle}", looked up with listProducts and the collection filter`
+        : page.type === "search"
+          ? `the search for "${page.terms}", looked up with listProducts`
+          : "the current page";
+  return `The shopper's last message is a suggested question about ${about}, tapped on purpose. It has priority over everything earlier in the conversation: answer exactly that message, about this page. Earlier products and topics matter only if the message names them. Keep what the shopper told you, like size, budget or style.`;
 }

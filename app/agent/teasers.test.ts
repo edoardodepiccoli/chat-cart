@@ -1,10 +1,44 @@
 import { describe, expect, it, vi } from "vitest";
 
+import { generateText } from "ai";
+
 import {
   conversationText,
+  generateTeasers,
   teasersSchema,
   withDeadline,
 } from "./teasers.server";
+
+vi.mock("ai", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("ai")>()),
+  generateText: vi.fn(),
+}));
+
+const input = {
+  context: { country: "IT", page: { type: "other" }, history: [] },
+  language: "it",
+  pageDetails: "",
+  chat: "",
+} as never;
+
+describe("generateTeasers", () => {
+  it("throws after three failed attempts", async () => {
+    const mocked = vi.mocked(generateText);
+    mocked.mockReset().mockRejectedValue(new Error("bad output"));
+    await expect(generateTeasers(input)).rejects.toThrow("bad output");
+    expect(mocked).toHaveBeenCalledTimes(3);
+  });
+
+  it("returns the teasers once an attempt succeeds", async () => {
+    const mocked = vi.mocked(generateText);
+    mocked
+      .mockReset()
+      .mockRejectedValueOnce(new Error("bad output"))
+      .mockResolvedValueOnce({ output: { teasers: ["a", "b", "c"] } } as never);
+    expect(await generateTeasers(input)).toEqual(["a", "b", "c"]);
+    expect(mocked).toHaveBeenCalledTimes(2);
+  });
+});
 
 describe("teasersSchema", () => {
   it("accepts three distinct short teasers", () => {

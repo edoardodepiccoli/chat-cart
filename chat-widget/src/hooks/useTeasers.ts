@@ -17,11 +17,13 @@ export function teasersApply(page: PageContext) {
 
 export function useTeasers({
   open,
+  busy,
   conversationId,
   trackEvent,
   onPick,
 }: {
   open: boolean;
+  busy: boolean;
   conversationId: string | undefined;
   trackEvent: (event: ChatEvent) => void;
   onPick: (text: string) => void;
@@ -32,7 +34,7 @@ export function useTeasers({
 
   useEffect(() => {
     if (!conversationId || !teasersApply(getShopperContext().page)) return;
-    if (open) {
+    if (open || busy) {
       setTeasers([]);
       return;
     }
@@ -53,7 +55,7 @@ export function useTeasers({
     return () => {
       cancelled = true;
     };
-  }, [open, conversationId]);
+  }, [open, busy, conversationId]);
 
   function pick(text: string) {
     trackEvent({ type: "teaser_clicked", data: { text } });

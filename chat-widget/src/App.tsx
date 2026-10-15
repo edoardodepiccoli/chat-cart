@@ -33,6 +33,7 @@ export default function App() {
   const trackLink = useLinkTracking(trackEvent);
   const teasers = useTeasers({
     open,
+    busy,
     conversationId: conversation?.id,
     trackEvent,
     onPick: (text) => {

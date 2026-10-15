@@ -1,7 +1,7 @@
 import type { UIMessage } from "ai";
 import { z } from "zod";
 
-import type { ChatTools, DisplayTool } from "./tools";
+import type { ChatTools } from "./tools";
 
 export type ChatMessage = UIMessage<
   never,

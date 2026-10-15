@@ -18,6 +18,8 @@ Product, collection and search pages also get three teasers, 3 seconds after loa
 Backend (`app/`)
 
 - `agent/agent.server.ts` — the agent: one `streamText` call, then suggested messages.
+- `agent/suggestions.server.ts` — the suggested replies after each answer.
+- `agent/model.ts` — the model id, and loading `.env`.
 - `agent/tools.server.ts` — every tool the agent can call, built from `shared/tools.ts`.
 - `agent/storefront.server.ts` — Storefront API queries.
 - `agent/context.server.ts` — resolves the shopper's page and visits against the catalog.
@@ -68,6 +70,8 @@ npm run dev
 ```
 
 `npm run dev` resets and seeds conversations, then runs the app over an ngrok tunnel and the widget watcher together.
+
+Turn the widget on in the theme editor, under App embeds → Chat Cart.
 
 Tests and evals:
 

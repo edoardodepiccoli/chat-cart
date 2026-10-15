@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
-import { fetchTeaser, getPageContext, sendEvent } from "../api";
+import { fetchTeaser, sendEvent } from "../api";
+import { getShopperContext } from "../context";
 import type { ChatEvent } from "../../../shared/chat";
 
 const TEASER_DELAY = 3000;
@@ -19,7 +20,7 @@ export function useTeasers({
   const [teaser, setTeaser] = useState<string>();
 
   useEffect(() => {
-    if (!conversationId || !getPageContext().productHandle) return;
+    if (!conversationId || getShopperContext().page.type !== "product") return;
     if (open) {
       setTeaser(undefined);
       return;

@@ -1,12 +1,8 @@
 import { DefaultChatTransport } from "ai";
 import { useEffect, useState } from "react";
 
-import type {
-  ChatEvent,
-  ChatMessage,
-  Market,
-  PageContext,
-} from "../../shared/chat";
+import type { ChatEvent, ChatMessage } from "../../shared/chat";
+import { getShopperContext } from "./context";
 
 export type Conversation = { id: string; messages: ChatMessage[] };
 
@@ -14,20 +10,13 @@ const PROXY_BASE = "/apps/chat-cart";
 const PROXY_HEADERS = { "ngrok-skip-browser-warning": "true" };
 const CONVERSATION_KEY = "chat-cart:conversationId";
 
-let market: Market = { country: "", language: "" };
-
-let pageContext: PageContext = { productHandle: "" };
-
-export function setMarket(value: Market) {
-  market = value;
-}
-
-export function setPageContext(value: PageContext) {
-  pageContext = value;
-}
-
-export function getPageContext() {
-  return pageContext;
+function legacyContext() {
+  const { country, language, page } = getShopperContext();
+  return {
+    country,
+    language,
+    productHandle: page.type === "product" ? page.handle : "",
+  };
 }
 
 export const transport = new DefaultChatTransport<ChatMessage>({
@@ -40,8 +29,7 @@ export const transport = new DefaultChatTransport<ChatMessage>({
       text: messages[messages.length - 1].parts
         .map((part) => (part.type === "text" ? part.text : ""))
         .join(""),
-      ...market,
-      ...pageContext,
+      ...legacyContext(),
     },
   }),
 });
@@ -82,10 +70,11 @@ export async function loadConversation(): Promise<Conversation> {
 }
 
 export async function fetchTeaser(): Promise<string> {
+  const { country, language, productHandle } = legacyContext();
   const query = new URLSearchParams({
-    handle: pageContext.productHandle,
-    country: market.country,
-    language: market.language,
+    handle: productHandle,
+    country,
+    language,
   });
   const response = await fetch(`${PROXY_BASE}/teaser?${query}`, {
     headers: PROXY_HEADERS,

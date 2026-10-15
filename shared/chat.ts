@@ -5,7 +5,7 @@ import type { ChatTools, DisplayTool } from "./tools";
 
 export type Market = { country: string; language: string };
 
-export type PageContext = { productHandle: string };
+export type LegacyPageContext = { productHandle: string };
 
 export type ChatMessage = UIMessage<
   never,

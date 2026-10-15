@@ -8,7 +8,7 @@ import {
 } from "ai";
 import type { StorefrontApiContext } from "@shopify/shopify-app-react-router/server";
 
-import type { ChatMessage, Market, PageContext } from "../../shared/chat";
+import type { ChatMessage, Market, LegacyPageContext } from "../../shared/chat";
 import { DISPLAY_TOOLS } from "../../shared/tools";
 import { saveMessage } from "../conversations.server";
 import { trimHistory } from "./history";
@@ -24,7 +24,7 @@ export async function runAgent(
   messages: ChatMessage[],
   storefront: StorefrontApiContext,
   market: Market,
-  pageContext: PageContext,
+  pageContext: LegacyPageContext,
   teaser = false,
 ) {
   const modelMessages = await convertToModelMessages<ChatMessage>(
@@ -82,7 +82,7 @@ export async function streamReply(
   userMessage: ChatMessage,
   storefront: StorefrontApiContext,
   market: Market,
-  pageContext: PageContext,
+  pageContext: LegacyPageContext,
   teaser = false,
 ): Promise<Response> {
   const messages = [...history, userMessage];

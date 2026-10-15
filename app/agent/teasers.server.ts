@@ -4,13 +4,9 @@ import { z } from "zod";
 
 import type { ChatMessage } from "../../shared/chat";
 import type { ShopperContext } from "../../shared/context";
-import {
-  loadCatalog,
-  resolveContext,
-  type ResolvedContext,
-} from "./context.server";
+import { loadCatalog, resolveContext } from "./context.server";
 import { MODEL } from "./model";
-import { teasersPrompt } from "./prompts/teasers";
+import { teasersPrompt, type TeaserInput } from "./prompts/teasers";
 import { getCollection, getProduct, searchProducts } from "./storefront.server";
 
 export const teasersSchema = z.object({
@@ -25,12 +21,9 @@ export const teasersSchema = z.object({
     ),
 });
 
-export type TeaserInput = {
-  context: ResolvedContext;
-  language: string;
-  pageDetails: string;
-  chat: string;
-};
+export type { TeaserInput };
+
+export const TEASER_TIMEOUT_MS = 10_000;
 
 function partText(part: ChatMessage["parts"][number]): string | null {
   if (part.type === "text") return part.text;
@@ -115,7 +108,26 @@ export async function buildTeaserInput(
   };
 }
 
-export async function generateTeasers(input: TeaserInput): Promise<string[]> {
+export async function withDeadline(
+  task: (signal: AbortSignal) => Promise<string[]>,
+  ms: number,
+): Promise<string[]> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ms);
+  const aborted = new Promise<string[]>((resolve) =>
+    controller.signal.addEventListener("abort", () => resolve([])),
+  );
+  try {
+    return await Promise.race([task(controller.signal), aborted]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+export async function generateTeasers(
+  input: TeaserInput,
+  signal?: AbortSignal,
+): Promise<string[]> {
   for (let attempt = 1; ; attempt++) {
     try {
       const { output } = await generateText({
@@ -123,11 +135,12 @@ export async function generateTeasers(input: TeaserInput): Promise<string[]> {
         reasoning: "none",
         output: Output.object({ schema: teasersSchema }),
         prompt: teasersPrompt(input),
+        abortSignal: signal,
       });
 
       return output.teasers;
     } catch (error) {
-      if (attempt === 3) throw error;
+      if (attempt === 3 || signal?.aborted) throw error;
     }
   }
 }

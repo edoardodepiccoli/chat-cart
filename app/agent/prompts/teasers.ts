@@ -1,5 +1,11 @@
-import type { ResolvedPage } from "../context.server";
-import type { TeaserInput } from "../teasers.server";
+import type { ResolvedContext, ResolvedPage } from "../context.server";
+
+export type TeaserInput = {
+  context: ResolvedContext;
+  language: string;
+  pageDetails: string;
+  chat: string;
+};
 
 function describe(page: ResolvedPage) {
   switch (page.type) {

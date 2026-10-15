@@ -2,7 +2,12 @@ import type { ActionFunctionArgs } from "react-router";
 import { z } from "zod";
 
 import { shopperContextSchema } from "../../shared/context";
-import { buildTeaserInput, generateTeasers } from "../agent/teasers.server";
+import {
+  buildTeaserInput,
+  generateTeasers,
+  TEASER_TIMEOUT_MS,
+  withDeadline,
+} from "../agent/teasers.server";
 import { loadMessages } from "../conversations.server";
 import { authenticate } from "../shopify.server";
 
@@ -23,14 +28,15 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const { conversationId, context } = body.data;
   if (context.page.type === "other") return Response.json({ teasers: [] });
 
-  try {
+  const teasers = await withDeadline(async (signal) => {
     const messages = conversationId
       ? ((await loadMessages(session.shop, conversationId)) ?? [])
       : [];
     const input = await buildTeaserInput(storefront, context, messages);
+    if (input.context.page.type === "other") return [];
 
-    return Response.json({ teasers: await generateTeasers(input) });
-  } catch {
-    return Response.json({ teasers: [] });
-  }
+    return generateTeasers(input, signal);
+  }, TEASER_TIMEOUT_MS).catch(() => []);
+
+  return Response.json({ teasers });
 };

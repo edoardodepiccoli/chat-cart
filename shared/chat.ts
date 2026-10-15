@@ -3,10 +3,6 @@ import { z } from "zod";
 
 import type { ChatTools, DisplayTool } from "./tools";
 
-export type Market = { country: string; language: string };
-
-export type LegacyPageContext = { productHandle: string };
-
 export type ChatMessage = UIMessage<
   never,
   { suggestions: string[] },

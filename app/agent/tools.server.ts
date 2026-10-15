@@ -1,7 +1,6 @@
 import { tool, type Tool } from "ai";
 import type { StorefrontApiContext } from "@shopify/shopify-app-react-router/server";
 
-import type { Market } from "../../shared/chat";
 import { toProductSummary } from "../../shared/product";
 import {
   TOOLS,
@@ -15,6 +14,7 @@ import {
   listCollections,
   listProducts,
   listStorePages,
+  type Market,
 } from "./storefront.server";
 
 export function createTools(storefront: StorefrontApiContext, market: Market) {

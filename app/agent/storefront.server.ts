@@ -1,6 +1,5 @@
 import type { StorefrontApiContext } from "@shopify/shopify-app-react-router/server";
 
-import type { Market } from "../../shared/chat";
 import { sameText, type Money, type ProductOption } from "../../shared/product";
 
 const PRODUCTS_QUERY = `#graphql
@@ -158,6 +157,8 @@ function options(nodes: OptionNode[]): ProductOption[] {
     );
 }
 
+export type Market = { country: string; language: string };
+
 function inContext(market: Market) {
   return {
     country: market.country || undefined,
@@ -308,12 +309,13 @@ type CollectionsResponse = {
 export async function listCollections(
   storefront: StorefrontApiContext,
   market: Market,
+  loaded?: Awaited<ReturnType<typeof listProducts>>,
 ) {
   const response = await storefront.graphql(COLLECTIONS_QUERY, {
     variables: inContext(market),
   });
   const { data } = (await response.json()) as { data: CollectionsResponse };
-  const products = await listProducts(storefront, market);
+  const products = loaded ?? (await listProducts(storefront, market));
 
   return data.collections.nodes.map((collection) => ({
     handle: collection.handle,

@@ -10,15 +10,6 @@ const PROXY_BASE = "/apps/chat-cart";
 const PROXY_HEADERS = { "ngrok-skip-browser-warning": "true" };
 const CONVERSATION_KEY = "chat-cart:conversationId";
 
-function legacyContext() {
-  const { country, language, page } = getShopperContext();
-  return {
-    country,
-    language,
-    productHandle: page.type === "product" ? page.handle : "",
-  };
-}
-
 export const transport = new DefaultChatTransport<ChatMessage>({
   api: `${PROXY_BASE}/chat`,
   headers: PROXY_HEADERS,
@@ -29,7 +20,7 @@ export const transport = new DefaultChatTransport<ChatMessage>({
       text: messages[messages.length - 1].parts
         .map((part) => (part.type === "text" ? part.text : ""))
         .join(""),
-      ...legacyContext(),
+      context: getShopperContext(),
     },
   }),
 });
@@ -70,9 +61,9 @@ export async function loadConversation(): Promise<Conversation> {
 }
 
 export async function fetchTeaser(): Promise<string> {
-  const { country, language, productHandle } = legacyContext();
+  const { country, language, page } = getShopperContext();
   const query = new URLSearchParams({
-    handle: productHandle,
+    handle: page.type === "product" ? page.handle : "",
     country,
     language,
   });

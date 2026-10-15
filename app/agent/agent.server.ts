@@ -8,12 +8,14 @@ import {
 } from "ai";
 import type { StorefrontApiContext } from "@shopify/shopify-app-react-router/server";
 
-import type { ChatMessage, Market, LegacyPageContext } from "../../shared/chat";
+import type { ChatMessage } from "../../shared/chat";
+import type { ShopperContext } from "../../shared/context";
 import { DISPLAY_TOOLS } from "../../shared/tools";
 import { saveMessage } from "../conversations.server";
+import { loadCatalog, resolveContext } from "./context.server";
 import { trimHistory } from "./history";
 import { MODEL } from "./model";
-import { marketPrompt, pagePrompt, teaserTurnPrompt } from "./prompts/context";
+import { contextPrompt, teaserTurnPrompt } from "./prompts/context";
 import { SYSTEM_PROMPT } from "./prompts/system";
 import { generateSuggestions } from "./suggestions.server";
 import { createTools } from "./tools.server";
@@ -23,10 +25,14 @@ const DEBUG = process.env.NODE_ENV !== "production";
 export async function runAgent(
   messages: ChatMessage[],
   storefront: StorefrontApiContext,
-  market: Market,
-  pageContext: LegacyPageContext,
+  context: ShopperContext,
   teaser = false,
 ) {
+  const market = { country: context.country, language: context.language };
+  const resolved = resolveContext(
+    context,
+    await loadCatalog(storefront, market),
+  );
   const modelMessages = await convertToModelMessages<ChatMessage>(
     trimHistory(messages),
   );
@@ -42,11 +48,8 @@ export async function runAgent(
     reasoning: "medium",
     system: [
       SYSTEM_PROMPT,
-      market.country && marketPrompt(market.country),
-      pageContext.productHandle && pagePrompt(pageContext.productHandle),
-      teaser &&
-        pageContext.productHandle &&
-        teaserTurnPrompt(pageContext.productHandle),
+      contextPrompt(resolved),
+      teaser && teaserTurnPrompt(resolved.page),
     ]
       .filter(Boolean)
       .join("\n\n"),
@@ -68,7 +71,7 @@ export async function runAgent(
       }
     },
     prepareStep: ({ stepNumber }) =>
-      firstReply && !pageContext.productHandle && stepNumber === 0
+      firstReply && context.page.type === "other" && stepNumber === 0
         ? { toolChoice: { type: "tool", toolName: "listProducts" } }
         : undefined,
   });
@@ -81,8 +84,7 @@ export async function streamReply(
   history: ChatMessage[],
   userMessage: ChatMessage,
   storefront: StorefrontApiContext,
-  market: Market,
-  pageContext: LegacyPageContext,
+  context: ShopperContext,
   teaser = false,
 ): Promise<Response> {
   const messages = [...history, userMessage];
@@ -99,8 +101,7 @@ export async function streamReply(
       const { modelMessages, result } = await runAgent(
         messages,
         storefront,
-        market,
-        pageContext,
+        context,
         teaser,
       );
 

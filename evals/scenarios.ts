@@ -1,7 +1,8 @@
-import type { Market } from "../shared/chat";
+import type { PageContext, Visit } from "../shared/context";
 import {
   looksUp,
   notSays,
+  notShows,
   pricesAtMost,
   says,
   shows,
@@ -13,8 +14,9 @@ import {
 export type Scenario = {
   name: string;
   covers: string[];
-  page?: string;
-  market?: Market;
+  page?: PageContext;
+  history?: Visit[];
+  market?: { country: string; language: string };
   turns: { user: string; teaser?: boolean; expect?: Check[] }[];
 };
 
@@ -237,7 +239,7 @@ export const SCENARIOS: Scenario[] = [
   {
     name: "product-page",
     covers: ["B32", "B15"],
-    page: "caffeine-eye-elixir",
+    page: { type: "product", handle: "caffeine-eye-elixir" },
     turns: [
       {
         user: "is this vegan?",
@@ -253,7 +255,7 @@ export const SCENARIOS: Scenario[] = [
   {
     name: "teaser-priority",
     covers: ["B32"],
-    page: "caffeine-eye-elixir",
+    page: { type: "product", handle: "caffeine-eye-elixir" },
     turns: [
       { user: "show me a night cream" },
       {
@@ -262,6 +264,37 @@ export const SCENARIOS: Scenario[] = [
         expect: [
           looksUp("getProduct", { handle: "caffeine-eye-elixir" }),
           showsNothing(),
+        ],
+      },
+    ],
+  },
+  {
+    name: "collection-page",
+    covers: ["B32"],
+    page: { type: "collection", handle: "gift-sets" },
+    turns: [
+      {
+        user: "what's good here for a friend?",
+        expect: [
+          looksUp("listProducts", { collection: "gift-sets" }),
+          shows("showProducts"),
+        ],
+      },
+    ],
+  },
+  {
+    name: "history",
+    covers: ["B32"],
+    history: [
+      { type: "product", handle: "caffeine-eye-elixir", at: 1 },
+      { type: "search", terms: "dark circles", at: 2 },
+    ],
+    turns: [
+      {
+        user: "anything else for what I was looking at?",
+        expect: [
+          shows("showProducts"),
+          notShows("showProducts", ["caffeine-eye-elixir"]),
         ],
       },
     ],

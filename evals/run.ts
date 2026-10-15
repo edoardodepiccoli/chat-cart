@@ -10,7 +10,8 @@ import {
 import { runAgent } from "../app/agent/agent.server";
 import { generateSuggestions } from "../app/agent/suggestions.server";
 import prisma from "../app/db.server";
-import type { ChatMessage, Market } from "../shared/chat";
+import type { ChatMessage } from "../shared/chat";
+import type { PageContext, Visit } from "../shared/context";
 import {
   DATA_TOOLS,
   DISPLAY_TOOLS,
@@ -20,7 +21,7 @@ import {
 import { CONTRACT, type Shown, type Turn } from "./checks";
 import { SCENARIOS, type Scenario } from "./scenarios";
 
-const DEFAULT_MARKET: Market = { country: "US", language: "en" };
+const DEFAULT_MARKET = { country: "US", language: "en" };
 
 type Failure = { check: string; reason: string };
 
@@ -74,8 +75,9 @@ async function runTurn(
   history: ChatMessage[],
   user: string,
   storefront: StorefrontApiContext,
-  market: Market,
-  page: string,
+  market: { country: string; language: string },
+  page: PageContext,
+  visits: Visit[],
   teaser: boolean,
 ): Promise<{ turn: Turn; history: ChatMessage[] }> {
   const userMessage: ChatMessage = {
@@ -87,8 +89,7 @@ async function runTurn(
   const { modelMessages, result } = await runAgent(
     messages,
     storefront,
-    market,
-    { productHandle: page },
+    { ...market, page, history: visits },
     teaser,
   );
 
@@ -156,7 +157,8 @@ async function runScenario(
         user,
         storefront,
         scenario.market ?? DEFAULT_MARKET,
-        scenario.page ?? "",
+        scenario.page ?? { type: "other" },
+        scenario.history ?? [],
         teaser,
       );
       history = result.history;

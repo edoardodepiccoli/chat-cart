@@ -14,7 +14,7 @@ This removes the browser-cart / agent-state sync problem entirely, removes every
 
 ## Success criteria
 
-- No code reads or writes the cart. No CSS selector targets theme markup. No style is applied to `<html>` or any element outside the widget root.
+- No code reads or writes the cart. No CSS selector targets theme markup. The only style applied outside the widget root is the mobile scroll lock (`overflow: hidden` on `<html>` while the panel is open).
 - Every tool is named once, in `shared/tools.ts`. Forgetting the component or the `execute` of a display tool fails `npm run typecheck`.
 - `shared/` imports nothing from `app/` or `chat-widget/`.
 - `npm run typecheck`, `npm run lint`, `npm test`, widget build and `npm run build` pass.
@@ -24,7 +24,7 @@ This removes the browser-cart / agent-state sync problem entirely, removes every
 
 ### Panel
 
-- Floating launcher bottom-right. The panel opens as an overlay above the page: on desktop a fixed card about 400×640 px anchored bottom-right; on mobile a full-height sheet, as today.
+- Floating launcher bottom-right. The panel opens as an overlay above the page: on desktop a fixed card about 400×640 px anchored bottom-right; on mobile the floating card with blurred backdrop, as today.
 - No page push, no theme drawer shift.
 - Fixed color palette in `chat-widget/src/tokens.css`. No merchant color settings.
 
@@ -74,7 +74,7 @@ type ShopperContext = {
 ### Widget side (`chat-widget/src/context.ts`)
 
 - The liquid block passes `request.page_type`, `product.handle`, `collection.handle` and `search.terms` as data attributes. `main.tsx` turns them into `PageContext`.
-- On every page load the widget appends the current page to the history in `localStorage` (key `chat-cart:history`), collapses a visit equal to the previous one, keeps the last 10. The current page is not part of `history`; it is `page`.
+- On every product, collection or search page load the widget appends the current page to the history in `localStorage` (key `chat-cart:history`), collapses a visit equal to the previous one, keeps the last 10. The current page is not part of `history`; it is `page`.
 - If storage is unavailable, history is empty. No error is shown.
 
 ### Server side (`app/agent/context.server.ts`)

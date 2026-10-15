@@ -123,7 +123,7 @@ export function suggestionsSay(pattern: RegExp): Check {
   );
 }
 
-const PRODUCT_OR_CART = ["showProducts"];
+const PRODUCTS = ["showProducts"];
 
 export const CONTRACT: Check[] = [
   check("reply is not empty", (turn) =>
@@ -147,8 +147,8 @@ export const CONTRACT: Check[] = [
       ? `showed ${turn.shown.map((shown) => shown.name).join(", ")}`
       : null,
   ),
-  check("products and cart come with text", (turn) =>
-    PRODUCT_OR_CART.includes(turn.shown[0]?.name ?? "") && !turn.text
+  check("products come with text", (turn) =>
+    PRODUCTS.includes(turn.shown[0]?.name ?? "") && !turn.text
       ? `${turn.shown[0].name} without text`
       : null,
   ),
@@ -170,15 +170,15 @@ export const CONTRACT: Check[] = [
     const count = (turn.text.match(/\?/g) ?? []).length;
     return count > 1 ? `${count} questions` : null;
   }),
-  check("no question when showing products or cart", (turn) =>
-    PRODUCT_OR_CART.includes(turn.shown[0]?.name ?? "") &&
+  check("no question when showing products", (turn) =>
+    PRODUCTS.includes(turn.shown[0]?.name ?? "") &&
     turn.text.trim().endsWith("?")
       ? "ends with a question"
       : null,
   ),
   check("no internals", (turn) => {
     const found = turn.text.match(
-      /\b(tools?|handles?|variants?|listProducts|getProduct|show\w*Cards?|system prompt)\b/i,
+      /\b(tools?|handles?|variants?|listProducts|getProduct|show\w*|system prompt)\b/i,
     );
     return found ? `said "${found[0]}"` : null;
   }),

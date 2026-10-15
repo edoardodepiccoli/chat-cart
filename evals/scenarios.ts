@@ -2,7 +2,6 @@ import type { Market } from "../shared/chat";
 import {
   looksUp,
   notSays,
-  notShows,
   pricesAtMost,
   says,
   shows,
@@ -36,7 +35,7 @@ export const SCENARIOS: Scenario[] = [
     turns: [
       {
         user: "I have oily skin and big pores, budget under $70",
-        expect: [shows("showProductCards"), pricesAtMost(70)],
+        expect: [shows("showProducts"), pricesAtMost(70)],
       },
     ],
   },
@@ -71,7 +70,7 @@ export const SCENARIOS: Scenario[] = [
         user: "what's on sale?",
         expect: [
           looksUp("listProducts", { onSale: true }),
-          shows("showProductCards"),
+          shows("showProducts"),
           notSays(/deepest|biggest|best ?sell|most popular|favou?rites/i),
         ],
       },
@@ -84,7 +83,7 @@ export const SCENARIOS: Scenario[] = [
       {
         user: "what's the difference between the vitamin c serum and the niacinamide serum?",
         expect: [
-          shows("showProductCards", [
+          shows("showProducts", [
             "botanical-radiance-serum",
             "niacinamide-clarity-serum",
           ]),
@@ -98,7 +97,7 @@ export const SCENARIOS: Scenario[] = [
     turns: [
       {
         user: "a gift for my mom, she has dry skin, around $150",
-        expect: [shows("showProductCards"), pricesAtMost(175)],
+        expect: [shows("showProducts"), pricesAtMost(175)],
       },
     ],
   },
@@ -108,7 +107,7 @@ export const SCENARIOS: Scenario[] = [
     turns: [
       {
         user: "I need a moisturizer for dry skin",
-        expect: [shows("showProductCards")],
+        expect: [shows("showProducts")],
       },
       {
         user: "does the hyaluronic cloud cream have fragrance?",
@@ -183,30 +182,11 @@ export const SCENARIOS: Scenario[] = [
     name: "liked",
     covers: ["B5", "B34"],
     turns: [
-      { user: "show me your eye creams", expect: [shows("showProductCards")] },
+      { user: "show me your eye creams", expect: [shows("showProducts")] },
       {
-        user: "I like Caffeine Eye Elixir, tell me more about it.",
-        expect: [shows("showProductCard", ["caffeine-eye-elixir"])],
+        user: "show me the Caffeine Eye Elixir",
+        expect: [shows("showProducts", ["caffeine-eye-elixir"])],
       },
-    ],
-  },
-  {
-    name: "added-to-cart",
-    covers: ["B22", "B23", "B24"],
-    turns: [
-      { user: "I want a vitamin c serum", expect: [shows("showProductCard")] },
-      {
-        user: "I added Botanical Radiance Vitamin C Serum (30 ml) to my cart.",
-        expect: [
-          shows("showProductCard"),
-          notShows("showProductCard", ["botanical-radiance-serum"]),
-        ],
-      },
-      {
-        user: "I added Daily Shield Mineral SPF 40 (50 ml) to my cart.",
-        expect: [notShows("showProductCards")],
-      },
-      { user: "no thanks, I'm good", expect: [showsNothing()] },
     ],
   },
   {
@@ -217,7 +197,7 @@ export const SCENARIOS: Scenario[] = [
         user: "what do you have in your Gift Sets range?",
         expect: [
           looksUp("listProducts", { collection: "gift-sets" }),
-          shows("showProductCards"),
+          shows("showProducts"),
         ],
       },
     ],
@@ -225,7 +205,17 @@ export const SCENARIOS: Scenario[] = [
   {
     name: "cart",
     covers: ["B1", "C4"],
-    turns: [{ user: "what's in my cart?", expect: [shows("showCart")] }],
+    turns: [
+      {
+        user: "what's in my cart?",
+        expect: [showsNothing(), says(/cart/i)],
+      },
+    ],
+  },
+  {
+    name: "checkout",
+    covers: ["C4"],
+    turns: [{ user: "how do I check out?", expect: [showsNothing()] }],
   },
   {
     name: "italian",
@@ -235,7 +225,7 @@ export const SCENARIOS: Scenario[] = [
       {
         user: "ciao, cerco una crema per il contorno occhi",
         expect: [
-          shows("showProductCards"),
+          shows("showProducts"),
           says(/\b(per|il|la|che|è)\b/i),
           suggestionsSay(/\b(per|il|la|che|è|mi|di)\b/i),
         ],

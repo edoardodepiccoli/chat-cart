@@ -28,14 +28,6 @@ export function SendIcon({ className }: { className?: string }) {
   return <Icon className={className} d="M12 19V5M5 12L12 5L19 12" />;
 }
 
-export function ChevronLeftIcon({ className }: { className?: string }) {
-  return <Icon className={className} d="M15 18L9 12L15 6" />;
-}
-
-export function ChevronRightIcon({ className }: { className?: string }) {
-  return <Icon className={className} d="M9 18L15 12L9 6" />;
-}
-
 export function ChatIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" aria-hidden="true">

@@ -35,7 +35,7 @@ type ScenarioRun = {
   error?: string;
 };
 
-async function storefrontClient(): Promise<StorefrontApiContext> {
+export async function storefrontClient(): Promise<StorefrontApiContext> {
   const session = await prisma.session.findFirst({
     where: { isOnline: false },
   });

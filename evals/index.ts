@@ -8,9 +8,14 @@ const server = await createServer({
 });
 process.env.NODE_ENV = "production";
 
+const teasers = process.argv[2] === "teasers";
+const args = process.argv.slice(teasers ? 3 : 2);
+
 try {
-  const { main } = await server.ssrLoadModule("/evals/run.ts");
-  process.exitCode = await main(process.argv.slice(2));
+  const { main } = await server.ssrLoadModule(
+    teasers ? "/evals/teasers.ts" : "/evals/run.ts",
+  );
+  process.exitCode = await main(args);
 } finally {
   await server.close();
 }

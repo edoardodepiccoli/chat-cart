@@ -1,27 +1,48 @@
-import type { ProductOption } from "../../../shared/product";
+import type { ResolvedPage } from "../context.server";
+import type { TeaserInput } from "../teasers.server";
 
-export type TeaserProduct = {
-  title: string;
-  description: string;
-  tags: string[];
-  options: ProductOption[];
-};
+function describe(page: ResolvedPage) {
+  switch (page.type) {
+    case "product":
+      return `the product page of "${page.title}"`;
+    case "collection":
+      return `the collection page "${page.title}"`;
+    case "search":
+      return `the search results page for "${page.terms}"`;
+    default:
+      return "a page of the store";
+  }
+}
 
-export function teaserPrompt(product: TeaserProduct, language: string) {
-  const options = product.options
-    .map((option) => `${option.name}: ${option.values.join(", ")}`)
-    .join("; ");
+function visit(page: Exclude<ResolvedPage, { type: "other" }>) {
+  return page.type === "search"
+    ? `searched "${page.terms}"`
+    : `viewed ${page.type === "product" ? "the product" : "the collection"} "${page.title}"`;
+}
 
-  return `I'm a shopper looking at this product's page in an online store.
+export function teasersPrompt({
+  context,
+  language,
+  pageDetails,
+  chat,
+}: TeaserInput) {
+  const history = context.history.length
+    ? `Before this page, from oldest to newest, I ${context.history.map(visit).join("; ")}.`
+    : "I have not looked at anything else yet.";
 
-Title: ${product.title}
-Description: ${product.description}
-Tags: ${product.tags.join(", ")}
-Options: ${options || "none"}
+  return `I'm a shopper in an online store, and I'm on ${describe(context.page)}.${context.country ? ` I'm shopping from ${context.country}.` : ""}
 
-Write the one short message I'd most likely tap to send to the store's shopping assistant, the one that moves me closest to buying this product. Write it in first person, in my words, under 10 words. It can be a question, a request or a statement, like asking which option suits me, what it goes well with, or about shipping or returns.
+${history}
 
-The assistant can only answer from the text above and the store's policy pages, so only mention what it can answer: something the description says, the options above, or shipping and returns. Never mention anything the text above doesn't.
+What this page shows:
+${pageDetails || "nothing more"}
 
-Language: ${language || "English"}. Answer with the message only, no quotes.`;
+My conversation with the store's shopping assistant so far:
+${chat || "none yet"}
+
+Write the 3 messages I'd most likely tap to send to the assistant. Anticipate the question I'll have next, before I think of it. Make each one specific to this page and, where they connect, to what I viewed or said earlier, like "Does this serum go with the retinol I viewed?". Give the three different angles, not the same question reworded.
+
+The assistant can only answer from the store's product data and policy pages (shipping, returns, and the like), so only write messages it can answer from that. Never invent facts that aren't in the text above.
+
+Write in first person, in my words, each at most 50 characters. Language: ${language || "English"}.`;
 }

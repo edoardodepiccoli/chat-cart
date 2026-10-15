@@ -534,6 +534,12 @@
   cursor: not-allowed;
 }
 
+.cc-btn--icon {
+  align-self: stretch;
+  aspect-ratio: 1;
+  padding: 0;
+}
+
 .cc-card {
   display: block;
   overflow: hidden;
@@ -546,9 +552,6 @@
 
 .cc-card__media {
   display: block;
-}
-
-.cc-card__media {
   background: var(--cc-color-surface);
 }
 

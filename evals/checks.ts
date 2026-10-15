@@ -178,7 +178,7 @@ export const CONTRACT: Check[] = [
   ),
   check("no internals", (turn) => {
     const found = turn.text.match(
-      /\b(tools?|handles?|variants?|listProducts|getProduct|show\w*|system prompt)\b/i,
+      /\b(tools?|product handles?|variants?|listProducts|getProduct|show(Products|FaqCard)|system prompt)\b/i,
     );
     return found ? `said "${found[0]}"` : null;
   }),

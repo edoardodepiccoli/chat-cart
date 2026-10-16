@@ -95,7 +95,7 @@ export async function buildTeaserInput(
   context: ShopperContext,
   messages: ChatMessage[],
 ): Promise<TeaserInput> {
-  const [catalog, pageDetails] = await Promise.all([
+  const [{ catalog }, pageDetails] = await Promise.all([
     loadCatalog(storefront, context),
     describePage(storefront, context),
   ]);

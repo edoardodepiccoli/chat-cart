@@ -1,8 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import type { StorefrontApiContext } from "@shopify/shopify-app-react-router/server";
 
-import { loadCatalog, resolveContext } from "./context.server";
+import { setSink } from "../log/logger.server";
+import { loadCatalog, logContext, resolveContext } from "./context.server";
 import { contextPrompt } from "./prompts/context";
 
 const catalog = {
@@ -130,13 +131,13 @@ describe("loadCatalog", () => {
     const storefront = {
       graphql: () => Promise.reject(new Error("boom")),
     } as unknown as StorefrontApiContext;
-    expect(
-      await loadCatalog(storefront, {
-        ...base,
-        page: { type: "product", handle: "a" },
-        history: [],
-      }),
-    ).toEqual({ products: [], collections: [] });
+    const { catalog, stats } = await loadCatalog(storefront, {
+      ...base,
+      page: { type: "product", handle: "a" },
+      history: [],
+    });
+    expect(catalog).toEqual({ products: [], collections: [] });
+    expect(stats).toMatchObject({ queries: 1, handles: 0, error: "boom" });
   });
 
   it("queries nothing for other pages and searches", async () => {
@@ -147,7 +148,7 @@ describe("loadCatalog", () => {
         page: { type: "other" },
         history: [{ type: "search", terms: "x", at: 1 }],
       }),
-    ).toEqual({ products: [], collections: [] });
+    ).toEqual({ catalog: { products: [], collections: [] }, stats: "skipped" });
     expect(calls).toHaveLength(0);
   });
 
@@ -157,7 +158,7 @@ describe("loadCatalog", () => {
       p1: null,
       c0: { handle: "eyes", title: "Eye Care" },
     });
-    const catalog = await loadCatalog(storefront, {
+    const { catalog, stats } = await loadCatalog(storefront, {
       ...base,
       page: { type: "collection", handle: "eyes" },
       history: [
@@ -170,6 +171,7 @@ describe("loadCatalog", () => {
       products: [{ handle: "serum", title: "Vitamin C Serum" }],
       collections: [{ handle: "eyes", title: "Eye Care" }],
     });
+    expect(stats).toMatchObject({ queries: 1, handles: 2 });
     expect(calls).toHaveLength(1);
     expect(calls[0].variables).toMatchObject({
       country: "IT",
@@ -178,5 +180,84 @@ describe("loadCatalog", () => {
       c0: "eyes",
     });
     expect(calls[0].query).not.toContain("products(first");
+  });
+});
+
+describe("resolveContext dropped", () => {
+  it("lists unknown page and history handles with where", () => {
+    const resolved = resolveContext(
+      {
+        ...base,
+        page: { type: "collection", handle: "gone-eyes" },
+        history: [
+          { type: "product", handle: "old-serum", at: 1 },
+          { type: "product", handle: "serum", at: 2 },
+        ],
+      },
+      catalog,
+    );
+    expect(resolved.dropped).toEqual([
+      { type: "collection", handle: "gone-eyes", where: "page" },
+      { type: "product", handle: "old-serum", where: "history" },
+    ]);
+  });
+});
+
+describe("logContext", () => {
+  let lines: string[];
+  let restore: () => void;
+  const saved = { ...process.env };
+
+  beforeEach(() => {
+    delete process.env.LOG_LEVEL;
+    process.env.LOG_FORMAT = "pretty";
+    process.env.NO_COLOR = "1";
+    lines = [];
+    restore = setSink((line) => lines.push(line));
+  });
+
+  afterEach(() => {
+    restore();
+    process.env = { ...saved };
+  });
+
+  const context = {
+    ...base,
+    page: { type: "product" as const, handle: "serum" },
+    history: [
+      { type: "collection" as const, handle: "eyes", at: 1 },
+      { type: "search" as const, terms: "retinol", at: 2 },
+      { type: "product" as const, handle: "old-serum", at: 3 },
+    ],
+  };
+
+  it("logs market, page, numbered visits with drops and the catalog", () => {
+    logContext(context, resolveContext(context, catalog), {
+      queries: 1,
+      handles: 2,
+      ms: 83,
+    });
+    const text = lines.join("\n");
+    expect(text).toMatch(/shopper\s+market=IT\/it/);
+    expect(text).toMatch(/page\s+product "Vitamin C Serum" \(serum\)/);
+    expect(text).toMatch(/visited\s+1\. collection "Eye Care" \(eyes\)/);
+    expect(text).toContain('2. search "retinol"');
+    expect(text).toContain("3. product ⚠ unknown (old-serum) — dropped");
+    expect(text).toMatch(/catalog\s+1 query, 2 handles ms=83/);
+  });
+
+  it("logs a skipped catalog", () => {
+    const other = { ...base, page: { type: "other" as const }, history: [] };
+    logContext(other, resolveContext(other, catalog), "skipped");
+    expect(lines.join("\n")).toMatch(/catalog\s+skipped/);
+  });
+
+  it("puts the context prompt in a debug payload", () => {
+    process.env.LOG_LEVEL = "debug";
+    logContext(context, resolveContext(context, catalog), "skipped");
+    expect(lines.join("\n")).toContain("Vitamin C Serum");
+    expect(lines.some((line) => line.includes('handle \\"serum\\"'))).toBe(
+      true,
+    );
   });
 });

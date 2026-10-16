@@ -12,7 +12,8 @@ import type { ChatMessage } from "../../shared/chat";
 import type { ShopperContext } from "../../shared/context";
 import { DISPLAY_TOOLS } from "../../shared/tools";
 import { saveMessage } from "../conversations.server";
-import { loadCatalog, resolveContext } from "./context.server";
+import { log } from "../log/logger.server";
+import { loadCatalog, logContext, resolveContext } from "./context.server";
 import { trimHistory } from "./history";
 import { MODEL } from "./model";
 import { contextPrompt, teaserTurnPrompt } from "./prompts/context";
@@ -20,7 +21,14 @@ import { SYSTEM_PROMPT } from "./prompts/system";
 import { generateSuggestions } from "./suggestions.server";
 import { createTools } from "./tools.server";
 
-const DEBUG = process.env.NODE_ENV !== "production";
+const DISPLAY: readonly string[] = DISPLAY_TOOLS;
+
+const toolParts = (messages: ChatMessage[]) =>
+  messages
+    .flatMap((message) => message.parts)
+    .filter((part) => part.type.startsWith("tool-")).length;
+
+const yesNo = (value: boolean) => (value ? "yes" : "no");
 
 export async function runAgent(
   messages: ChatMessage[],
@@ -29,46 +37,117 @@ export async function runAgent(
   teaser = false,
 ) {
   const market = { country: context.country, language: context.language };
-  const resolved = resolveContext(
-    context,
-    await loadCatalog(storefront, context),
-  );
-  const modelMessages = await convertToModelMessages<ChatMessage>(
-    trimHistory(messages),
-  );
   const firstReply = !messages.some((message) => message.role === "assistant");
+  const trimmed = trimHistory(messages);
 
-  if (DEBUG)
-    console.log(
-      `[agent] ${messages.length} saved messages, ${modelMessages.length} sent, ${JSON.stringify(modelMessages).length} bytes`,
+  log.info(
+    "chat",
+    "history",
+    {},
+    {
+      depth: 1,
+      detail: `${messages.length - 1} saved messages, ${trimmed.length} sent to model (${toolParts(messages) - toolParts(trimmed)} tool parts dropped)`,
+    },
+  );
+  log.info(
+    "chat",
+    "flags",
+    { teaser: yesNo(teaser), "first-reply": yesNo(firstReply) },
+    { depth: 1 },
+  );
+
+  const { catalog, stats } = await loadCatalog(storefront, context);
+  const resolved = resolveContext(context, catalog);
+  logContext(context, resolved, stats);
+
+  if (teaser)
+    log.info(
+      "chat",
+      "teaser-turn",
+      {},
+      {
+        depth: 1,
+        detail:
+          resolved.page.type === "product"
+            ? "getProduct"
+            : resolved.page.type === "other"
+              ? "none"
+              : "listProducts",
+      },
     );
 
+  const modelMessages = await convertToModelMessages<ChatMessage>(trimmed);
+  const system = [
+    SYSTEM_PROMPT,
+    contextPrompt(resolved),
+    teaser && teaserTurnPrompt(resolved.page),
+  ]
+    .filter(Boolean)
+    .join("\n\n");
+
+  log.debug("agent", "system prompt", {}, { depth: 1, payload: system });
+  log.debug(
+    "agent",
+    "model messages",
+    { count: modelMessages.length },
+    { depth: 1, payload: modelMessages },
+  );
+
+  let step = 0;
   const result = streamText({
     model: MODEL,
     reasoning: "medium",
-    system: [
-      SYSTEM_PROMPT,
-      contextPrompt(resolved),
-      teaser && teaserTurnPrompt(resolved.page),
-    ]
-      .filter(Boolean)
-      .join("\n\n"),
+    system,
     messages: modelMessages,
     tools: createTools(storefront, market),
     stopWhen: [isStepCount(10), hasToolCall(...DISPLAY_TOOLS)],
-    onStepEnd: ({ stepNumber, toolCalls, toolResults, usage }) => {
-      if (!DEBUG) return;
-      console.log(
-        `[agent] step ${stepNumber}: ${usage.inputTokens} input tokens, ${usage.outputTokens} output tokens`,
+    onLanguageModelCallEnd: ({ usage, content, finishReason, performance }) => {
+      log.info(
+        "agent",
+        `step ${step++}`,
+        { ms: Math.round(performance.responseTimeMs) },
+        { depth: 1 },
       );
-      for (const call of toolCalls) {
-        const result = toolResults.find(
-          (item) => item.toolCallId === call.toolCallId,
+      const cached = usage.inputTokenDetails.cacheReadTokens;
+      log.info(
+        "agent",
+        "tokens",
+        {},
+        {
+          depth: 2,
+          detail: `in=${usage.inputTokens ?? 0} out=${usage.outputTokens ?? 0}${cached ? ` (cached ${cached})` : ""}`,
+        },
+      );
+      const text = content
+        .flatMap((part) => (part.type === "text" ? [part.text] : []))
+        .join("")
+        .trim();
+      if (text)
+        log.info(
+          "agent",
+          "text",
+          {},
+          { depth: 2, detail: text, quote: "model" },
         );
-        console.log(
-          `[agent]   ${call.toolName}(${JSON.stringify(call.input)}) -> ${JSON.stringify(result?.output ?? null).length} bytes`,
+      const display = content.some(
+        (part) => part.type === "tool-call" && DISPLAY.includes(part.toolName),
+      );
+      if (!display)
+        log.info("agent", "finish", {}, { depth: 2, detail: finishReason });
+    },
+    onStepEnd: ({ toolCalls }) => {
+      if (toolCalls.some((call) => DISPLAY.includes(call.toolName)))
+        log.info(
+          "agent",
+          "finish",
+          {},
+          { depth: 2, detail: "display tool (stop)" },
         );
-      }
+    },
+    onError: ({ error }) => {
+      log.error("agent", "stream failed", {
+        error: `"${error instanceof Error ? error.message : String(error)}"`,
+      });
     },
     prepareStep: ({ stepNumber }) =>
       firstReply && resolved.page.type === "other" && stepNumber === 0

@@ -24,6 +24,15 @@ export function ListIcon({ className }: { className?: string }) {
   );
 }
 
+export function ResetIcon({ className }: { className?: string }) {
+  return (
+    <Icon
+      className={className}
+      d="M3 12a9 9 0 1 0 2.64-6.36L3 8.27M3 3v5.27h5.27"
+    />
+  );
+}
+
 export function SendIcon({ className }: { className?: string }) {
   return <Icon className={className} d="M12 19V5M5 12L12 5L19 12" />;
 }

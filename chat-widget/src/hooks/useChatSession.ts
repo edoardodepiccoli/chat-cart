@@ -5,7 +5,8 @@ import { greeting } from "../turns";
 import type { ChatEvent, ChatMessage } from "../../../shared/chat";
 
 export function useChatSession() {
-  const { conversation, loadFailed, trackEvent } = useConversation();
+  const { conversation, loadFailed, resetFailed, reset, trackEvent } =
+    useConversation();
   const { messages, sendMessage, status, error } = useChat<ChatMessage>({
     id: conversation?.id,
     transport,
@@ -18,6 +19,7 @@ export function useChatSession() {
     status === "ready" && last?.role === "assistant"
       ? last.parts.find((part) => part.type === "data-suggestions")?.data
       : undefined;
+  const canReset = !busy && messages.some((message) => message.role === "user");
 
   function send(text: string, options?: { teaser?: boolean }) {
     if (!text || busy || !conversation) return;
@@ -36,6 +38,9 @@ export function useChatSession() {
     busy,
     suggestions,
     send,
+    canReset,
+    reset,
+    resetFailed,
     trackEvent: trackEvent as (event: ChatEvent) => void,
   };
 }

@@ -20,6 +20,9 @@ export default function App() {
     busy,
     suggestions,
     send,
+    canReset,
+    reset,
+    resetFailed,
     trackEvent,
   } = useChatSession();
   const [open, setOpen] = useState(false);
@@ -58,6 +61,11 @@ export default function App() {
     submitText(draft.trim());
   }
 
+  function startOver() {
+    setDraft("");
+    reset();
+  }
+
   function pick(text: string) {
     trackEvent({ type: "suggestion_clicked", data: { text } });
     submitText(text);
@@ -74,6 +82,8 @@ export default function App() {
         onSubmit: submit,
         disabled: busy || !conversation,
         inputRef,
+        onReset: startOver,
+        resetDisabled: !canReset,
       }}
       onToggle={() => setOpen(!open)}
       teaser={
@@ -110,7 +120,7 @@ export default function App() {
             </div>
           )}
 
-          {index === all.length - 1 && (error || loadFailed) && (
+          {index === all.length - 1 && (error || loadFailed || resetFailed) && (
             <div className="cc-message cc-message--assistant">
               <div className="cc-part">{t("error")}</div>
             </div>

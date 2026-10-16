@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { fetchTeasers } from "./api";
+import { fetchTeasers, startConversation } from "./api";
 
 function stubFetch(impl: () => Promise<unknown>) {
   const fetchMock = vi.fn(impl);
@@ -42,5 +42,19 @@ describe("fetchTeasers", () => {
   it("returns nothing when the request fails", async () => {
     stubFetch(() => Promise.reject(new Error("offline")));
     expect(await fetchTeasers("c1")).toEqual([]);
+  });
+});
+
+describe("startConversation", () => {
+  it("asks for a new conversation without an id", async () => {
+    const fetchMock = stubFetch(() => json({ id: "new", messages: [] }));
+    expect(await startConversation()).toEqual({ id: "new", messages: [] });
+    const [url] = fetchMock.mock.calls[0] as unknown as [string];
+    expect(url).toBe("/apps/chat-cart/chat");
+  });
+
+  it("rejects on a non-OK status", async () => {
+    stubFetch(() => json({}, false));
+    await expect(startConversation()).rejects.toThrow();
   });
 });

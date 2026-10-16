@@ -1,7 +1,7 @@
 import type { RefObject } from "react";
 
 import { t } from "../i18n";
-import { SendIcon } from "../icons";
+import { ResetIcon, SendIcon } from "../icons";
 
 export type ComposerProps = {
   value: string;
@@ -9,6 +9,8 @@ export type ComposerProps = {
   onSubmit: (event: React.FormEvent) => void;
   disabled?: boolean;
   inputRef?: RefObject<HTMLInputElement>;
+  onReset?: () => void;
+  resetDisabled?: boolean;
 };
 
 export default function Composer({
@@ -17,9 +19,23 @@ export default function Composer({
   onSubmit,
   disabled,
   inputRef,
+  onReset,
+  resetDisabled,
 }: ComposerProps) {
   return (
     <form className="cc-composer" onSubmit={onSubmit}>
+      {onReset && (
+        <button
+          className="cc-btn cc-btn--secondary cc-btn--icon"
+          type="button"
+          aria-label={t("resetChat")}
+          title={t("resetChat")}
+          onClick={onReset}
+          disabled={resetDisabled}
+        >
+          <ResetIcon className="cc-icon" />
+        </button>
+      )}
       <input
         ref={inputRef}
         className="cc-control cc-input"

@@ -53,12 +53,18 @@ async function fetchConversation(id: string | null): Promise<Conversation> {
   return response.json();
 }
 
+export async function startConversation(): Promise<Conversation> {
+  const conversation = await fetchConversation(null);
+  writeId(conversation.id);
+  return conversation;
+}
+
 export async function loadConversation(): Promise<Conversation> {
   const id = readId();
-  const conversation = await fetchConversation(id).catch((error) => {
-    if (!id) throw error;
-    return fetchConversation(null);
-  });
+  if (!id) return startConversation();
+  const conversation = await fetchConversation(id).catch(() =>
+    fetchConversation(null),
+  );
   writeId(conversation.id);
   return conversation;
 }
@@ -91,6 +97,7 @@ export function sendEvent(conversationId: string, event: ChatEvent) {
 export function useConversation() {
   const [conversation, setConversation] = useState<Conversation>();
   const [loadFailed, setLoadFailed] = useState(false);
+  const [resetFailed, setResetFailed] = useState(false);
 
   useEffect(() => {
     loadConversation()
@@ -102,5 +109,14 @@ export function useConversation() {
     if (conversation) sendEvent(conversation.id, event);
   }
 
-  return { conversation, loadFailed, trackEvent };
+  async function reset() {
+    setResetFailed(false);
+    try {
+      setConversation(await startConversation());
+    } catch {
+      setResetFailed(true);
+    }
+  }
+
+  return { conversation, loadFailed, resetFailed, reset, trackEvent };
 }

@@ -40,4 +40,5 @@ if [[ -z "$tunnel_url" ]]; then
 fi
 
 echo "Tunnel: $tunnel_url"
+export FORCE_COLOR=1
 shopify app dev --tunnel-url="${tunnel_url}:${APP_PORT}"

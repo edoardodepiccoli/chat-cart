@@ -5,6 +5,7 @@ import { createReadableStreamFromReadable } from "@react-router/node";
 import { type EntryContext } from "react-router";
 import { isbot } from "isbot";
 import { addDocumentResponseHeaders } from "./shopify.server";
+import { log } from "./log/logger.server";
 
 export const streamTimeout = 5000;
 
@@ -40,7 +41,9 @@ export default async function handleRequest(
         },
         onError(error) {
           responseStatusCode = 500;
-          console.error(error);
+          log.error("server", "render failed", {
+            error: error instanceof Error ? error.message : String(error),
+          });
         },
       },
     );

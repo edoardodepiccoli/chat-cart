@@ -96,6 +96,66 @@ describe("formatPretty", () => {
   });
 });
 
+describe("formatPretty hardening", () => {
+  it("keeps message and field values on one line without escapes", () => {
+    const line = formatPretty(
+      {
+        ...base,
+        message: "a\nb\x1b[31mc\x1b]0;t\x07d",
+        fields: { x: "p\r\nq\x1b[2Jr\x07" },
+      },
+      { color: false },
+    );
+    expect(line.split("\n")).toHaveLength(1);
+    // eslint-disable-next-line no-control-regex
+    expect(line).not.toMatch(/[\x00-\x08\x0b-\x1f\x7f-\x9f]/);
+    expect(line).toContain("a bcd");
+    expect(line).toContain("x=p  qr");
+  });
+
+  it("cleans ctx values", () => {
+    const line = formatPretty(
+      { ...base, ctx: { req: "a\nb", conv: "c\x1b[0md", route: "chat" } },
+      { color: false },
+    );
+    expect(line.split("\n")).toHaveLength(1);
+  });
+
+  it("restores quote style after a symbol", () => {
+    const line = formatPretty(
+      { ...base, detail: "⚠ x", quote: "shopper" },
+      { color: true },
+    );
+    expect(line).toContain("\x1b[33m⚠\x1b[0m\x1b[1m");
+  });
+
+  it("cuts by code points", () => {
+    const line = formatPretty(
+      { ...base, detail: "😀".repeat(161), quote: "model" },
+      { color: false },
+    );
+    expect(line).toContain("😀".repeat(160) + '…"');
+    expect(line).not.toContain("\ud83d…");
+  });
+
+  it("omits conv when absent", () => {
+    const line = formatPretty(
+      { ...base, ctx: { req: "7f3c", route: "chat" } },
+      { color: false },
+    );
+    expect(line).toMatch(/ms=210 req=7f3c$/);
+  });
+
+  it("does not truncate a label longer than 24 characters", () => {
+    const long = "a-very-long-message-label-over-24";
+    const line = formatPretty(
+      { ...base, message: long, depth: 0 },
+      { color: false },
+    );
+    expect(line).toContain(`${long} ms=210`);
+  });
+});
+
 describe("formatJson", () => {
   it("writes JSON on one line with context", () => {
     const text = formatJson({ ...base, ctx: { req: "7f3c", route: "chat" } });

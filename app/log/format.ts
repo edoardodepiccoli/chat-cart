@@ -1,3 +1,4 @@
+/* eslint-disable no-control-regex */
 export type Level = "debug" | "info" | "warn" | "error";
 export type Tag =
   | "chat"
@@ -57,8 +58,29 @@ const QUOTE_LIMIT = 160;
 const MESSAGE_WIDTH = 24;
 
 export function clean(text: string): string {
-  // eslint-disable-next-line no-control-regex
-  return text.replace(/\x1b\[[0-9;]*[A-Za-z]/g, "").replace(/[\r\n]/g, " ");
+  return text
+    .replace(/[\r\n]/g, " ")
+    .replace(/\x1b\][^\x07\x1b]*(?:\x07|\x1b\\)?/g, "")
+    .replace(/\x1b\[[0-?]*[ -/]*[@-~]?/g, "")
+    .replace(/\x1b[@-_]?/g, "")
+    .replace(/[\x00-\x08\x0b-\x1f\x7f-\x9f]/g, "");
+}
+
+function sanitize(event: LogEvent): LogEvent {
+  const fields: Fields = {};
+  for (const [key, value] of Object.entries(event.fields)) {
+    fields[clean(key)] = typeof value === "string" ? clean(value) : value;
+  }
+  return {
+    ...event,
+    message: clean(event.message),
+    fields,
+    ctx: event.ctx && {
+      req: clean(event.ctx.req),
+      conv: event.ctx.conv === undefined ? undefined : clean(event.ctx.conv),
+      route: clean(event.ctx.route),
+    },
+  };
 }
 
 function safeStringify(value: unknown, space?: number): string {
@@ -73,8 +95,11 @@ function detailText(event: LogEvent): string | undefined {
   if (event.detail === undefined) return undefined;
   const text = clean(event.detail);
   if (!event.quote) return text;
+  const chars = Array.from(text);
   const cut =
-    text.length > QUOTE_LIMIT ? `${text.slice(0, QUOTE_LIMIT)}…` : text;
+    chars.length > QUOTE_LIMIT
+      ? `${chars.slice(0, QUOTE_LIMIT).join("")}…`
+      : text;
   return `"${cut}"`;
 }
 
@@ -103,19 +128,27 @@ function formatField(
 
 function styleDetail(event: LogEvent, text: string, color: boolean): string {
   if (!color) return text;
+  const style =
+    event.quote === "shopper"
+      ? BOLD
+      : event.quote === "model"
+        ? ITALIC
+        : undefined;
+  const back = style ? `\x1b[${style}m` : "";
+  const sym = (code: string, ch: string) =>
+    `${RESET}\x1b[${code}m${ch}${RESET}${back}`;
   const symbols = text
-    .replaceAll("⚠", paint(YELLOW, "⚠", true))
-    .replaceAll("✓", paint(GREEN, "✓", true))
-    .replaceAll("✗", paint(RED, "✗", true));
-  if (event.quote === "shopper") return paint(BOLD, symbols, true);
-  if (event.quote === "model") return paint(ITALIC, symbols, true);
-  return symbols;
+    .replaceAll("⚠", sym(YELLOW, "⚠"))
+    .replaceAll("✓", sym(GREEN, "✓"))
+    .replaceAll("✗", sym(RED, "✗"));
+  return style ? paint(style, symbols, true) : symbols;
 }
 
 export function formatPretty(
-  event: LogEvent,
+  raw: LogEvent,
   { color }: { color: boolean },
 ): string {
+  const event = sanitize(raw);
   const { time, level, tag, depth, edge } = event;
   const pad2 = (n: number) => String(n).padStart(2, "0");
   const stamp = `${pad2(time.getHours())}:${pad2(time.getMinutes())}:${pad2(time.getSeconds())}.${String(time.getMilliseconds()).padStart(3, "0")}`;
@@ -170,7 +203,8 @@ export function formatPretty(
   return edge === "start" ? `\n${out}` : out;
 }
 
-export function formatJson(event: LogEvent): string {
+export function formatJson(raw: LogEvent): string {
+  const event = sanitize(raw);
   const object = {
     time: event.time.toISOString(),
     level: event.level,

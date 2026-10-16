@@ -78,6 +78,27 @@ describe("log", () => {
     expect(() => JSON.parse(lines[0])).not.toThrow();
   });
 
+  it("never throws from a throwing sink or context provider", () => {
+    restore();
+    restore = setSink(() => {
+      throw new Error("boom");
+    });
+    expect(() => log.info("chat", "x")).not.toThrow();
+    restore();
+    restore = setSink((l) => lines.push(l));
+    setContextProvider(() => {
+      throw new Error("boom");
+    });
+    expect(() => log.info("chat", "x")).not.toThrow();
+  });
+
+  it("treats FORCE_COLOR=0 as off", () => {
+    delete process.env.NO_COLOR;
+    process.env.FORCE_COLOR = "0";
+    log.info("chat", "x");
+    expect(lines[0]).not.toContain("\x1b[");
+  });
+
   it("colors only when forced and NO_COLOR is unset", () => {
     process.env.FORCE_COLOR = "1";
     log.info("chat", "x");

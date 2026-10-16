@@ -14,6 +14,7 @@ export type LogOptions = {
   depth?: number;
   edge?: "start" | "end";
   payload?: unknown;
+  time?: Date;
 };
 
 const RANK: Record<Level, number> = { debug: 0, info: 1, warn: 2, error: 3 };
@@ -22,6 +23,7 @@ let sink = (line: string) => {
   process.stdout.write(`${line}\n`);
 };
 let contextProvider: () => LogEvent["ctx"] = () => undefined;
+let beforeWrite: (level: Level) => void = () => {};
 
 export function setSink(next: (line: string) => void): () => void {
   const previous = sink;
@@ -33,6 +35,10 @@ export function setSink(next: (line: string) => void): () => void {
 
 export function setContextProvider(provider: () => LogEvent["ctx"]) {
   contextProvider = provider;
+}
+
+export function setBeforeWrite(hook: (level: Level) => void) {
+  beforeWrite = hook;
 }
 
 function minLevel(): Level {
@@ -69,8 +75,13 @@ function write(
 ) {
   if (RANK[level] < RANK[minLevel()]) return;
   try {
+    beforeWrite(level);
+  } catch {
+    // never let the hook break logging
+  }
+  try {
     const event: LogEvent = {
-      time: new Date(),
+      time: options.time ?? new Date(),
       level,
       tag,
       message,

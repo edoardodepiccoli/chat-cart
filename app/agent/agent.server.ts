@@ -5,6 +5,7 @@ import {
   hasToolCall,
   isStepCount,
   streamText,
+  type UIMessageStreamOnEndCallback,
 } from "ai";
 import type { StorefrontApiContext } from "@shopify/shopify-app-react-router/server";
 
@@ -13,7 +14,7 @@ import type { ShopperContext } from "../../shared/context";
 import { DISPLAY_TOOLS } from "../../shared/tools";
 import { saveMessage } from "../conversations.server";
 import { log } from "../log/logger.server";
-import { endRequest } from "../log/request.server";
+import { bindRequest, endRequest } from "../log/request.server";
 import { loadCatalog, logContext, resolveContext } from "./context.server";
 import { trimHistory } from "./history";
 import { MODEL } from "./model";
@@ -182,41 +183,44 @@ export async function streamReply(
 
   const stream = createUIMessageStream<ChatMessage>({
     originalMessages: messages,
-    onError: (error) => {
+    onError: bindRequest((error: unknown) => {
       fail(error);
       return "An error occurred.";
-    },
-    onEnd: async ({ responseMessage, outcome, isCancelled }) => {
-      try {
-        if (responseMessage.parts.length) {
-          const saved = [userMessage, responseMessage];
-          for (const item of saved) await saveMessage(conversationId, item);
-          log.info(
+    }),
+    onEnd: bindRequest<UIMessageStreamOnEndCallback<ChatMessage>>(
+      async ({ responseMessage, outcome, isCancelled }) => {
+        try {
+          if (responseMessage.parts.length) {
+            const saved = [userMessage, responseMessage];
+            for (const item of saved) await saveMessage(conversationId, item);
+            log.info(
+              "db",
+              "saved",
+              {},
+              { depth: 1, detail: `${saved.length} messages` },
+            );
+          }
+        } catch (error) {
+          failed = true;
+          log.error(
             "db",
-            "saved",
-            {},
-            { depth: 1, detail: `${saved.length} messages` },
+            "✗ save failed",
+            { error: message(error) },
+            { depth: 1 },
+          );
+        } finally {
+          if (totals)
+            log.info("chat", "totals", {}, { depth: 1, detail: totals });
+          endRequest(
+            failed || outcome.status === "failed"
+              ? "error"
+              : isCancelled
+                ? "cancelled"
+                : 200,
           );
         }
-      } catch (error) {
-        failed = true;
-        log.error(
-          "db",
-          "✗ save failed",
-          { error: message(error) },
-          { depth: 1 },
-        );
-      } finally {
-        if (totals) log.info("chat", "totals", {}, { detail: totals });
-        endRequest(
-          failed || outcome.status === "failed"
-            ? "error"
-            : isCancelled
-              ? "cancelled"
-              : 200,
-        );
-      }
-    },
+      },
+    ),
     execute: async ({ writer }) => {
       const { modelMessages, result } = await runAgent(
         messages,

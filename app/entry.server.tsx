@@ -42,7 +42,7 @@ export default async function handleRequest(
         onError(error) {
           responseStatusCode = 500;
           log.error("server", "render failed", {
-            error: error instanceof Error ? error.message : String(error),
+            error: `"${error instanceof Error ? error.message : String(error)}"`,
           });
         },
       },

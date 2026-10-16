@@ -2,7 +2,7 @@ import { AsyncLocalStorage } from "node:async_hooks";
 import { randomBytes } from "node:crypto";
 import type { z } from "zod";
 import type { Fields, Tag } from "./format";
-import { log, setContextProvider } from "./logger.server";
+import { log, setBeforeWrite, setContextProvider } from "./logger.server";
 
 type Store = {
   req: string;
@@ -10,6 +10,8 @@ type Store = {
   route: string;
   start: number;
   ended: boolean;
+  warned: boolean;
+  pending?: string;
 };
 
 const storage = new AsyncLocalStorage<Store>();
@@ -28,6 +30,32 @@ setContextProvider(() => {
   return store && { req: store.req, conv: store.conv, route: store.route };
 });
 
+function flush(store: Store) {
+  const message = store.pending;
+  if (message === undefined) return;
+  store.pending = undefined;
+  log.info(
+    tagFor(store.route),
+    message,
+    {},
+    { edge: "start", time: new Date(store.start) },
+  );
+}
+
+setBeforeWrite((level) => {
+  const store = storage.getStore();
+  if (!store) return;
+  flush(store);
+  if (level === "warn" || level === "error") store.warned = true;
+});
+
+export function bindRequest<F extends (...args: never[]) => unknown>(fn: F): F {
+  const store = storage.getStore();
+  if (!store) return fn;
+  return ((...args: Parameters<F>) =>
+    storage.run(store, () => fn(...args))) as F;
+}
+
 export function requestTag(): Tag {
   const store = storage.getStore();
   return store ? tagFor(store.route) : "server";
@@ -35,7 +63,9 @@ export function requestTag(): Tag {
 
 export function setConversation(id: string) {
   const store = storage.getStore();
-  if (store) store.conv = id;
+  if (!store) return;
+  store.conv = id;
+  flush(store);
 }
 
 export function endRequest(
@@ -45,6 +75,7 @@ export function endRequest(
   const store = storage.getStore();
   if (!store || store.ended) return;
   store.ended = true;
+  flush(store);
   log.info(
     tagFor(store.route),
     "done",
@@ -58,7 +89,7 @@ export function logRejected(tag: Tag, issues: z.core.$ZodIssue[]) {
   for (const issue of issues) {
     log.warn(
       tag,
-      `${issue.path.join(".")}: ${issue.message}`,
+      `${issue.path.join(".") || "(body)"}: ${issue.message}`,
       {},
       { depth: 1 },
     );
@@ -76,17 +107,22 @@ export function withRequestLog<A extends { request: Request }>(
       route,
       start: Date.now(),
       ended: false,
+      warned: false,
     };
+    const path =
+      route === "webhook" ? new URL(args.request.url).pathname : `/${route}`;
+    store.pending = `${args.request.method} ${path}`;
     return storage.run(store, async () => {
       const tag = tagFor(route);
-      log.info(tag, `${args.request.method} /${route}`, {}, { edge: "start" });
       try {
         const response = await handler(args);
         if (!options.endsLater) endRequest(response.status);
         return response;
       } catch (error) {
         if (error instanceof Response) {
-          log.warn(tag, "rejected", { status: error.status });
+          if (store.warned)
+            log.info(tag, "rejected", { status: error.status }, { depth: 1 });
+          else log.warn(tag, "rejected", { status: error.status });
           endRequest(error.status);
         } else {
           log.error(tag, "failed", {

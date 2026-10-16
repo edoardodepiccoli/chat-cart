@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { MockLanguageModelV4, simulateReadableStream } from "ai/test";
 
 import { setSink } from "../log/logger.server";
-import { withRequestLog } from "../log/request.server";
+import { setConversation, withRequestLog } from "../log/request.server";
 
 const mocks = vi.hoisted(() => ({
   saveMessage: vi.fn(),
@@ -41,10 +41,10 @@ const reply = [
   },
 ];
 
-function model(chunks: unknown[]) {
+function model(chunks: unknown[], chunkDelayInMs: number | null = 0) {
   return new MockLanguageModelV4({
     doStream: async () => ({
-      stream: simulateReadableStream({ chunks }),
+      stream: simulateReadableStream({ chunks, chunkDelayInMs }),
     }),
   } as never);
 }
@@ -67,11 +67,12 @@ afterEach(() => {
   process.env = { ...saved };
 });
 
-async function run() {
-  const response = await withRequestLog(
+function start() {
+  return withRequestLog(
     "chat",
-    () =>
-      streamReply(
+    () => {
+      setConversation("conv1");
+      return streamReply(
         "conv1",
         [
           {
@@ -83,9 +84,14 @@ async function run() {
         { id: "u", role: "user", parts: [{ type: "text", text: "hi" }] },
         {} as never,
         { country: "IT", language: "it", page: { type: "other" }, history: [] },
-      ),
+      );
+    },
     { endsLater: true },
   )({ request: new Request("http://x/", { method: "POST" }) });
+}
+
+async function run() {
+  const response = await start();
   await response.text();
   await new Promise((r) => setTimeout(r, 10));
 }
@@ -102,6 +108,7 @@ describe("streamReply end of request", () => {
     expect(index("saved")).toBeLessThan(index("totals"));
     expect(index("totals")).toBeLessThan(index("■ done"));
     expect(lines[index("totals")]).toContain("steps=1 tools=0 tokens in=10");
+    expect(lines[index("totals")]).toMatch(/chat {6}totals/);
   });
 
   it("ends with status=error after a failed save", async () => {
@@ -125,5 +132,19 @@ describe("streamReply end of request", () => {
     expect(done()).toHaveLength(1);
     expect(done()[0]).toContain("status=error");
     expect(index("stream failed")).toBeLessThan(index("■ done"));
+  });
+
+  it("ends a cancelled stream once with conv when cancelled outside the request", async () => {
+    mocks.model.current = model(reply, 30);
+    const response = await start();
+    const reader = response.body!.getReader();
+    await reader.read();
+    await new Promise<void>((resolve) =>
+      setTimeout(() => void reader.cancel().then(resolve), 0),
+    );
+    await new Promise((r) => setTimeout(r, 200));
+    expect(done()).toHaveLength(1);
+    expect(done()[0]).toContain("status=cancelled");
+    expect(done()[0]).toContain("conv=");
   });
 });

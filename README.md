@@ -92,7 +92,7 @@ The app logs to the dev terminal, in color. Each request prints one block. It st
 - `LOG_FORMAT` is `pretty` or `json`. The default is `json` in production and `pretty` otherwise.
 - `NO_COLOR` turns colors off. `scripts/dev.sh` sets `FORCE_COLOR=1`.
 
-Every line carries `conv=<first 5 chars>` and `req=<4 hex>`. To follow one conversation, filter the output:
+Every line carries `conv=<first 5 chars>` and `req=<4 hex>`. Requests without a conversation carry only `req=`: webhooks, auth failures and client errors with no conversation. To follow one conversation, filter the output:
 
 ```bash
 npm run dev 2>&1 | grep conv=ab12f

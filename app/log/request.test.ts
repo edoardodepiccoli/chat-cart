@@ -112,7 +112,9 @@ describe("withRequestLog", () => {
     expect(
       lines.some(
         (l) =>
-          l.includes("ERROR") && l.includes("failed") && l.includes("boom"),
+          l.includes("ERROR") &&
+          l.includes("failed") &&
+          l.includes('error="boom"'),
       ),
     ).toBe(true);
     expect(done()).toHaveLength(1);

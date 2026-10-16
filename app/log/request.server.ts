@@ -87,7 +87,7 @@ export function withRequestLog<A extends { request: Request }>(
           endRequest(error.status);
         } else {
           log.error(tag, "failed", {
-            error: error instanceof Error ? error.message : String(error),
+            error: `"${error instanceof Error ? error.message : String(error)}"`,
           });
           endRequest(500);
         }

@@ -9,6 +9,12 @@ import {
   findOrCreateConversation,
   loadMessages,
 } from "../conversations.server";
+import { log } from "../log/logger.server";
+import {
+  logRejected,
+  setConversation,
+  withRequestLog,
+} from "../log/request.server";
 import { authenticate } from "../shopify.server";
 
 const bodySchema = z.object({
@@ -18,34 +24,86 @@ const bodySchema = z.object({
   teaser: z.boolean().optional(),
 });
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { session } = await authenticate.public.appProxy(request);
-  if (!session) throw new Response("Unauthorized", { status: 401 });
-
-  const id = new URL(request.url).searchParams.get("id");
-
-  return Response.json(await findOrCreateConversation(session.shop, id));
+const LOADED = {
+  found: "found",
+  created: "created",
+  replaced: "⚠ unknown id, created new",
 };
 
-export const action = async ({ request }: ActionFunctionArgs) => {
-  const { session, storefront } = await authenticate.public.appProxy(request);
-  if (!session || !storefront) {
-    throw new Response("Unauthorized", { status: 401 });
-  }
+export const loader = withRequestLog(
+  "chat",
+  async ({ request }: LoaderFunctionArgs) => {
+    const { session } = await authenticate.public.appProxy(request);
+    if (!session) {
+      log.warn("chat", "auth failed");
+      throw new Response("Unauthorized", { status: 401 });
+    }
 
-  const body = bodySchema.safeParse(await request.json().catch(() => null));
-  if (!body.success) throw new Response("Bad request", { status: 400 });
+    const id = new URL(request.url).searchParams.get("id");
 
-  const { id, text, context, teaser } = body.data;
+    const { status, ...conversation } = await findOrCreateConversation(
+      session.shop,
+      id,
+    );
+    setConversation(conversation.id);
+    const message = LOADED[status];
+    if (status === "replaced")
+      log.warn("db", message, { id: `"${id}"` }, { depth: 1 });
+    else
+      log.info(
+        "db",
+        message,
+        {},
+        {
+          depth: 1,
+          detail:
+            status === "found"
+              ? `${conversation.messages.length} messages`
+              : undefined,
+        },
+      );
 
-  const history = await loadMessages(session.shop, id);
-  if (!history) throw new Response("Not found", { status: 404 });
+    return Response.json(conversation);
+  },
+);
 
-  const userMessage: ChatMessage = {
-    id: generateId(),
-    role: "user",
-    parts: [{ type: "text", text }],
-  };
+export const action = withRequestLog(
+  "chat",
+  async ({ request }: ActionFunctionArgs) => {
+    const { session, storefront } = await authenticate.public.appProxy(request);
+    if (!session || !storefront) {
+      log.warn("chat", "auth failed");
+      throw new Response("Unauthorized", { status: 401 });
+    }
 
-  return streamReply(id, history, userMessage, storefront, context, teaser);
-};
+    const body = bodySchema.safeParse(await request.json().catch(() => null));
+    if (!body.success) {
+      logRejected("chat", body.error.issues);
+      throw new Response("Bad request", { status: 400 });
+    }
+
+    const { id, text, context, teaser } = body.data;
+    setConversation(id);
+    log.info(
+      "chat",
+      "shopper says",
+      {},
+      { depth: 1, detail: text, quote: "shopper" },
+    );
+
+    const history = await loadMessages(session.shop, id);
+    if (!history) {
+      log.warn("chat", "⚠ unknown conversation", {}, { depth: 1 });
+      throw new Response("Not found", { status: 404 });
+    }
+
+    const userMessage: ChatMessage = {
+      id: generateId(),
+      role: "user",
+      parts: [{ type: "text", text }],
+    };
+
+    return streamReply(id, history, userMessage, storefront, context, teaser);
+  },
+  { endsLater: true },
+);

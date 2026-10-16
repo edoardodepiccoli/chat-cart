@@ -13,6 +13,7 @@ import type { ShopperContext } from "../../shared/context";
 import { DISPLAY_TOOLS } from "../../shared/tools";
 import { saveMessage } from "../conversations.server";
 import { log } from "../log/logger.server";
+import { endRequest } from "../log/request.server";
 import { loadCatalog, logContext, resolveContext } from "./context.server";
 import { trimHistory } from "./history";
 import { MODEL } from "./model";
@@ -30,11 +31,19 @@ const toolParts = (messages: ChatMessage[]) =>
 
 const yesNo = (value: boolean) => (value ? "yes" : "no");
 
+function streamFailed(error: unknown) {
+  log.error("agent", "stream failed", {
+    error: `"${error instanceof Error ? error.message : String(error)}"`,
+  });
+  endRequest("error");
+}
+
 export async function runAgent(
   messages: ChatMessage[],
   storefront: StorefrontApiContext,
   context: ShopperContext,
   teaser = false,
+  onFail: (error: unknown) => void = streamFailed,
 ) {
   const market = { country: context.country, language: context.language };
   const firstReply = !messages.some((message) => message.role === "assistant");
@@ -144,11 +153,7 @@ export async function runAgent(
           { depth: 2, detail: "display tool (stop)" },
         );
     },
-    onError: ({ error }) => {
-      log.error("agent", "stream failed", {
-        error: `"${error instanceof Error ? error.message : String(error)}"`,
-      });
-    },
+    onError: ({ error }) => onFail(error),
     prepareStep: ({ stepNumber }) =>
       firstReply && resolved.page.type === "other" && stepNumber === 0
         ? { toolChoice: { type: "tool", toolName: "listProducts" } }
@@ -167,14 +172,33 @@ export async function streamReply(
   teaser = false,
 ): Promise<Response> {
   const messages = [...history, userMessage];
+  let failed = false;
+  const fail = (error: unknown) => {
+    if (failed) return;
+    failed = true;
+    streamFailed(error);
+  };
+  let totals = "";
 
   const stream = createUIMessageStream<ChatMessage>({
     originalMessages: messages,
+    onError: (error) => {
+      fail(error);
+      return "An error occurred.";
+    },
     onEnd: async ({ responseMessage }) => {
       if (responseMessage.parts.length) {
-        await saveMessage(conversationId, userMessage);
-        await saveMessage(conversationId, responseMessage);
+        const saved = [userMessage, responseMessage];
+        for (const message of saved) await saveMessage(conversationId, message);
+        log.info(
+          "db",
+          "saved",
+          {},
+          { depth: 1, detail: `${saved.length} messages` },
+        );
       }
+      if (totals) log.info("chat", "totals", {}, { detail: totals });
+      endRequest(200);
     },
     execute: async ({ writer }) => {
       const { modelMessages, result } = await runAgent(
@@ -182,11 +206,19 @@ export async function streamReply(
         storefront,
         context,
         teaser,
+        fail,
       );
 
       writer.merge(
         result.toUIMessageStream({ sendFinish: false, sendReasoning: false }),
       );
+
+      const [steps, usage] = await Promise.all([
+        result.steps,
+        result.totalUsage,
+      ]);
+      const tools = steps.reduce((sum, step) => sum + step.toolCalls.length, 0);
+      totals = `steps=${steps.length} tools=${tools} tokens in=${usage.inputTokens ?? 0} out=${usage.outputTokens ?? 0}`;
 
       const suggestions = await generateSuggestions([
         ...modelMessages,

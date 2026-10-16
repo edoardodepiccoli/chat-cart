@@ -4,7 +4,8 @@ import { z } from "zod";
 
 import type { ChatMessage } from "../../shared/chat";
 import type { ShopperContext } from "../../shared/context";
-import { loadCatalog, resolveContext } from "./context.server";
+import { log } from "../log/logger.server";
+import { loadCatalog, logContext, resolveContext } from "./context.server";
 import { MODEL } from "./model";
 import { teasersPrompt, type TeaserInput } from "./prompts/teasers";
 import { getCollection, getProduct, searchProducts } from "./storefront.server";
@@ -63,31 +64,45 @@ const listing = (
     .map((product) => `- ${product.title}: ${product.description}`)
     .join("\n");
 
+type PageDetails = { text: string; fields: Record<string, number> } | null;
+
 async function describePage(
   storefront: StorefrontApiContext,
   context: ShopperContext,
-) {
+): Promise<PageDetails> {
   const market = { country: context.country, language: context.language };
   const { page } = context;
 
   if (page.type === "product") {
     const product = await getProduct(storefront, market, page.handle);
-    if (!product) return "";
+    if (!product) return null;
     const options = product.options
       .map((option) => `${option.name}: ${option.values.join(", ")}`)
       .join("; ");
-    return `Title: ${product.title}\nDescription: ${product.description}\nOptions: ${options || "none"}`;
+    return {
+      text: `Title: ${product.title}\nDescription: ${product.description}\nOptions: ${options || "none"}`,
+      fields: {
+        description: product.description.length,
+        options: product.options.length,
+      },
+    };
   }
   if (page.type === "collection") {
     const collection = await getCollection(storefront, market, page.handle);
-    if (!collection) return "";
-    return `Collection: ${collection.title}\nDescription: ${collection.description}\nFirst products:\n${listing(collection.products)}`;
+    if (!collection) return null;
+    return {
+      text: `Collection: ${collection.title}\nDescription: ${collection.description}\nFirst products:\n${listing(collection.products)}`,
+      fields: { products: collection.products.length },
+    };
   }
   if (page.type === "search") {
     const products = await searchProducts(storefront, market, page.terms);
-    return `Searched for: ${page.terms}\nTop matching products:\n${listing(products)}`;
+    return {
+      text: `Searched for: ${page.terms}\nTop matching products:\n${listing(products)}`,
+      fields: { matches: products.length },
+    };
   }
-  return "";
+  return null;
 }
 
 export async function buildTeaserInput(
@@ -95,16 +110,26 @@ export async function buildTeaserInput(
   context: ShopperContext,
   messages: ChatMessage[],
 ): Promise<TeaserInput> {
-  const [{ catalog }, pageDetails] = await Promise.all([
+  const [{ catalog, stats }, details] = await Promise.all([
     loadCatalog(storefront, context),
     describePage(storefront, context),
   ]);
+  const resolved = resolveContext(context, catalog);
+  logContext(context, resolved, stats);
+
+  if (details) log.info("teaser", "page details", details.fields, { depth: 1 });
+  else if (context.page.type !== "other")
+    log.warn("teaser", "page details", {}, { depth: 1, detail: "⚠ not found" });
+
+  const chat = conversationText(messages);
+  const lines = chat ? chat.split("\n").length : 0;
+  log.info("teaser", "chat", {}, { depth: 1, detail: `${lines} lines` });
 
   return {
-    context: resolveContext(context, catalog),
+    context: resolved,
     language: context.language,
-    pageDetails,
-    chat: conversationText(messages),
+    pageDetails: details?.text ?? "",
+    chat,
   };
 }
 
@@ -115,7 +140,10 @@ export async function withDeadline(
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), ms);
   const aborted = new Promise<string[]>((resolve) =>
-    controller.signal.addEventListener("abort", () => resolve([])),
+    controller.signal.addEventListener("abort", () => {
+      log.warn("teaser", "⚠ timeout", { ms }, { depth: 1 });
+      resolve([]);
+    }),
   );
   try {
     return await Promise.race([task(controller.signal), aborted]);
@@ -129,6 +157,7 @@ export async function generateTeasers(
   signal?: AbortSignal,
 ): Promise<string[]> {
   for (let attempt = 1; ; attempt++) {
+    const start = Date.now();
     try {
       const { output } = await generateText({
         model: MODEL,
@@ -138,9 +167,33 @@ export async function generateTeasers(
         abortSignal: signal,
       });
 
+      log.info(
+        "teaser",
+        "ok",
+        { attempt, ms: Date.now() - start },
+        { depth: 1 },
+      );
+      output.teasers.forEach((teaser, i) =>
+        log.info(
+          "teaser",
+          `${i + 1}.`,
+          {},
+          { depth: 2, detail: teaser, quote: "model" },
+        ),
+      );
       return output.teasers;
     } catch (error) {
       if (attempt === 3 || signal?.aborted) throw error;
+      log.warn(
+        "teaser",
+        "retry",
+        {
+          attempt,
+          ms: Date.now() - start,
+          reason: `"${error instanceof Error ? error.message : String(error)}"`,
+        },
+        { depth: 1 },
+      );
     }
   }
 }

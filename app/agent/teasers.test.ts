@@ -2,6 +2,8 @@ import { describe, expect, it, vi } from "vitest";
 
 import { generateText } from "ai";
 
+import { setSink } from "../log/logger.server";
+
 import {
   conversationText,
   generateTeasers,
@@ -77,6 +79,8 @@ describe("withDeadline", () => {
   });
 
   it("aborts and returns an empty list when the deadline passes", async () => {
+    const lines: string[] = [];
+    const restore = setSink((line) => lines.push(line));
     vi.useFakeTimers();
     let signal: AbortSignal | undefined;
     const result = withDeadline((s) => {
@@ -87,6 +91,10 @@ describe("withDeadline", () => {
     expect(await result).toEqual([]);
     expect(signal?.aborted).toBe(true);
     vi.useRealTimers();
+    restore();
+    expect(
+      lines.some((l) => l.includes("⚠ timeout") && l.includes("ms=1000")),
+    ).toBe(true);
   });
 });
 

@@ -79,6 +79,7 @@ describe("teasers route", () => {
       expect.anything(),
       context,
       [],
+      expect.any(AbortSignal),
     );
   });
 
@@ -90,6 +91,7 @@ describe("teasers route", () => {
       expect.anything(),
       context,
       [],
+      expect.any(AbortSignal),
     );
   });
 

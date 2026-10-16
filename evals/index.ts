@@ -1,6 +1,7 @@
 import { createServer } from "vite";
 
 process.env.LOG_LEVEL ??= "warn";
+process.env.LOG_FORMAT ??= "pretty";
 
 const server = await createServer({
   configFile: false,

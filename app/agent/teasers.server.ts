@@ -40,7 +40,9 @@ function partText(part: ChatMessage["parts"][number]): string | null {
   return null;
 }
 
-export function conversationText(messages: ChatMessage[], limit = 10) {
+const CHAT_LIMIT = 10;
+
+export function conversationText(messages: ChatMessage[], limit = CHAT_LIMIT) {
   return messages
     .slice(-limit)
     .flatMap((message) => {
@@ -109,21 +111,33 @@ export async function buildTeaserInput(
   storefront: StorefrontApiContext,
   context: ShopperContext,
   messages: ChatMessage[],
+  signal?: AbortSignal,
 ): Promise<TeaserInput> {
   const [{ catalog, stats }, details] = await Promise.all([
     loadCatalog(storefront, context),
     describePage(storefront, context),
   ]);
   const resolved = resolveContext(context, catalog);
-  logContext(context, resolved, stats);
-
-  if (details) log.info("teaser", "page details", details.fields, { depth: 1 });
-  else if (context.page.type !== "other")
-    log.warn("teaser", "page details", {}, { depth: 1, detail: "⚠ not found" });
-
   const chat = conversationText(messages);
-  const lines = chat ? chat.split("\n").length : 0;
-  log.info("teaser", "chat", {}, { depth: 1, detail: `${lines} lines` });
+
+  if (!signal?.aborted) {
+    logContext(context, resolved, stats);
+    if (details)
+      log.info("teaser", "page details", details.fields, { depth: 1 });
+    else if (context.page.type !== "other")
+      log.warn(
+        "teaser",
+        "page details",
+        {},
+        { depth: 1, detail: "⚠ not found" },
+      );
+    log.info(
+      "teaser",
+      "chat",
+      {},
+      { depth: 1, detail: `${Math.min(messages.length, CHAT_LIMIT)} messages` },
+    );
+  }
 
   return {
     context: resolved,

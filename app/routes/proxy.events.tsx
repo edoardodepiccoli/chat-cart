@@ -15,8 +15,15 @@ const bodySchema = z
   .object({ conversationId: z.string() })
   .and(chatEventSchema);
 
-const value = (data: string | number) =>
-  typeof data === "string" && /[\s"=]/.test(data) ? JSON.stringify(data) : data;
+const LIMIT = 160;
+
+function value(data: string | number) {
+  if (typeof data !== "string") return data;
+  const chars = Array.from(data);
+  const cut =
+    chars.length > LIMIT ? `${chars.slice(0, LIMIT).join("")}…` : data;
+  return /[\s"=]/.test(cut) ? JSON.stringify(cut) : cut;
+}
 
 export const action = withRequestLog(
   "events",

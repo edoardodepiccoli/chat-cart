@@ -38,13 +38,16 @@ export function setConversation(id: string) {
   if (store) store.conv = id;
 }
 
-export function endRequest(status: number | "error", fields: Fields = {}) {
+export function endRequest(
+  status: number | "error" | "cancelled",
+  fields: Fields = {},
+) {
   const store = storage.getStore();
   if (!store || store.ended) return;
   store.ended = true;
   log.info(
     tagFor(store.route),
-    "■ done",
+    "done",
     { status, ms: Date.now() - store.start, ...fields },
     { edge: "end" },
   );

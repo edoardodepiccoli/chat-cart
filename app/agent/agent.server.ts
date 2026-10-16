@@ -31,11 +31,11 @@ const toolParts = (messages: ChatMessage[]) =>
 
 const yesNo = (value: boolean) => (value ? "yes" : "no");
 
+const message = (error: unknown) =>
+  `"${error instanceof Error ? error.message : String(error)}"`;
+
 function streamFailed(error: unknown) {
-  log.error("agent", "stream failed", {
-    error: `"${error instanceof Error ? error.message : String(error)}"`,
-  });
-  endRequest("error");
+  log.error("agent", "stream failed", { error: message(error) });
 }
 
 export async function runAgent(
@@ -186,19 +186,36 @@ export async function streamReply(
       fail(error);
       return "An error occurred.";
     },
-    onEnd: async ({ responseMessage }) => {
-      if (responseMessage.parts.length) {
-        const saved = [userMessage, responseMessage];
-        for (const message of saved) await saveMessage(conversationId, message);
-        log.info(
+    onEnd: async ({ responseMessage, outcome, isCancelled }) => {
+      try {
+        if (responseMessage.parts.length) {
+          const saved = [userMessage, responseMessage];
+          for (const item of saved) await saveMessage(conversationId, item);
+          log.info(
+            "db",
+            "saved",
+            {},
+            { depth: 1, detail: `${saved.length} messages` },
+          );
+        }
+      } catch (error) {
+        failed = true;
+        log.error(
           "db",
-          "saved",
-          {},
-          { depth: 1, detail: `${saved.length} messages` },
+          "✗ save failed",
+          { error: message(error) },
+          { depth: 1 },
+        );
+      } finally {
+        if (totals) log.info("chat", "totals", {}, { detail: totals });
+        endRequest(
+          failed || outcome.status === "failed"
+            ? "error"
+            : isCancelled
+              ? "cancelled"
+              : 200,
         );
       }
-      if (totals) log.info("chat", "totals", {}, { detail: totals });
-      endRequest(200);
     },
     execute: async ({ writer }) => {
       const { modelMessages, result } = await runAgent(

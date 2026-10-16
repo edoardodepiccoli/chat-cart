@@ -48,8 +48,14 @@ export const action = withRequestLog(
       const messages = conversationId
         ? ((await loadMessages(session.shop, conversationId)) ?? [])
         : [];
-      const input = await buildTeaserInput(storefront, context, messages);
+      const input = await buildTeaserInput(
+        storefront,
+        context,
+        messages,
+        signal,
+      );
       if (input.context.page.type === "other") {
+        if (signal.aborted) return [];
         log.info(
           "teaser",
           "skipped",

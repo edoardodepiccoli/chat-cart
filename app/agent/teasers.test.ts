@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { generateText } from "ai";
 
@@ -24,6 +24,12 @@ const input = {
 } as never;
 
 describe("generateTeasers", () => {
+  let restore: () => void;
+  beforeEach(() => {
+    restore = setSink(() => {});
+  });
+  afterEach(() => restore());
+
   it("throws after three failed attempts", async () => {
     const mocked = vi.mocked(generateText);
     mocked.mockReset().mockRejectedValue(new Error("bad output"));

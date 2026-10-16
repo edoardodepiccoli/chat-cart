@@ -7,7 +7,7 @@ import {
   toProductSummary,
   type Money,
   type ProductOption,
-} from "../shared/product";
+} from "../shared/product.ts";
 
 type SeedVariant = {
   selectedOptions: { name: string; value: string }[];

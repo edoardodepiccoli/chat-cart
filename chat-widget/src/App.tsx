@@ -12,6 +12,7 @@ import { t } from "./i18n";
 import { groupTurns, typingLabel } from "./turns";
 
 export default function App() {
+  const [open, setOpen] = useState(false);
   const {
     conversation,
     loadFailed,
@@ -24,8 +25,7 @@ export default function App() {
     reset,
     resetFailed,
     trackEvent,
-  } = useChatSession();
-  const [open, setOpen] = useState(false);
+  } = useChatSession({ open });
   const [draft, setDraft] = useState("");
   const logRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);

@@ -12,12 +12,12 @@ import { saveEvent } from "../metrics.server";
 import { authenticate } from "../shopify.server";
 
 const bodySchema = z
-  .object({ conversationId: z.string() })
+  .object({ conversationId: z.string().nullable() })
   .and(chatEventSchema);
 
 const LIMIT = 160;
 
-function value(data: string | number) {
+function value(data: string | number | boolean) {
   if (typeof data !== "string") return data;
   const chars = Array.from(data);
   const cut =
@@ -41,17 +41,25 @@ export const action = withRequestLog(
     }
 
     const { conversationId, ...event } = body.data;
-    setConversation(conversationId);
-    const data: Record<string, string | number> =
+    if (conversationId === null && event.type !== "client_error") {
+      logRejected("events", [
+        { code: "custom", path: ["conversationId"], message: "required" },
+      ]);
+      throw new Response("Bad request", { status: 400 });
+    }
+    if (conversationId) setConversation(conversationId);
+    const data: Record<string, string | number | boolean> =
       "data" in event ? event.data : {};
-    log.info(
-      "events",
-      event.type,
-      Object.fromEntries(
-        Object.entries(data).map(([key, item]) => [key, value(item)]),
-      ),
-      { depth: 1 },
+    const fields = Object.fromEntries(
+      Object.entries(data).map(([key, item]) => [key, value(item)]),
     );
+    if (event.type === "client_error") {
+      const { kind, ...rest } = fields;
+      log.error("client", String(kind), rest);
+    } else {
+      log.info("events", event.type, fields, { depth: 1 });
+    }
+    if (conversationId === null) return new Response(null, { status: 204 });
     if (!(await saveEvent(session.shop, conversationId, event))) {
       log.warn("events", "⚠ unknown conversation", {}, { depth: 1 });
       throw new Response("Not found", { status: 404 });

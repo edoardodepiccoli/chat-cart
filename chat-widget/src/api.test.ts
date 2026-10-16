@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { fetchTeasers, startConversation } from "./api";
+import { fetchTeasers, reportError, startConversation } from "./api";
 
 function stubFetch(impl: () => Promise<unknown>) {
   const fetchMock = vi.fn(impl);
@@ -29,9 +29,17 @@ describe("fetchTeasers", () => {
     });
   });
 
-  it("returns nothing on a non-OK status", async () => {
-    stubFetch(() => json({ teasers: ["a"] }, false));
+  it("returns nothing on a non-OK status and reports it once", async () => {
+    const fetchMock = stubFetch(() => json({ teasers: ["a"] }, false));
     expect(await fetchTeasers("c1")).toEqual([]);
+    const reports = (fetchMock.mock.calls as unknown as [string, RequestInit][])
+      .map(([, init]) => JSON.parse(init.body as string))
+      .filter((body) => body.type === "client_error");
+    expect(reports).toHaveLength(1);
+    expect(reports[0]).toMatchObject({
+      conversationId: "c1",
+      data: { kind: "teasers_failed", page: "other" },
+    });
   });
 
   it("returns nothing on a malformed body", async () => {
@@ -56,5 +64,31 @@ describe("startConversation", () => {
   it("rejects on a non-OK status", async () => {
     stubFetch(() => json({}, false));
     await expect(startConversation()).rejects.toThrow();
+  });
+});
+
+describe("reportError", () => {
+  it("posts a client error without a conversation id", () => {
+    const fetchMock = stubFetch(() => json({}));
+    reportError(null, "reset_failed", new Error("down"), {
+      open: true,
+      busy: false,
+    });
+    const [url, init] = fetchMock.mock.calls[0] as unknown as [
+      string,
+      RequestInit,
+    ];
+    expect(url).toBe("/apps/chat-cart/events");
+    expect(JSON.parse(init.body as string)).toEqual({
+      conversationId: null,
+      type: "client_error",
+      data: {
+        kind: "reset_failed",
+        message: "down",
+        open: true,
+        busy: false,
+        page: "other",
+      },
+    });
   });
 });

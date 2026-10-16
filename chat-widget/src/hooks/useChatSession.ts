@@ -1,10 +1,12 @@
 import { useChat } from "@ai-sdk/react";
 
-import { transport, useConversation } from "../api";
+import { useEffect, useRef } from "react";
+
+import { reportError, transport, useConversation } from "../api";
 import { greeting } from "../turns";
 import type { ChatEvent, ChatMessage } from "../../../shared/chat";
 
-export function useChatSession() {
+export function useChatSession({ open }: { open: boolean }) {
   const { conversation, loadFailed, resetFailed, reset, trackEvent } =
     useConversation();
   const { messages, sendMessage, status, error } = useChat<ChatMessage>({
@@ -19,6 +21,17 @@ export function useChatSession() {
     status === "ready" && last?.role === "assistant"
       ? last.parts.find((part) => part.type === "data-suggestions")?.data
       : undefined;
+  const reported = useRef<unknown>(undefined);
+
+  useEffect(() => {
+    if (!error || reported.current === error) return;
+    reported.current = error;
+    reportError(conversation?.id ?? null, "chat_stream_failed", error, {
+      open,
+      busy,
+    });
+  }, [error, conversation, open, busy]);
+
   const canReset = !busy && messages.some((message) => message.role === "user");
 
   function send(text: string, options?: { teaser?: boolean }) {

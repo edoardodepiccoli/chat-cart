@@ -34,6 +34,21 @@ export const chatEventSchema = z.discriminatedUnion("type", [
     type: z.literal("link_clicked"),
     data: z.object({ url: z.string().max(2000) }),
   }),
+  z.object({
+    type: z.literal("client_error"),
+    data: z.object({
+      kind: z.enum([
+        "conversation_load_failed",
+        "chat_stream_failed",
+        "reset_failed",
+        "teasers_failed",
+      ]),
+      message: z.string().max(500),
+      open: z.boolean(),
+      busy: z.boolean(),
+      page: z.string().max(200),
+    }),
+  }),
 ]);
 
 export type ChatEvent = z.infer<typeof chatEventSchema>;

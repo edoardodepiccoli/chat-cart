@@ -69,7 +69,40 @@ export async function loadConversation(): Promise<Conversation> {
   return conversation;
 }
 
-export async function fetchTeasers(conversationId: string): Promise<string[]> {
+type ErrorKind = Extract<ChatEvent, { type: "client_error" }>["data"]["kind"];
+type ErrorState = { open: boolean; busy: boolean };
+
+const NO_STATE: ErrorState = { open: false, busy: false };
+
+function pageLabel() {
+  const page = getShopperContext().page;
+  if (page.type === "other") return "other";
+  return `${page.type}:${page.type === "search" ? page.terms : page.handle}`;
+}
+
+export function reportError(
+  conversationId: string | null,
+  kind: ErrorKind,
+  error: unknown,
+  state: ErrorState,
+) {
+  const message = error instanceof Error ? error.message : String(error);
+  sendEvent(conversationId, {
+    type: "client_error",
+    data: {
+      kind,
+      message: message.slice(0, 500),
+      open: state.open,
+      busy: state.busy,
+      page: pageLabel().slice(0, 200),
+    },
+  });
+}
+
+export async function fetchTeasers(
+  conversationId: string,
+  state: ErrorState = NO_STATE,
+): Promise<string[]> {
   try {
     const response = await fetch(`${PROXY_BASE}/teasers`, {
       method: "POST",
@@ -77,15 +110,24 @@ export async function fetchTeasers(conversationId: string): Promise<string[]> {
       body: JSON.stringify({ conversationId, context: getShopperContext() }),
       signal: AbortSignal.timeout(TEASERS_TIMEOUT),
     });
-    if (!response.ok) return [];
+    if (!response.ok) throw new Error(`Teasers ${response.status}`);
     const parsed = teasersResponseSchema.safeParse(await response.json());
-    return parsed.success ? parsed.data.teasers : [];
-  } catch {
+    if (!parsed.success) throw new Error("Teasers malformed");
+    return parsed.data.teasers;
+  } catch (error) {
+    const timeout =
+      error instanceof DOMException && error.name === "TimeoutError";
+    reportError(
+      conversationId,
+      "teasers_failed",
+      timeout ? "timeout" : error,
+      state,
+    );
     return [];
   }
 }
 
-export function sendEvent(conversationId: string, event: ChatEvent) {
+export function sendEvent(conversationId: string | null, event: ChatEvent) {
   fetch(`${PROXY_BASE}/events`, {
     method: "POST",
     keepalive: true,
@@ -102,7 +144,10 @@ export function useConversation() {
   useEffect(() => {
     loadConversation()
       .then(setConversation)
-      .catch(() => setLoadFailed(true));
+      .catch((error) => {
+        reportError(null, "conversation_load_failed", error, NO_STATE);
+        setLoadFailed(true);
+      });
   }, []);
 
   function trackEvent(event: ChatEvent) {
@@ -113,7 +158,8 @@ export function useConversation() {
     setResetFailed(false);
     try {
       setConversation(await startConversation());
-    } catch {
+    } catch (error) {
+      reportError(conversation?.id ?? null, "reset_failed", error, NO_STATE);
       setResetFailed(true);
     }
   }

@@ -41,7 +41,7 @@ export function useTeasers({
     if (dismissed.current || shown.current) return;
     let cancelled = false;
     Promise.all([
-      fetchTeasers(conversationId),
+      fetchTeasers(conversationId, { open, busy }),
       new Promise((resolve) => setTimeout(resolve, TEASER_DELAY)),
     ]).then(([items]) => {
       if (cancelled || !items.length) return;

@@ -1,18 +1,20 @@
+import { forwardRef } from "react";
+
 import { t } from "../i18n";
 import { ChatIcon, CloseIcon } from "../icons";
 
-export default function Launcher({
-  open,
-  onClick,
-}: {
-  open: boolean;
-  onClick?: () => void;
-}) {
+const Launcher = forwardRef<
+  HTMLButtonElement,
+  { open: boolean; suppressed?: boolean; onClick?: () => void }
+>(function Launcher({ open, suppressed = false, onClick }, ref) {
   return (
     <button
+      ref={ref}
       type="button"
       className="cc-launcher"
       data-open={open}
+      data-suppressed={suppressed}
+      aria-hidden={suppressed || undefined}
       aria-expanded={open}
       aria-controls="cc-panel"
       aria-label={open ? t("closeChat") : t("openChat")}
@@ -22,4 +24,6 @@ export default function Launcher({
       <CloseIcon className="cc-launcher__icon cc-launcher__icon--close" />
     </button>
   );
-}
+});
+
+export default Launcher;

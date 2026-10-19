@@ -11,12 +11,16 @@ import Launcher from "./Launcher";
 
 export default function Panel({
   open,
+  suppressed,
+  launcherRef,
   logRef,
   composer,
   onToggle,
   children,
 }: {
   open: boolean;
+  suppressed: boolean;
+  launcherRef: RefObject<HTMLButtonElement>;
   logRef: RefObject<HTMLDivElement>;
   composer: ComposerProps;
   onToggle: () => void;
@@ -44,7 +48,12 @@ export default function Panel({
         <Composer {...composer} />
       </div>
 
-      <Launcher open={open} onClick={onToggle} />
+      <Launcher
+        ref={launcherRef}
+        open={open}
+        suppressed={suppressed}
+        onClick={onToggle}
+      />
     </>
   );
 }

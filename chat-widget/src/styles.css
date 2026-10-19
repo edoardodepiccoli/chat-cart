@@ -75,8 +75,22 @@
   color: var(--cc-color-on-primary);
   box-shadow: var(--cc-shadow-launcher);
   cursor: pointer;
-  transition: transform var(--cc-duration-fast) var(--cc-ease);
+  transition:
+    transform var(--cc-duration-fast) var(--cc-ease),
+    opacity var(--cc-duration-fast) var(--cc-ease),
+    visibility 0s;
   -webkit-tap-highlight-color: transparent;
+}
+
+/* Steps aside while a configured page element covers it. */
+.cc-launcher[data-suppressed="true"] {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    transform var(--cc-duration-fast) var(--cc-ease),
+    opacity var(--cc-duration-fast) var(--cc-ease),
+    visibility 0s linear var(--cc-duration-fast);
 }
 
 @media (hover: hover) and (pointer: fine) {

@@ -2,6 +2,7 @@ import { createRoot } from "react-dom/client";
 
 import App from "./App";
 import { pageFromDataset, recordVisit, setShopperContext } from "./context";
+import { parseSelectors } from "./hideSelectors";
 import { setLocale } from "./i18n";
 import "./tokens.css";
 import "./styles.css";
@@ -17,7 +18,9 @@ function mount() {
     language: el.dataset.locale ?? "",
     page,
   });
-  createRoot(el).render(<App />);
+  createRoot(el).render(
+    <App hideSelectors={parseSelectors(el.dataset.hideSelectors)} />,
+  );
 }
 
 if (document.readyState === "loading") {

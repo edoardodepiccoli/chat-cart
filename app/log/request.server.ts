@@ -18,7 +18,6 @@ const storage = new AsyncLocalStorage<Store>();
 
 const TAGS: Record<string, Tag> = {
   chat: "chat",
-  teasers: "teaser",
   events: "events",
   webhook: "webhook",
 };

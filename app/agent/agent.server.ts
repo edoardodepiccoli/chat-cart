@@ -18,7 +18,7 @@ import { bindRequest, endRequest } from "../log/request.server";
 import { loadCatalog, logContext, resolveContext } from "./context.server";
 import { trimHistory } from "./history";
 import { MODEL } from "./model";
-import { contextPrompt, teaserTurnPrompt } from "./prompts/context";
+import { contextPrompt } from "./prompts/context";
 import { SYSTEM_PROMPT } from "./prompts/system";
 import { generateSuggestions } from "./suggestions.server";
 import { createTools } from "./tools.server";
@@ -43,7 +43,6 @@ export async function runAgent(
   messages: ChatMessage[],
   storefront: StorefrontApiContext,
   context: ShopperContext,
-  teaser = false,
   onFail: (error: unknown) => void = streamFailed,
 ) {
   const market = { country: context.country, language: context.language };
@@ -62,7 +61,7 @@ export async function runAgent(
   log.info(
     "chat",
     "flags",
-    { teaser: yesNo(teaser), "first-reply": yesNo(firstReply) },
+    { "first-reply": yesNo(firstReply) },
     { depth: 1 },
   );
 
@@ -70,30 +69,8 @@ export async function runAgent(
   const resolved = resolveContext(context, catalog);
   logContext(context, resolved, stats);
 
-  if (teaser)
-    log.info(
-      "chat",
-      "teaser-turn",
-      {},
-      {
-        depth: 1,
-        detail:
-          resolved.page.type === "product"
-            ? "getProduct"
-            : resolved.page.type === "other"
-              ? "none"
-              : "listProducts",
-      },
-    );
-
   const modelMessages = await convertToModelMessages<ChatMessage>(trimmed);
-  const system = [
-    SYSTEM_PROMPT,
-    contextPrompt(resolved),
-    teaser && teaserTurnPrompt(resolved.page),
-  ]
-    .filter(Boolean)
-    .join("\n\n");
+  const system = [SYSTEM_PROMPT, contextPrompt(resolved)].join("\n\n");
 
   log.debug("agent", "system prompt", {}, { depth: 1, payload: system });
   log.debug(
@@ -170,7 +147,6 @@ export async function streamReply(
   userMessage: ChatMessage,
   storefront: StorefrontApiContext,
   context: ShopperContext,
-  teaser = false,
 ): Promise<Response> {
   const messages = [...history, userMessage];
   let failed = false;
@@ -226,7 +202,6 @@ export async function streamReply(
         messages,
         storefront,
         context,
-        teaser,
         fail,
       );
 

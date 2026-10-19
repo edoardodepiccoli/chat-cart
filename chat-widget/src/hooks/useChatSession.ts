@@ -34,12 +34,9 @@ export function useChatSession({ open }: { open: boolean }) {
 
   const canReset = !busy && messages.some((message) => message.role === "user");
 
-  function send(text: string, options?: { teaser?: boolean }) {
+  function send(text: string) {
     if (!text || busy || !conversation) return;
-    sendMessage(
-      { text },
-      options?.teaser ? { body: { teaser: true } } : undefined,
-    );
+    sendMessage({ text });
   }
 
   return {

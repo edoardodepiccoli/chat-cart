@@ -62,14 +62,14 @@ describe("withRequestLog", () => {
 
   it("logs done on return with status and ms", async () => {
     await withRequestLog(
-      "teasers",
+      "events",
       async () => new Response(null, { status: 201 }),
     )({
       request: post(),
     });
     expect(done()).toHaveLength(1);
     expect(done()[0]).toMatch(/status=201 ms=\d+/);
-    expect(done()[0]).toContain("teaser");
+    expect(done()[0]).toContain("events");
   });
 
   it("waits for endRequest when endsLater, and ignores a second endRequest", async () => {

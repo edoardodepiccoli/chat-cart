@@ -10,8 +10,6 @@ export type Conversation = { id: string; messages: ChatMessage[] };
 const PROXY_BASE = "/apps/chat-cart";
 const PROXY_HEADERS = { "ngrok-skip-browser-warning": "true" };
 const CONVERSATION_KEY = "chat-cart:conversationId";
-const TEASERS_TIMEOUT = 12000;
-const teasersResponseSchema = z.object({ teasers: z.array(z.string()) });
 
 export const transport = new DefaultChatTransport<ChatMessage>({
   api: `${PROXY_BASE}/chat`,
@@ -97,34 +95,6 @@ export function reportError(
       page: pageLabel().slice(0, 200),
     },
   });
-}
-
-export async function fetchTeasers(
-  conversationId: string,
-  state: ErrorState = NO_STATE,
-): Promise<string[]> {
-  try {
-    const response = await fetch(`${PROXY_BASE}/teasers`, {
-      method: "POST",
-      headers: { ...PROXY_HEADERS, "Content-Type": "application/json" },
-      body: JSON.stringify({ conversationId, context: getShopperContext() }),
-      signal: AbortSignal.timeout(TEASERS_TIMEOUT),
-    });
-    if (!response.ok) throw new Error(`Teasers ${response.status}`);
-    const parsed = teasersResponseSchema.safeParse(await response.json());
-    if (!parsed.success) throw new Error("Teasers malformed");
-    return parsed.data.teasers;
-  } catch (error) {
-    const timeout =
-      error instanceof DOMException && error.name === "TimeoutError";
-    reportError(
-      conversationId,
-      "teasers_failed",
-      timeout ? "timeout" : error,
-      state,
-    );
-    return [];
-  }
 }
 
 export function sendEvent(conversationId: string | null, event: ChatEvent) {

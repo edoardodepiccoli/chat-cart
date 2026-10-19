@@ -31,15 +31,3 @@ export function contextPrompt(context: ResolvedContext) {
     );
   return lines.filter(Boolean).join("\n\n");
 }
-
-export function teaserTurnPrompt(page: ResolvedPage) {
-  const about =
-    page.type === "product"
-      ? `the product with handle "${page.handle}", looked up with getProduct`
-      : page.type === "collection"
-        ? `the collection with handle "${page.handle}", looked up with listProducts and the collection filter`
-        : page.type === "search"
-          ? `the search for "${page.terms}", looked up with listProducts`
-          : "the current page";
-  return `The shopper's last message is a suggested question about ${about}, tapped on purpose. It has priority over everything earlier in the conversation: answer exactly that message, about this page. Earlier products and topics matter only if the message names them. Keep what the shopper told you, like size, budget or style.`;
-}

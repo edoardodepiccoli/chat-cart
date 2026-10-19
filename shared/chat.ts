@@ -18,15 +18,6 @@ export const chatEventSchema = z.discriminatedUnion("type", [
     data: z.object({ text: z.string().max(500) }),
   }),
   z.object({
-    type: z.literal("teaser_shown"),
-    data: z.object({ count: z.number().int().min(0).max(10) }),
-  }),
-  z.object({
-    type: z.literal("teaser_clicked"),
-    data: z.object({ text: z.string().max(500) }),
-  }),
-  z.object({ type: z.literal("teaser_dismissed") }),
-  z.object({
     type: z.literal("product_clicked"),
     data: z.object({ handle: z.string().max(200) }),
   }),
@@ -41,7 +32,6 @@ export const chatEventSchema = z.discriminatedUnion("type", [
         "conversation_load_failed",
         "chat_stream_failed",
         "reset_failed",
-        "teasers_failed",
       ]),
       message: z.string().max(500),
       open: z.boolean(),

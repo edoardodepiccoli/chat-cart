@@ -133,80 +133,6 @@
   transform: none;
 }
 
-.cc-teasers {
-  position: fixed;
-  right: 20px;
-  bottom: 88px;
-  z-index: 2147483000;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: calc(8px * var(--cc-space));
-  max-width: min(240px, calc(100vw - 40px));
-  transform-origin: bottom right;
-  animation: cc-teaser-in var(--cc-duration) var(--cc-ease) both;
-}
-
-.cc-teaser__text {
-  display: block;
-  position: relative;
-  isolation: isolate;
-  padding: calc(8px * var(--cc-space)) calc(12px * var(--cc-space));
-  border: 0;
-  border-radius: var(--cc-radius);
-  background: var(--cc-color-user-bubble);
-  color: var(--cc-color-on-user-bubble);
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.cc-teaser__text:focus-visible,
-.cc-teaser__close:focus-visible {
-  outline: 2px solid var(--cc-color-primary);
-  outline-offset: 2px;
-}
-
-.cc-teaser__close {
-  position: absolute;
-  top: -8px;
-  left: -8px;
-  display: grid;
-  place-items: center;
-  width: 20px;
-  height: 20px;
-  padding: 0;
-  border: var(--cc-border-width) solid var(--cc-color-border);
-  border-radius: 999px;
-  background: var(--cc-color-background);
-  color: var(--cc-color-text-muted);
-  cursor: pointer;
-}
-
-.cc-teaser__close svg {
-  width: 10px;
-  height: 10px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2.5;
-  stroke-linecap: round;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .cc-teaser__text:hover {
-    background: color-mix(
-      in srgb,
-      var(--cc-color-user-bubble),
-      var(--cc-color-on-user-bubble) 10%
-    );
-  }
-
-  .cc-teaser__close:hover {
-    color: var(--cc-color-text);
-  }
-}
-
 .cc-log {
   flex: 1 1 auto;
   padding: calc(16px * var(--cc-space));
@@ -368,8 +294,7 @@
 }
 
 .cc-part--text:not(:has(~ .cc-part--text))::after,
-.cc-typing::after,
-.cc-teaser__text::after {
+.cc-typing::after {
   content: "";
   position: absolute;
   bottom: 0;
@@ -381,8 +306,7 @@
     no-repeat;
 }
 
-.cc-message--user .cc-part--text::after,
-.cc-teaser__text::after {
+.cc-message--user .cc-part--text::after {
   right: -6px;
 }
 
@@ -635,13 +559,6 @@
   margin-top: auto;
 }
 
-@keyframes cc-teaser-in {
-  from {
-    opacity: 0;
-    transform: translateY(8px) scale(0.92);
-  }
-}
-
 @keyframes cc-rise {
   from {
     opacity: 0;
@@ -710,21 +627,10 @@
       max(20px, env(safe-area-inset-bottom)) + 68px + var(--cc-keyboard, 0px)
     );
   }
-
-  .cc-teasers {
-    right: max(20px, env(safe-area-inset-right));
-    bottom: calc(max(20px, env(safe-area-inset-bottom)) + 68px);
-  }
-
-  .cc-teaser__close {
-    width: 28px;
-    height: 28px;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .cc-typing__dot,
-  .cc-teasers {
+  .cc-typing__dot {
     animation: none !important;
   }
 

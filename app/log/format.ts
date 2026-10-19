@@ -6,7 +6,6 @@ export type Tag =
   | "agent"
   | "tool"
   | "suggest"
-  | "teaser"
   | "db"
   | "events"
   | "client"
@@ -46,7 +45,6 @@ const TAG_COLORS: Record<Tag, string> = {
   agent: MAGENTA,
   tool: GREEN,
   suggest: YELLOW,
-  teaser: YELLOW,
   db: GRAY,
   events: WHITE,
   client: RED,

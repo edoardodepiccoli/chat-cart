@@ -5,7 +5,7 @@ import { chatEventSchema } from "./chat";
 const error = (data: Record<string, unknown>) => ({
   type: "client_error",
   data: {
-    kind: "teasers_failed",
+    kind: "chat_stream_failed",
     message: "boom",
     open: false,
     busy: true,

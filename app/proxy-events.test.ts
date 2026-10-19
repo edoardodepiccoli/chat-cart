@@ -18,7 +18,7 @@ import { action } from "./routes/proxy.events";
 const clientError = {
   type: "client_error",
   data: {
-    kind: "teasers_failed",
+    kind: "chat_stream_failed",
     message: "timeout",
     open: false,
     busy: false,
@@ -58,7 +58,7 @@ describe("events route", () => {
     expect(response.status).toBe(204);
     expect(mocks.saveEvent).not.toHaveBeenCalled();
     const line = lines.find((l) => l.includes("ERROR") && l.includes("client"));
-    expect(line).toContain("teasers_failed");
+    expect(line).toContain("chat_stream_failed");
     expect(line).toContain("message=timeout");
     expect(line).toContain("page=product:serum");
   });

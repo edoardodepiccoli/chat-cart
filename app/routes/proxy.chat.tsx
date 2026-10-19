@@ -21,7 +21,6 @@ const bodySchema = z.object({
   id: z.string().max(200),
   text: z.string().trim().min(1).max(2000),
   context: shopperContextSchema,
-  teaser: z.boolean().optional(),
 });
 
 const LOADED = {
@@ -82,7 +81,7 @@ export const action = withRequestLog(
       throw new Response("Bad request", { status: 400 });
     }
 
-    const { id, text, context, teaser } = body.data;
+    const { id, text, context } = body.data;
     setConversation(id);
     log.info(
       "chat",
@@ -103,7 +102,7 @@ export const action = withRequestLog(
       parts: [{ type: "text", text }],
     };
 
-    return streamReply(id, history, userMessage, storefront, context, teaser);
+    return streamReply(id, history, userMessage, storefront, context);
   },
   { endsLater: true },
 );

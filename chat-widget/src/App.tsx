@@ -3,10 +3,8 @@ import { Fragment, useEffect, useRef, useState } from "react";
 import Message from "./components/Message";
 import Panel, { useAnchorScroll, useIosKeyboard } from "./components/Panel";
 import Suggestions from "./components/Suggestions";
-import Teasers from "./components/Teasers";
 import { useChatSession } from "./hooks/useChatSession";
 import { useLinkTracking } from "./hooks/useLinkTracking";
-import { useTeasers } from "./hooks/useTeasers";
 import { sendEvent } from "./api";
 import { t } from "./i18n";
 import { groupTurns, typingLabel } from "./turns";
@@ -34,26 +32,16 @@ export default function App() {
   useIosKeyboard(inputRef);
   const last = messages.at(-1);
   const trackLink = useLinkTracking(trackEvent);
-  const teasers = useTeasers({
-    open,
-    busy,
-    conversationId: conversation?.id,
-    trackEvent,
-    onPick: (text) => {
-      setOpen(true);
-      submitText(text, true);
-    },
-  });
 
   useEffect(() => {
     if (open && conversation)
       sendEvent(conversation.id, { type: "widget_opened" });
   }, [open, conversation]);
 
-  function submitText(text: string, teaser = false) {
+  function submitText(text: string) {
     if (!text || busy || !conversation) return;
     setDraft("");
-    send(text, { teaser });
+    send(text);
   }
 
   function submit(event: React.FormEvent) {
@@ -86,15 +74,6 @@ export default function App() {
         resetDisabled: !canReset,
       }}
       onToggle={() => setOpen(!open)}
-      teaser={
-        !open && teasers.teasers.length ? (
-          <Teasers
-            items={teasers.teasers}
-            onPick={teasers.pick}
-            onDismiss={teasers.dismiss}
-          />
-        ) : undefined
-      }
     >
       {(turns.length ? turns : [[]]).map((turn, index, all) => (
         <div className="cc-turn" key={turn[0]?.id ?? "start"}>

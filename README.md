@@ -11,8 +11,6 @@ Curricular stage project — Halue S.r.l. / Università degli Studi di Padova.
 3. `app/agent/agent.server.ts` resolves the page and visits against the catalog, then runs the model with the tools in `app/agent/tools.server.ts`. Data tools read the store through `app/agent/storefront.server.ts`. A display tool (`showProducts`, `showFaqCard`) ends the reply and returns the props of a widget part.
 4. The reply streams back. `chat-widget/src/components/Message.tsx` turns each part into text or a component.
 
-Product, collection and search pages also get three teasers, 3 seconds after load, from `app/routes/proxy.teasers.tsx`.
-
 ## Where things live
 
 Backend (`app/`)
@@ -23,10 +21,9 @@ Backend (`app/`)
 - `agent/tools.server.ts` — every tool the agent can call, built from `shared/tools.ts`.
 - `agent/storefront.server.ts` — Storefront API queries.
 - `agent/context.server.ts` — resolves the shopper's page and visits against the catalog.
-- `agent/teasers.server.ts` — the three teasers for a page.
 - `agent/history.ts` — trims saved messages before they go to the model.
-- `agent/prompts/` — system, context, suggestions and teaser prompts.
-- `routes/proxy.chat.tsx`, `routes/proxy.events.tsx`, `routes/proxy.teasers.tsx` — endpoints the widget calls.
+- `agent/prompts/` — system, context and suggestions prompts.
+- `routes/proxy.chat.tsx`, `routes/proxy.events.tsx` — endpoints the widget calls.
 - `conversations.server.ts` — saving and loading conversations.
 - `metrics.server.ts` — widget events and dashboard stats.
 - `log/` — terminal logging: levels, colors, request blocks, tool summaries.
@@ -35,9 +32,9 @@ Backend (`app/`)
 Widget (`chat-widget/src/`)
 
 - `App.tsx` — the chat: messages, suggestions, sending.
-- `api.ts` — talking to the backend: load a conversation, send events, fetch teasers.
+- `api.ts` — talking to the backend: load a conversation, send events.
 - `context.ts` — the shopper context: country, language, page and visits, kept in `chat-cart:history`.
-- `hooks/` — `useChatSession.ts`, `useTeasers.ts`, `useLinkTracking.ts`.
+- `hooks/` — `useChatSession.ts`, `useLinkTracking.ts`.
 - `components/Message.tsx` — renders one message, picking the part for each tool.
 - `components/` — one file per component.
 - `parts/` — one file per display tool, and `index.tsx` with the `PARTS` map.
@@ -79,7 +76,6 @@ Tests and evals:
 ```bash
 npm test                   # unit tests
 npm run eval -- --runs 3   # agent evals, against the real model and Storefront API
-npm run eval:teasers       # teaser evals
 ```
 
 Evals need a fresh offline session: run `npm run dev` and open the app once before you run them.

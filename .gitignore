@@ -31,6 +31,3 @@ database.sqlite
 /extensions/chat-widget/assets/chat-widget.css
 
 /.claude/settings.local.json
-
-# Eval run reports, written by npm run eval
-/evals/results/

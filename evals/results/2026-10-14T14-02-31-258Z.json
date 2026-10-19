@@ -1,0 +1,369 @@
+{
+  "startedAt": "2026-10-14T14:02:31.258Z",
+  "runs": 1,
+  "filters": [
+    "collection"
+  ],
+  "results": [
+    {
+      "scenario": "collection",
+      "run": 1,
+      "passed": true,
+      "turns": [
+        {
+          "user": "what do you have in your Gift Sets range?",
+          "steps": [
+            {
+              "text": "",
+              "calls": [
+                {
+                  "name": "listProducts",
+                  "input": {
+                    "collection": "gift-sets"
+                  }
+                }
+              ]
+            },
+            {
+              "text": "Three gift sets, all currently on sale. My pick is the Travel Discovery Kit, an easy, affordable way to try four of their signature formulas in carry-on sizes.",
+              "calls": [
+                {
+                  "name": "showProductCards",
+                  "input": {
+                    "handles": [
+                      "travel-discovery-kit",
+                      "the-morning-ritual-set",
+                      "the-calm-skin-edit"
+                    ]
+                  }
+                }
+              ]
+            }
+          ],
+          "text": "Three gift sets, all currently on sale. My pick is the Travel Discovery Kit, an easy, affordable way to try four of their signature formulas in carry-on sizes.",
+          "lookups": [
+            {
+              "name": "listProducts",
+              "input": {
+                "collection": "gift-sets"
+              }
+            }
+          ],
+          "shown": [
+            {
+              "name": "showProductCards",
+              "input": {
+                "handles": [
+                  "travel-discovery-kit",
+                  "the-morning-ritual-set",
+                  "the-calm-skin-edit"
+                ]
+              },
+              "output": {
+                "products": [
+                  {
+                    "handle": "travel-discovery-kit",
+                    "title": "Travel Discovery Kit",
+                    "images": [
+                      {
+                        "url": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/cfe213b8b2244b0e07f5193f5ef1c0c9.png?v=1791537082",
+                        "alt": "Blue Tansy Calm Mist, included in Travel Discovery Kit"
+                      },
+                      {
+                        "url": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/e83e4090468ee2a335eb9c4c2a476873.png?v=1791537077",
+                        "alt": "Wildflower Renewal Mask, included in Travel Discovery Kit"
+                      },
+                      {
+                        "url": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/7124b63cab489c7288e02e195498f604.png?v=1791537081",
+                        "alt": "Daily Shield Mineral SPF 40, included in Travel Discovery Kit"
+                      },
+                      {
+                        "url": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/b7772cd8968437b3dc46ce0c7f229465.png?v=1791537077",
+                        "alt": "SPF 15 Lip Balm, included in Travel Discovery Kit"
+                      }
+                    ],
+                    "options": [],
+                    "variants": [
+                      {
+                        "id": "gid://shopify/ProductVariant/48013520601265",
+                        "selectedOptions": [
+                          {
+                            "name": "Title",
+                            "value": "Default Title"
+                          }
+                        ],
+                        "price": {
+                          "amount": "69.0",
+                          "currencyCode": "USD"
+                        },
+                        "compareAtPrice": {
+                          "amount": "88.0",
+                          "currencyCode": "USD"
+                        },
+                        "savings": {
+                          "amount": "19.00",
+                          "percent": 22
+                        },
+                        "unitPrice": null,
+                        "bundle": null,
+                        "available": true,
+                        "imageUrl": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/cfe213b8b2244b0e07f5193f5ef1c0c9.png?v=1791537082"
+                      }
+                    ],
+                    "selectedOptions": [
+                      {
+                        "name": "Title",
+                        "value": "Default Title"
+                      }
+                    ]
+                  },
+                  {
+                    "handle": "the-morning-ritual-set",
+                    "title": "The Morning Ritual Set",
+                    "images": [
+                      {
+                        "url": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/2dd6e6d7740534573c7536e6b9bcccd6.png?v=1791537076",
+                        "alt": "Clear Botanical Gel Cleanser, included in The Morning Ritual Set"
+                      },
+                      {
+                        "url": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/a414d8971ffdbfbd207c4bd13da0e25f.png?v=1791537079",
+                        "alt": "Botanical Radiance Vitamin C Serum, included in The Morning Ritual Set"
+                      },
+                      {
+                        "url": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/b701e1043bdcabcebad3d987c8cd419c.png?v=1791537078",
+                        "alt": "Luminous Day Cream SPF 30, included in The Morning Ritual Set"
+                      }
+                    ],
+                    "options": [],
+                    "variants": [
+                      {
+                        "id": "gid://shopify/ProductVariant/48013520535729",
+                        "selectedOptions": [
+                          {
+                            "name": "Title",
+                            "value": "Default Title"
+                          }
+                        ],
+                        "price": {
+                          "amount": "148.0",
+                          "currencyCode": "USD"
+                        },
+                        "compareAtPrice": {
+                          "amount": "174.0",
+                          "currencyCode": "USD"
+                        },
+                        "savings": {
+                          "amount": "26.00",
+                          "percent": 15
+                        },
+                        "unitPrice": null,
+                        "bundle": null,
+                        "available": true,
+                        "imageUrl": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/2dd6e6d7740534573c7536e6b9bcccd6.png?v=1791537076"
+                      }
+                    ],
+                    "selectedOptions": [
+                      {
+                        "name": "Title",
+                        "value": "Default Title"
+                      }
+                    ]
+                  },
+                  {
+                    "handle": "the-calm-skin-edit",
+                    "title": "The Calm Skin Edit",
+                    "images": [
+                      {
+                        "url": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/2320a33378d82c890cd1cbd0f59b1ee9.png?v=1791537078",
+                        "alt": "Green Tea Cream-to-Foam Cleanser, included in The Calm Skin Edit"
+                      },
+                      {
+                        "url": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/495840ef78c50992f48f7ab21e64b0df.png?v=1791537080",
+                        "alt": "Calm Sage Balancing Toner, included in The Calm Skin Edit"
+                      },
+                      {
+                        "url": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/78d17a44d09349949b14cab9678f559e.png?v=1791537080",
+                        "alt": "Chamomile Barrier Repair Serum, included in The Calm Skin Edit"
+                      }
+                    ],
+                    "options": [],
+                    "variants": [
+                      {
+                        "id": "gid://shopify/ProductVariant/48013520568497",
+                        "selectedOptions": [
+                          {
+                            "name": "Title",
+                            "value": "Default Title"
+                          }
+                        ],
+                        "price": {
+                          "amount": "139.0",
+                          "currencyCode": "USD"
+                        },
+                        "compareAtPrice": {
+                          "amount": "168.0",
+                          "currencyCode": "USD"
+                        },
+                        "savings": {
+                          "amount": "29.00",
+                          "percent": 17
+                        },
+                        "unitPrice": null,
+                        "bundle": null,
+                        "available": true,
+                        "imageUrl": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/2320a33378d82c890cd1cbd0f59b1ee9.png?v=1791537078"
+                      }
+                    ],
+                    "selectedOptions": [
+                      {
+                        "name": "Title",
+                        "value": "Default Title"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "suggestions": [
+            "Which one suits dull skin?",
+            "Show me the Morning Ritual Set",
+            "Anything cheaper than these?"
+          ],
+          "failures": []
+        }
+      ]
+    },
+    {
+      "scenario": "collection-page",
+      "run": 1,
+      "passed": false,
+      "turns": [
+        {
+          "user": "which of these would you pick?",
+          "steps": [
+            {
+              "text": "",
+              "calls": [
+                {
+                  "name": "listProducts",
+                  "input": {
+                    "collection": "gift-sets"
+                  }
+                }
+              ]
+            },
+            {
+              "text": "",
+              "calls": [
+                {
+                  "name": "getProduct",
+                  "input": {
+                    "handle": "the-morning-ritual-set"
+                  }
+                }
+              ]
+            },
+            {
+              "text": "For most people I'd reach for The Morning Ritual Set: it's a complete cleanse, brighten and protect routine in one box, so it works as a gift or an easy start for yourself.",
+              "calls": [
+                {
+                  "name": "showProductCard",
+                  "input": {
+                    "handle": "the-morning-ritual-set"
+                  }
+                }
+              ]
+            }
+          ],
+          "text": "For most people I'd reach for The Morning Ritual Set: it's a complete cleanse, brighten and protect routine in one box, so it works as a gift or an easy start for yourself.",
+          "lookups": [
+            {
+              "name": "listProducts",
+              "input": {
+                "collection": "gift-sets"
+              }
+            },
+            {
+              "name": "getProduct",
+              "input": {
+                "handle": "the-morning-ritual-set"
+              }
+            }
+          ],
+          "shown": [
+            {
+              "name": "showProductCard",
+              "input": {
+                "handle": "the-morning-ritual-set"
+              },
+              "output": {
+                "handle": "the-morning-ritual-set",
+                "title": "The Morning Ritual Set",
+                "images": [
+                  {
+                    "url": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/2dd6e6d7740534573c7536e6b9bcccd6.png?v=1791537076",
+                    "alt": "Clear Botanical Gel Cleanser, included in The Morning Ritual Set"
+                  },
+                  {
+                    "url": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/a414d8971ffdbfbd207c4bd13da0e25f.png?v=1791537079",
+                    "alt": "Botanical Radiance Vitamin C Serum, included in The Morning Ritual Set"
+                  },
+                  {
+                    "url": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/b701e1043bdcabcebad3d987c8cd419c.png?v=1791537078",
+                    "alt": "Luminous Day Cream SPF 30, included in The Morning Ritual Set"
+                  }
+                ],
+                "options": [],
+                "variants": [
+                  {
+                    "id": "gid://shopify/ProductVariant/48013520535729",
+                    "selectedOptions": [
+                      {
+                        "name": "Title",
+                        "value": "Default Title"
+                      }
+                    ],
+                    "price": {
+                      "amount": "148.0",
+                      "currencyCode": "USD"
+                    },
+                    "compareAtPrice": {
+                      "amount": "174.0",
+                      "currencyCode": "USD"
+                    },
+                    "savings": {
+                      "amount": "26.00",
+                      "percent": 15
+                    },
+                    "unitPrice": null,
+                    "bundle": null,
+                    "available": true,
+                    "imageUrl": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/2dd6e6d7740534573c7536e6b9bcccd6.png?v=1791537076"
+                  }
+                ],
+                "selectedOptions": [
+                  {
+                    "name": "Title",
+                    "value": "Default Title"
+                  }
+                ]
+              }
+            }
+          ],
+          "suggestions": [
+            "Is the ritual set right for me",
+            "Do you offer returns",
+            "What pairs with the set"
+          ],
+          "failures": [
+            {
+              "check": "shows showProductCards",
+              "reason": "showed showProductCard"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,403 @@
+{
+  "startedAt": "2026-10-14T14:05:49.187Z",
+  "runs": 2,
+  "filters": [
+    "journey-compare"
+  ],
+  "results": [
+    {
+      "scenario": "journey-compare",
+      "run": 1,
+      "passed": true,
+      "turns": [
+        {
+          "user": "I can't decide",
+          "steps": [
+            {
+              "text": "",
+              "calls": [
+                {
+                  "name": "getProduct",
+                  "input": {
+                    "handle": "eye-revive-gel-cream"
+                  }
+                },
+                {
+                  "name": "getProduct",
+                  "input": {
+                    "handle": "caffeine-eye-elixir"
+                  }
+                }
+              ]
+            },
+            {
+              "text": "Both are gentle on sensitive eyes: the Elixir's cooling tip de-puffs and brightens shadows, the Gel-Cream is everyday hydration that won't crease under concealer. If mornings are your trouble, tap the Elixir.",
+              "calls": [
+                {
+                  "name": "showProductCards",
+                  "input": {
+                    "handles": [
+                      "caffeine-eye-elixir",
+                      "eye-revive-gel-cream"
+                    ],
+                    "options": [
+                      {
+                        "name": "Size",
+                        "value": "15 ml"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ],
+          "text": "Both are gentle on sensitive eyes: the Elixir's cooling tip de-puffs and brightens shadows, the Gel-Cream is everyday hydration that won't crease under concealer. If mornings are your trouble, tap the Elixir.",
+          "lookups": [
+            {
+              "name": "getProduct",
+              "input": {
+                "handle": "eye-revive-gel-cream"
+              }
+            },
+            {
+              "name": "getProduct",
+              "input": {
+                "handle": "caffeine-eye-elixir"
+              }
+            }
+          ],
+          "shown": [
+            {
+              "name": "showProductCards",
+              "input": {
+                "handles": [
+                  "caffeine-eye-elixir",
+                  "eye-revive-gel-cream"
+                ],
+                "options": [
+                  {
+                    "name": "Size",
+                    "value": "15 ml"
+                  }
+                ]
+              },
+              "output": {
+                "products": [
+                  {
+                    "handle": "caffeine-eye-elixir",
+                    "title": "Caffeine Eye Elixir",
+                    "images": [
+                      {
+                        "url": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/eeedb3ea0ab66e66f3325744e8e63813.png?v=1791537081",
+                        "alt": "Luminous Eye Elixir tube, Heroic 3/4 angle for bottles/serums on acrylic block or marble plinth; background in soft Bare..."
+                      },
+                      {
+                        "url": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/d577eb15-51f9-416e-bc5d-fe327870fe3e.png?v=1791537082",
+                        "alt": "Illuminating eye contour elixir in a new setting"
+                      }
+                    ],
+                    "options": [
+                      {
+                        "name": "Size",
+                        "values": [
+                          "15 ml"
+                        ]
+                      }
+                    ],
+                    "variants": [
+                      {
+                        "id": "gid://shopify/ProductVariant/48013517717681",
+                        "selectedOptions": [
+                          {
+                            "name": "Size",
+                            "value": "15 ml"
+                          }
+                        ],
+                        "price": {
+                          "amount": "48.0",
+                          "currencyCode": "USD"
+                        },
+                        "compareAtPrice": null,
+                        "savings": null,
+                        "unitPrice": null,
+                        "bundle": null,
+                        "available": true,
+                        "backorder": false,
+                        "lowStock": null,
+                        "imageUrl": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/eeedb3ea0ab66e66f3325744e8e63813.png?v=1791537081"
+                      }
+                    ],
+                    "selectedOptions": [
+                      {
+                        "name": "Size",
+                        "value": "15 ml"
+                      }
+                    ]
+                  },
+                  {
+                    "handle": "eye-revive-gel-cream",
+                    "title": "Eye Revive Gel-Cream",
+                    "images": [
+                      {
+                        "url": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/003f21b2d054e82e0749d974a80024cf.png?v=1791537080",
+                        "alt": "Luminous Eye Revive Cream, Hero angle: straight-on or slight 3/4 view at product height to showcase form and elegant..."
+                      },
+                      {
+                        "url": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/e5464433-90f5-403b-8fb5-98a84e50b079.png?v=1791537081",
+                        "alt": "Luminous Eye Revive Cream in a new setting"
+                      },
+                      {
+                        "url": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/ca88a672-c9f1-4189-9aa1-69b582fdbff9.png?v=1791537080",
+                        "alt": "Luminous Eye Revive Cream in use"
+                      }
+                    ],
+                    "options": [
+                      {
+                        "name": "Size",
+                        "values": [
+                          "15 ml"
+                        ]
+                      }
+                    ],
+                    "variants": [
+                      {
+                        "id": "gid://shopify/ProductVariant/48013517815985",
+                        "selectedOptions": [
+                          {
+                            "name": "Size",
+                            "value": "15 ml"
+                          }
+                        ],
+                        "price": {
+                          "amount": "45.0",
+                          "currencyCode": "USD"
+                        },
+                        "compareAtPrice": {
+                          "amount": "58.0",
+                          "currencyCode": "USD"
+                        },
+                        "savings": {
+                          "amount": "13.00",
+                          "percent": 22
+                        },
+                        "unitPrice": null,
+                        "bundle": null,
+                        "available": true,
+                        "backorder": false,
+                        "lowStock": null,
+                        "imageUrl": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/003f21b2d054e82e0749d974a80024cf.png?v=1791537080"
+                      }
+                    ],
+                    "selectedOptions": [
+                      {
+                        "name": "Size",
+                        "value": "15 ml"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "suggestions": [
+            "Caffeine elixir vs gel-cream?",
+            "Tell me about the gel-cream",
+            "Anything cheaper for puffiness"
+          ],
+          "failures": []
+        }
+      ]
+    },
+    {
+      "scenario": "journey-compare",
+      "run": 2,
+      "passed": true,
+      "turns": [
+        {
+          "user": "I can't decide",
+          "steps": [
+            {
+              "text": "",
+              "calls": [
+                {
+                  "name": "getProduct",
+                  "input": {
+                    "handle": "eye-revive-gel-cream"
+                  }
+                },
+                {
+                  "name": "getProduct",
+                  "input": {
+                    "handle": "caffeine-eye-elixir"
+                  }
+                }
+              ]
+            },
+            {
+              "text": "Choose by the job: the Caffeine Elixir for morning puffiness and dark circles, the Gel-Cream for soft, concealer-friendly hydration. Tap whichever sounds like your mornings.",
+              "calls": [
+                {
+                  "name": "showProductCards",
+                  "input": {
+                    "handles": [
+                      "caffeine-eye-elixir",
+                      "eye-revive-gel-cream"
+                    ]
+                  }
+                }
+              ]
+            }
+          ],
+          "text": "Choose by the job: the Caffeine Elixir for morning puffiness and dark circles, the Gel-Cream for soft, concealer-friendly hydration. Tap whichever sounds like your mornings.",
+          "lookups": [
+            {
+              "name": "getProduct",
+              "input": {
+                "handle": "eye-revive-gel-cream"
+              }
+            },
+            {
+              "name": "getProduct",
+              "input": {
+                "handle": "caffeine-eye-elixir"
+              }
+            }
+          ],
+          "shown": [
+            {
+              "name": "showProductCards",
+              "input": {
+                "handles": [
+                  "caffeine-eye-elixir",
+                  "eye-revive-gel-cream"
+                ]
+              },
+              "output": {
+                "products": [
+                  {
+                    "handle": "caffeine-eye-elixir",
+                    "title": "Caffeine Eye Elixir",
+                    "images": [
+                      {
+                        "url": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/eeedb3ea0ab66e66f3325744e8e63813.png?v=1791537081",
+                        "alt": "Luminous Eye Elixir tube, Heroic 3/4 angle for bottles/serums on acrylic block or marble plinth; background in soft Bare..."
+                      },
+                      {
+                        "url": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/d577eb15-51f9-416e-bc5d-fe327870fe3e.png?v=1791537082",
+                        "alt": "Illuminating eye contour elixir in a new setting"
+                      }
+                    ],
+                    "options": [
+                      {
+                        "name": "Size",
+                        "values": [
+                          "15 ml"
+                        ]
+                      }
+                    ],
+                    "variants": [
+                      {
+                        "id": "gid://shopify/ProductVariant/48013517717681",
+                        "selectedOptions": [
+                          {
+                            "name": "Size",
+                            "value": "15 ml"
+                          }
+                        ],
+                        "price": {
+                          "amount": "48.0",
+                          "currencyCode": "USD"
+                        },
+                        "compareAtPrice": null,
+                        "savings": null,
+                        "unitPrice": null,
+                        "bundle": null,
+                        "available": true,
+                        "backorder": false,
+                        "lowStock": null,
+                        "imageUrl": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/eeedb3ea0ab66e66f3325744e8e63813.png?v=1791537081"
+                      }
+                    ],
+                    "selectedOptions": [
+                      {
+                        "name": "Size",
+                        "value": "15 ml"
+                      }
+                    ]
+                  },
+                  {
+                    "handle": "eye-revive-gel-cream",
+                    "title": "Eye Revive Gel-Cream",
+                    "images": [
+                      {
+                        "url": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/003f21b2d054e82e0749d974a80024cf.png?v=1791537080",
+                        "alt": "Luminous Eye Revive Cream, Hero angle: straight-on or slight 3/4 view at product height to showcase form and elegant..."
+                      },
+                      {
+                        "url": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/e5464433-90f5-403b-8fb5-98a84e50b079.png?v=1791537081",
+                        "alt": "Luminous Eye Revive Cream in a new setting"
+                      },
+                      {
+                        "url": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/ca88a672-c9f1-4189-9aa1-69b582fdbff9.png?v=1791537080",
+                        "alt": "Luminous Eye Revive Cream in use"
+                      }
+                    ],
+                    "options": [
+                      {
+                        "name": "Size",
+                        "values": [
+                          "15 ml"
+                        ]
+                      }
+                    ],
+                    "variants": [
+                      {
+                        "id": "gid://shopify/ProductVariant/48013517815985",
+                        "selectedOptions": [
+                          {
+                            "name": "Size",
+                            "value": "15 ml"
+                          }
+                        ],
+                        "price": {
+                          "amount": "45.0",
+                          "currencyCode": "USD"
+                        },
+                        "compareAtPrice": {
+                          "amount": "58.0",
+                          "currencyCode": "USD"
+                        },
+                        "savings": {
+                          "amount": "13.00",
+                          "percent": 22
+                        },
+                        "unitPrice": null,
+                        "bundle": null,
+                        "available": true,
+                        "backorder": false,
+                        "lowStock": null,
+                        "imageUrl": "https://cdn.shopify.com/s/files/1/0746/6414/9169/files/003f21b2d054e82e0749d974a80024cf.png?v=1791537080"
+                      }
+                    ],
+                    "selectedOptions": [
+                      {
+                        "name": "Size",
+                        "value": "15 ml"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "suggestions": [
+            "Caffeine elixir for puffy eyes",
+            "Show the gel-cream closer",
+            "Something cheaper for eyes"
+          ],
+          "failures": []
+        }
+      ]
+    }
+  ]
+}

@@ -47,8 +47,6 @@ Shared (`shared/`), used by both sides
 
 `extensions/chat-widget/` is the theme app extension that mounts the widget bundle.
 
-`evals/` holds the scenarios and checks that run the real model.
-
 ## Adding a display tool
 
 1. An entry in `shared/tools.ts`, with kind `display`, and its input and output schemas.
@@ -69,12 +67,9 @@ npm run dev
 
 Turn the widget on in the theme editor, under App embeds → Chat Cart.
 
-Tests and evals:
+Tests:
 
 ```bash
-npm test                   # unit tests
-npm run eval -- --runs 3   # agent evals, against the real model and Storefront API
+npm test
 ```
-
-Evals need a fresh offline session: run `npm run dev` and open the app once before you run them.
 

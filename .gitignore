@@ -31,3 +31,5 @@ database.sqlite
 /extensions/chat-widget/assets/chat-widget.css
 
 /.claude/settings.local.json
+
+CLAUDE.md

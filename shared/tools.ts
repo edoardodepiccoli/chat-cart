@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { productSummarySchema } from "./product";
+import { highlightSchema, shownProductSchema } from "./product";
 
 export const TOOLS = {
   listProducts: {
@@ -48,8 +48,18 @@ export const TOOLS = {
   showProducts: {
     kind: "display",
     label: "typing",
-    input: z.object({ handles: z.array(z.string()).min(1).max(4) }),
-    output: z.object({ products: z.array(productSummarySchema) }),
+    input: z.object({
+      products: z
+        .array(
+          z.object({
+            handle: z.string(),
+            highlights: z.array(highlightSchema).length(3),
+          }),
+        )
+        .min(1)
+        .max(3),
+    }),
+    output: z.object({ products: z.array(shownProductSchema) }),
   },
   showFaqCard: {
     kind: "display",

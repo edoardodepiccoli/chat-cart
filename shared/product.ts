@@ -16,6 +16,19 @@ export const productSummarySchema = z.object({
 
 export type ProductSummary = z.infer<typeof productSummarySchema>;
 
+export const highlightSchema = z.object({
+  text: z.string(),
+  kind: z.enum(["pro", "con"]),
+});
+
+export type Highlight = z.infer<typeof highlightSchema>;
+
+export const shownProductSchema = productSummarySchema.extend({
+  highlights: z.array(highlightSchema),
+});
+
+export type ShownProduct = z.infer<typeof shownProductSchema>;
+
 export function sameText(a: string, b: string): boolean {
   return a.trim().toLowerCase() === b.trim().toLowerCase();
 }

@@ -24,7 +24,18 @@ it("drops data tool parts and keeps display parts without images", () => {
         type: "tool-showProducts",
         toolCallId: "2",
         state: "output-available",
-        input: { handles: ["x"] },
+        input: {
+          products: [
+            {
+              handle: "x",
+              highlights: [
+                { text: "a", kind: "pro" },
+                { text: "b", kind: "pro" },
+                { text: "c", kind: "con" },
+              ],
+            },
+          ],
+        },
         output: {
           products: [
             {

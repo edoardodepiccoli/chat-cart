@@ -1,16 +1,14 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-
-import type { ProductSummary } from "../../../shared/product";
+import type { Highlight, ShownProduct } from "../../../shared/product";
 import { productUrl } from "../urls";
 import { ProductPrice } from "../components/Price";
 
-function CompactProductCard({
+function ProductCard({
   handle,
   title,
   image,
   price,
   compareAtPrice,
-}: ProductSummary) {
+}: ShownProduct) {
   return (
     <a className="cc-card" href={productUrl(handle)}>
       <div className="cc-card__media">
@@ -34,43 +32,61 @@ function CompactProductCard({
   );
 }
 
+function HighlightIcon({ kind }: { kind: Highlight["kind"] }) {
+  return (
+    <svg
+      className="cc-highlight__icon"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d={kind === "pro" ? "M3 8.5l3.2 3L13 4.5" : "M4 4l8 8M12 4l-8 8"} />
+    </svg>
+  );
+}
+
 export default function ProductCards({
   products,
 }: {
-  products: ProductSummary[];
+  products: ShownProduct[];
 }) {
-  const carouselRef = useRef<HTMLDivElement>(null);
-  const [moreStart, setMoreStart] = useState(false);
-  const [moreEnd, setMoreEnd] = useState(false);
-
-  const updateEdges = useCallback(() => {
-    const carousel = carouselRef.current;
-    if (carousel === null) return;
-    setMoreStart(carousel.scrollLeft > 1);
-    setMoreEnd(
-      carousel.scrollLeft + carousel.clientWidth < carousel.scrollWidth - 1,
-    );
-  }, []);
-
-  useEffect(() => {
-    const carousel = carouselRef.current;
-    if (carousel === null) return;
-    const observer = new ResizeObserver(updateEdges);
-    observer.observe(carousel);
-    return () => observer.disconnect();
-  }, [updateEdges]);
-
   return (
-    <div
-      className="cc-carousel"
-      ref={carouselRef}
-      data-more-start={moreStart}
-      data-more-end={moreEnd}
-      onScroll={updateEdges}
-    >
-      {products.map((product) => (
-        <CompactProductCard key={product.handle} {...product} />
-      ))}
+    <div className="cc-products">
+      {products.map((product) => {
+        const highlights = product.highlights ?? [];
+        return (
+          <div
+            className="cc-product"
+            data-has-highlights={highlights.length > 0}
+            key={product.handle}
+          >
+            <ProductCard {...product} />
+            {highlights.length > 0 && (
+              <ul className="cc-highlights">
+                {highlights.map((highlight) => (
+                  <li
+                    className="cc-highlight"
+                    data-kind={highlight.kind}
+                    key={highlight.text}
+                  >
+                    <HighlightIcon kind={highlight.kind} />
+                    <span>
+                      <span className="cc-sr-only">
+                        {highlight.kind === "pro" ? "Pro: " : "Con: "}
+                      </span>
+                      {highlight.text}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }

@@ -51,16 +51,19 @@ export function createTools(storefront: StorefrontApiContext, market: Market) {
     }),
     showProducts: tool({
       description:
-        "Show the shopper one to four products, by their handles, best first, each with its photo and price, linking to its page. Ends your reply: write your sentences first.",
+        "Show the shopper one to three products, by their handles, best first, each with its photo, price and exactly three short highlights, linking to its page. A highlight is a pro or a con (kind) for this shopper, at most eight words, tailored to what they said in the conversation (needs, budget, situation) and taken only from the product's data. Mix pros and cons honestly. Ends your reply: write your sentences first.",
       inputSchema: TOOLS.showProducts.input,
-      execute: async ({ handles }) => {
+      execute: async ({ products: requested }) => {
         const products = (
           await Promise.all(
-            handles.map((handle) => getProduct(storefront, market, handle)),
+            requested.map(async ({ handle, highlights }) => {
+              const product = await getProduct(storefront, market, handle);
+              return product === null
+                ? null
+                : { ...toProductSummary(product), highlights };
+            }),
           )
-        )
-          .filter((product) => product !== null)
-          .map(toProductSummary);
+        ).filter((product) => product !== null);
         if (!products.length) throw new Error("No product with those handles");
         return { products };
       },

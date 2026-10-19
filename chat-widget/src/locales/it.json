@@ -1,8 +1,8 @@
 {
-  "greeting": "Ciao! Sono il tuo assistente di shopping personale. Posso trovare il prodotto giusto per te, controllare taglie e disponibilità e rispondere a domande su spedizioni e resi. Cosa stai cercando oggi?",
-  "suggestion1": "Cosa vendete?",
-  "suggestion2": "Aiutami a trovare un regalo",
-  "suggestion3": "Quanto tempo richiede la spedizione?",
+  "greeting": "Ciao! Ti aiuto a trovare la skincare giusta: una routine, una soluzione per un problema preciso o un regalo. Raccontami della tua pelle o di cosa cerchi e scelgo io per te.",
+  "suggestion1": "Crea la mia routine",
+  "suggestion2": "Aiutami con un regalo",
+  "suggestion3": "Spedizioni e resi",
   "typing": "Sto scrivendo",
   "lookingUpProducts": "Cerco i prodotti",
   "checkingStore": "Controllo le info del negozio",

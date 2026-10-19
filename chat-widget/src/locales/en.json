@@ -1,8 +1,8 @@
 {
-  "greeting": "Hi! I'm your personal AI shopping assistant. I can find the right product for you, check sizes and stock, and answer questions about shipping and returns. What are you looking for today?",
-  "suggestion1": "What do you sell?",
-  "suggestion2": "Help me find a gift",
-  "suggestion3": "How long does shipping take?",
+  "greeting": "Hi! I'll help you find the right skincare, whether it's a routine, a fix for one concern or a gift. Tell me about your skin or what you're after, and I'll pick for you.",
+  "suggestion1": "Build me a simple routine",
+  "suggestion2": "Help me choose a gift",
+  "suggestion3": "Shipping and returns",
   "typing": "Typing",
   "lookingUpProducts": "Looking up products",
   "checkingStore": "Checking store info",

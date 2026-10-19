@@ -57,7 +57,10 @@ export default function ProductCards({
   return (
     <div className="cc-products">
       {products.map((product) => {
-        const highlights = product.highlights ?? [];
+        const highlights = [
+          ...(product.highlights ?? []).filter(({ kind }) => kind === "pro"),
+          ...(product.highlights ?? []).filter(({ kind }) => kind === "con"),
+        ];
         return (
           <div className="cc-product" key={product.handle}>
             <ProductCard {...product} />

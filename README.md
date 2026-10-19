@@ -25,7 +25,6 @@ Backend (`app/`)
 - `agent/prompts/` — system, context and suggestions prompts.
 - `routes/proxy.chat.tsx`, `routes/proxy.events.tsx` — endpoints the widget calls.
 - `conversations.server.ts` — saving and loading conversations.
-- `log/` — terminal logging: levels, colors, request blocks, tool summaries.
 - `routes/app._index.tsx` — admin home page (empty for now).
 
 Widget (`chat-widget/src/`)
@@ -79,18 +78,3 @@ npm run eval -- --runs 3   # agent evals, against the real model and Storefront 
 
 Evals need a fresh offline session: run `npm run dev` and open the app once before you run them.
 
-### Logs
-
-The app logs to the dev terminal, in color. Each request prints one block. It starts with `▶` and ends with `■ done`.
-
-- `LOG_LEVEL` is `debug`, `info`, `warn` or `error`. The default is `info`. `debug` adds full payloads: the system prompt, raw tool output and model messages.
-- `LOG_FORMAT` is `pretty` or `json`. The default is `json` in production and `pretty` otherwise.
-- `NO_COLOR` turns colors off. `scripts/dev.sh` sets `FORCE_COLOR=1`.
-
-Every line carries `conv=<first 5 chars>` and `req=<4 hex>`. Requests without a conversation carry only `req=`: webhooks, auth failures and client errors with no conversation. To follow one conversation, filter the output:
-
-```bash
-npm run dev 2>&1 | grep conv=ab12f
-```
-
-Widget failures show up as `ERROR client <kind>`. Evals default to `LOG_LEVEL=warn` and `LOG_FORMAT=pretty`.

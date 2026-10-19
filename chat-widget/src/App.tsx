@@ -20,7 +20,7 @@ export default function App() {
     canReset,
     reset,
     resetFailed,
-  } = useChatSession({ open });
+  } = useChatSession();
   const [draft, setDraft] = useState("");
   const logRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);

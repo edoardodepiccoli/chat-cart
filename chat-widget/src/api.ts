@@ -1,7 +1,7 @@
 import { DefaultChatTransport } from "ai";
 import { useEffect, useState } from "react";
 
-import type { ChatEvent, ChatMessage } from "../../shared/chat";
+import type { ChatMessage } from "../../shared/chat";
 import { getShopperContext } from "./context";
 
 export type Conversation = { id: string; messages: ChatMessage[] };
@@ -66,45 +66,6 @@ export async function loadConversation(): Promise<Conversation> {
   return conversation;
 }
 
-type ErrorKind = Extract<ChatEvent, { type: "client_error" }>["data"]["kind"];
-type ErrorState = { open: boolean; busy: boolean };
-
-const NO_STATE: ErrorState = { open: false, busy: false };
-
-function pageLabel() {
-  const page = getShopperContext().page;
-  if (page.type === "other") return "other";
-  return `${page.type}:${page.type === "search" ? page.terms : page.handle}`;
-}
-
-export function reportError(
-  conversationId: string | null,
-  kind: ErrorKind,
-  error: unknown,
-  state: ErrorState,
-) {
-  const message = error instanceof Error ? error.message : String(error);
-  sendEvent(conversationId, {
-    type: "client_error",
-    data: {
-      kind,
-      message: message.slice(0, 500),
-      open: state.open,
-      busy: state.busy,
-      page: pageLabel().slice(0, 200),
-    },
-  });
-}
-
-export function sendEvent(conversationId: string | null, event: ChatEvent) {
-  fetch(`${PROXY_BASE}/events`, {
-    method: "POST",
-    keepalive: true,
-    headers: { ...PROXY_HEADERS, "Content-Type": "application/json" },
-    body: JSON.stringify({ conversationId, ...event }),
-  }).catch(() => {});
-}
-
 export function useConversation() {
   const [conversation, setConversation] = useState<Conversation>();
   const [loadFailed, setLoadFailed] = useState(false);
@@ -113,18 +74,14 @@ export function useConversation() {
   useEffect(() => {
     loadConversation()
       .then(setConversation)
-      .catch((error) => {
-        reportError(null, "conversation_load_failed", error, NO_STATE);
-        setLoadFailed(true);
-      });
+      .catch(() => setLoadFailed(true));
   }, []);
 
   async function reset() {
     setResetFailed(false);
     try {
       setConversation(await startConversation());
-    } catch (error) {
-      reportError(conversation?.id ?? null, "reset_failed", error, NO_STATE);
+    } catch {
       setResetFailed(true);
     }
   }

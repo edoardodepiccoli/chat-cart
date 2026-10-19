@@ -21,14 +21,9 @@ function findConversation(shop: string, id: string) {
 export async function findOrCreateConversation(
   shop: string,
   id: string | null,
-): Promise<{
-  id: string;
-  messages: ChatMessage[];
-  status: "found" | "created" | "replaced";
-}> {
-  const found = id ? await findConversation(shop, id) : null;
+): Promise<{ id: string; messages: ChatMessage[] }> {
   const conversation =
-    found ||
+    (id && (await findConversation(shop, id))) ||
     (await prisma.conversation.create({
       data: { shop },
       include: { messages: true },
@@ -37,7 +32,6 @@ export async function findOrCreateConversation(
   return {
     id: conversation.id,
     messages: conversation.messages.map(toChatMessage),
-    status: found ? "found" : id ? "replaced" : "created",
   };
 }
 

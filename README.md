@@ -65,7 +65,7 @@ npm install
 npm run dev
 ```
 
-`npm run dev` resets and seeds conversations, then runs the app over an ngrok tunnel and the widget watcher together.
+`npm run dev` runs the app through the Shopify CLI. In a second terminal, `npm run widget:dev` rebuilds the widget on every change.
 
 Turn the widget on in the theme editor, under App embeds → Chat Cart.
 

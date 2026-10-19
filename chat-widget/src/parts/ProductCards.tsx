@@ -59,11 +59,7 @@ export default function ProductCards({
       {products.map((product) => {
         const highlights = product.highlights ?? [];
         return (
-          <div
-            className="cc-product"
-            data-has-highlights={highlights.length > 0}
-            key={product.handle}
-          >
+          <div className="cc-product" key={product.handle}>
             <ProductCard {...product} />
             {highlights.length > 0 && (
               <ul className="cc-highlights">

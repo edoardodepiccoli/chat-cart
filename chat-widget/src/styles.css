@@ -464,39 +464,36 @@
 }
 
 .cc-product {
-  display: grid;
-  gap: calc(16px * var(--cc-space));
-  align-items: start;
-}
-
-.cc-product[data-has-highlights="true"] {
-  grid-template-columns: minmax(0, 190px) minmax(0, 1fr);
-}
-
-.cc-product:not(:last-child) {
-  padding-bottom: calc(16px * var(--cc-space));
-  border-bottom: var(--cc-border-width) solid var(--cc-color-border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: var(--cc-border-width) solid var(--cc-color-border);
+  border-radius: var(--cc-radius);
+  background: var(--cc-color-background);
 }
 
 .cc-product .cc-card {
-  display: flex;
-  flex-direction: column;
-  font-size: var(--cc-font-size-sm);
+  display: grid;
+  grid-template-columns: minmax(0, 40%) minmax(0, 1fr);
+  align-items: center;
+  border: 0;
+  border-radius: 0;
 }
 
-.cc-product[data-has-highlights="false"] .cc-card {
-  max-width: 190px;
+.cc-product .cc-card__media {
+  align-self: stretch;
 }
 
 .cc-product .cc-card__image,
 .cc-product .cc-card__image-placeholder {
+  height: 100%;
   aspect-ratio: 1 / 1;
   object-fit: cover;
 }
 
 .cc-product .cc-card__body {
   gap: calc(6px * var(--cc-space));
-  padding: calc(8px * var(--cc-space));
+  padding: calc(12px * var(--cc-space));
 }
 
 .cc-highlights {
@@ -504,8 +501,10 @@
   flex-direction: column;
   gap: calc(10px * var(--cc-space));
   margin: 0;
-  padding: calc(4px * var(--cc-space)) 0 0;
+  padding: calc(12px * var(--cc-space));
   list-style: none;
+  border-top: var(--cc-border-width) solid var(--cc-color-border);
+  background: var(--cc-color-surface);
 }
 
 .cc-highlight {
@@ -536,26 +535,6 @@
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
-}
-
-@media (max-width: 480px) {
-  .cc-product[data-has-highlights="true"] {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .cc-product .cc-card {
-    display: grid;
-    grid-template-columns: 96px minmax(0, 1fr);
-    align-items: center;
-  }
-
-  .cc-product[data-has-highlights="false"] .cc-card {
-    max-width: none;
-  }
-
-  .cc-highlights {
-    padding: 0 calc(4px * var(--cc-space));
-  }
 }
 
 @keyframes cc-rise {

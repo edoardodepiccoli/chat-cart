@@ -1,6 +1,5 @@
 import { DefaultChatTransport } from "ai";
 import { useEffect, useState } from "react";
-import { z } from "zod";
 
 import type { ChatEvent, ChatMessage } from "../../shared/chat";
 import { getShopperContext } from "./context";
@@ -120,10 +119,6 @@ export function useConversation() {
       });
   }, []);
 
-  function trackEvent(event: ChatEvent) {
-    if (conversation) sendEvent(conversation.id, event);
-  }
-
   async function reset() {
     setResetFailed(false);
     try {
@@ -134,5 +129,5 @@ export function useConversation() {
     }
   }
 
-  return { conversation, loadFailed, resetFailed, reset, trackEvent };
+  return { conversation, loadFailed, resetFailed, reset };
 }

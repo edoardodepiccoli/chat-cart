@@ -25,9 +25,8 @@ Backend (`app/`)
 - `agent/prompts/` — system, context and suggestions prompts.
 - `routes/proxy.chat.tsx`, `routes/proxy.events.tsx` — endpoints the widget calls.
 - `conversations.server.ts` — saving and loading conversations.
-- `metrics.server.ts` — widget events and dashboard stats.
 - `log/` — terminal logging: levels, colors, request blocks, tool summaries.
-- `routes/app._index.tsx` — admin home page: funnel.
+- `routes/app._index.tsx` — admin home page (empty for now).
 
 Widget (`chat-widget/src/`)
 
@@ -43,7 +42,7 @@ Widget (`chat-widget/src/`)
 Shared (`shared/`), used by both sides
 
 - `tools.ts` — every tool, with its input and output schemas.
-- `chat.ts` — message type, widget event schema, which event counts as each part's action.
+- `chat.ts` — message type, widget error-report schema.
 - `context.ts` — shopper context and page schemas.
 - `product.ts` — product types and variant picking.
 

@@ -1,11 +1,9 @@
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useRef, useState } from "react";
 
 import Message from "./components/Message";
 import Panel, { useAnchorScroll, useIosKeyboard } from "./components/Panel";
 import Suggestions from "./components/Suggestions";
 import { useChatSession } from "./hooks/useChatSession";
-import { useLinkTracking } from "./hooks/useLinkTracking";
-import { sendEvent } from "./api";
 import { t } from "./i18n";
 import { groupTurns, typingLabel } from "./turns";
 
@@ -22,7 +20,6 @@ export default function App() {
     canReset,
     reset,
     resetFailed,
-    trackEvent,
   } = useChatSession({ open });
   const [draft, setDraft] = useState("");
   const logRef = useRef<HTMLDivElement>(null);
@@ -31,12 +28,6 @@ export default function App() {
   useAnchorScroll(logRef, turns.at(-1)?.[0].id);
   useIosKeyboard(inputRef);
   const last = messages.at(-1);
-  const trackLink = useLinkTracking(trackEvent);
-
-  useEffect(() => {
-    if (open && conversation)
-      sendEvent(conversation.id, { type: "widget_opened" });
-  }, [open, conversation]);
 
   function submitText(text: string) {
     if (!text || busy || !conversation) return;
@@ -55,7 +46,6 @@ export default function App() {
   }
 
   function pick(text: string) {
-    trackEvent({ type: "suggestion_clicked", data: { text } });
     submitText(text);
   }
 
@@ -63,7 +53,6 @@ export default function App() {
     <Panel
       open={open}
       logRef={logRef}
-      onClickCapture={trackLink}
       composer={{
         value: draft,
         onChange: setDraft,

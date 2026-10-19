@@ -4,10 +4,10 @@ import { useEffect, useRef } from "react";
 
 import { reportError, transport, useConversation } from "../api";
 import { greeting } from "../turns";
-import type { ChatEvent, ChatMessage } from "../../../shared/chat";
+import type { ChatMessage } from "../../../shared/chat";
 
 export function useChatSession({ open }: { open: boolean }) {
-  const { conversation, loadFailed, resetFailed, reset, trackEvent } =
+  const { conversation, loadFailed, resetFailed, reset } =
     useConversation();
   const { messages, sendMessage, status, error } = useChat<ChatMessage>({
     id: conversation?.id,
@@ -51,6 +51,5 @@ export function useChatSession({ open }: { open: boolean }) {
     canReset,
     reset,
     resetFailed,
-    trackEvent: trackEvent as (event: ChatEvent) => void,
   };
 }

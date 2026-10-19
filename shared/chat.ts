@@ -11,34 +11,19 @@ export type ChatMessage = UIMessage<
 
 export type ChatPart = ChatMessage["parts"][number];
 
-export const chatEventSchema = z.discriminatedUnion("type", [
-  z.object({ type: z.literal("widget_opened") }),
-  z.object({
-    type: z.literal("suggestion_clicked"),
-    data: z.object({ text: z.string().max(500) }),
+export const chatEventSchema = z.object({
+  type: z.literal("client_error"),
+  data: z.object({
+    kind: z.enum([
+      "conversation_load_failed",
+      "chat_stream_failed",
+      "reset_failed",
+    ]),
+    message: z.string().max(500),
+    open: z.boolean(),
+    busy: z.boolean(),
+    page: z.string().max(200),
   }),
-  z.object({
-    type: z.literal("product_clicked"),
-    data: z.object({ handle: z.string().max(200) }),
-  }),
-  z.object({
-    type: z.literal("link_clicked"),
-    data: z.object({ url: z.string().max(2000) }),
-  }),
-  z.object({
-    type: z.literal("client_error"),
-    data: z.object({
-      kind: z.enum([
-        "conversation_load_failed",
-        "chat_stream_failed",
-        "reset_failed",
-      ]),
-      message: z.string().max(500),
-      open: z.boolean(),
-      busy: z.boolean(),
-      page: z.string().max(200),
-    }),
-  }),
-]);
+});
 
 export type ChatEvent = z.infer<typeof chatEventSchema>;

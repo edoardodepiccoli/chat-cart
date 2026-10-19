@@ -14,14 +14,12 @@ import Launcher from "./Launcher";
 export default function Panel({
   open,
   logRef,
-  onClickCapture,
   composer,
   onToggle,
   children,
 }: {
   open: boolean;
   logRef: RefObject<HTMLDivElement>;
-  onClickCapture?: (event: React.MouseEvent) => void;
   composer: ComposerProps;
   onToggle: () => void;
   children: ReactNode;
@@ -40,7 +38,6 @@ export default function Panel({
         className="cc-panel"
         data-open={open}
         aria-hidden={!open}
-        onClickCapture={onClickCapture}
       >
         <button
           type="button"

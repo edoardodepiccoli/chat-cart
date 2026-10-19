@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { PrismaClient, type Prisma } from "@prisma/client";
 
-import type { ChatEvent, ChatPart } from "../shared/chat";
+import type { ChatPart } from "../shared/chat";
 import {
   toProductSummary,
   type Money,
@@ -30,11 +30,9 @@ type Chat = {
   faqUrl: string;
   suggestions: string[];
   messages: Prisma.MessageCreateWithoutConversationInput[];
-  events: Prisma.EventCreateWithoutConversationInput[];
 };
 
 const ENGAGED = 100;
-const BOUNCES = 300;
 const DAYS = 30;
 const DAY = 24 * 60 * 60 * 1000;
 const HOURS = [
@@ -278,14 +276,6 @@ function wait(chat: Chat, min: number, max: number) {
   chat.at += Math.round(between(min, max) * 1000);
 }
 
-function record(chat: Chat, event: ChatEvent) {
-  chat.events.push({
-    type: event.type,
-    data: "data" in event ? event.data : undefined,
-    createdAt: new Date(chat.at),
-  });
-}
-
 function say(chat: Chat, role: "user" | "assistant", parts: ChatPart[]) {
   chat.messages.push({
     id: randomUUID(),
@@ -297,9 +287,6 @@ function say(chat: Chat, role: "user" | "assistant", parts: ChatPart[]) {
 
 function user(chat: Chat, text: string) {
   wait(chat, 12, 75);
-  if (chat.suggestions.includes(text) && chance(0.6)) {
-    record(chat, { type: "suggestion_clicked", data: { text } });
-  }
   say(chat, "user", [{ type: "text", text }]);
 }
 
@@ -333,10 +320,6 @@ function faq(chat: Chat, text: string) {
     },
     topic.suggestions,
   );
-  if (chance(0.3)) {
-    wait(chat, 5, 30);
-    record(chat, { type: "link_clicked", data: { url: chat.faqUrl } });
-  }
 }
 
 function productCards(items: SeedProduct[]): ChatPart {
@@ -357,7 +340,7 @@ function showProduct(chat: Chat, item: SeedProduct) {
     CARD_SUGGESTIONS,
   );
   const roll = random();
-  if (roll < 0.35) return clickProduct(chat, item);
+  if (roll < 0.35) return;
   if (roll < 0.6) return faq(chat, pick(CARD_SUGGESTIONS.slice(0, 2)));
   if (roll < 0.7) {
     user(chat, "Show me something similar");
@@ -366,17 +349,10 @@ function showProduct(chat: Chat, item: SeedProduct) {
   }
 }
 
-function clickProduct(chat: Chat, item: SeedProduct) {
-  wait(chat, 5, 40);
-  record(chat, { type: "product_clicked", data: { handle: item.handle } });
-}
-
 function showCards(chat: Chat, items: SeedProduct[], intro: string) {
   assistant(chat, intro, productCards(items), CARDS_SUGGESTIONS);
   const roll = random();
-  if (roll < 0.5) {
-    return clickProduct(chat, pick(items));
-  }
+  if (roll < 0.5) return;
   if (roll < 0.65) {
     user(chat, "Which one is the most popular?");
     const best = pick(items);
@@ -511,42 +487,14 @@ function engaged(shop: string): Prisma.ConversationCreateInput {
     faqUrl: `https://${shop}/pages/faq`,
     suggestions: [],
     messages: [],
-    events: [],
   };
   wait(chat, 5, 120);
-  record(chat, { type: "widget_opened" });
   pick(SCENARIOS)(chat);
-  while (chance(0.35)) {
-    wait(chat, 60, 1800);
-    record(chat, { type: "widget_opened" });
-  }
   return {
     shop,
     createdAt,
     messages: { create: chat.messages },
-    events: { create: chat.events },
   };
-}
-
-function bounce(shop: string, opened: boolean): Prisma.ConversationCreateInput {
-  const createdAt = loadTime();
-  const openedAt = createdAt.getTime() + Math.round(between(5, 300) * 1000);
-  return {
-    shop,
-    createdAt,
-    events: opened
-      ? {
-          create: [{ type: "widget_opened", createdAt: new Date(openedAt) }],
-        }
-      : undefined,
-  };
-}
-
-function eventCount(data: Prisma.ConversationCreateInput[], type: string) {
-  return data.filter((conversation) => {
-    const events = conversation.events?.create;
-    return Array.isArray(events) && events.some((event) => event.type === type);
-  }).length;
 }
 
 const prisma = new PrismaClient();
@@ -559,7 +507,6 @@ if (!session) {
 } else {
   const data = [
     ...Array.from({ length: ENGAGED }, () => engaged(session.shop)),
-    ...Array.from({ length: BOUNCES }, () => bounce(session.shop, chance(0.2))),
   ];
 
   await prisma.$transaction(
@@ -569,7 +516,7 @@ if (!session) {
   );
 
   console.log(
-    `Seeded ${session.shop}: ${data.length} loads, ${eventCount(data, "widget_opened")} opened, ${ENGAGED} engaged, ${eventCount(data, "product_clicked")} product clicks.`,
+    `Seeded ${session.shop}: ${data.length} conversations.`,
   );
 }
 

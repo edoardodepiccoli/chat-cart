@@ -3,10 +3,11 @@
   "private": true,
   "scripts": {
     "widget:build": "vite build --config chat-widget/vite.config.ts",
-    "widget:dev": "vite build --watch --config chat-widget/vite.config.ts",
     "prebuild": "npm run widget:build",
     "build": "react-router build",
-    "dev": "shopify app dev",
+    "dev:app": "shopify app dev",
+    "dev:app-ngrok": "./scripts/dev-ngrok.sh",
+    "dev:widget": "vite build --watch --config chat-widget/vite.config.ts",
     "predeploy": "npm run widget:build",
     "deploy": "shopify app deploy",
     "start": "react-router-serve ./build/server/index.js",

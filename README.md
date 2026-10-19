@@ -60,10 +60,10 @@ The compiler enforces steps 1 to 3. Step 4 is plain text, so the model only uses
 
 ```bash
 npm install
-npm run dev
+npm run dev:app          # the app, through the Shopify CLI tunnel
+npm run dev:app-ngrok    # the app, through an ngrok tunnel (needs ngrok installed)
+npm run dev:widget       # rebuilds the widget on every change, in a second terminal
 ```
-
-`npm run dev` runs the app through the Shopify CLI. In a second terminal, `npm run widget:dev` rebuilds the widget on every change.
 
 Turn the widget on in the theme editor, under App embeds → Chat Cart.
 

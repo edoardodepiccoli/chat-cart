@@ -7,8 +7,6 @@ import {
 } from "react";
 
 import Composer, { type ComposerProps } from "./Composer";
-import { t } from "../i18n";
-import { CloseIcon } from "../icons";
 import Launcher from "./Launcher";
 
 export default function Panel({
@@ -39,15 +37,6 @@ export default function Panel({
         data-open={open}
         aria-hidden={!open}
       >
-        <button
-          type="button"
-          className="cc-panel__close"
-          aria-label={t("closeChat")}
-          onClick={onToggle}
-        >
-          <CloseIcon />
-        </button>
-
         <div className="cc-log" ref={logRef}>
           <div className="cc-log__content">{children}</div>
         </div>

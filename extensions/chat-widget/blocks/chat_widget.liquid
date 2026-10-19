@@ -1,4 +1,4 @@
-<div id="chat-cart-root" data-locale="{{ request.locale.iso_code }}" data-country="{{ localization.country.iso_code }}" data-page-type="{{ request.page_type }}" data-product-handle="{{ product.handle | escape }}" data-collection-handle="{{ collection.handle | escape }}" data-search-terms="{{ search.terms | escape }}" data-hide-selectors="{{ block.settings.hide_when_visible | escape }}"></div>
+<div id="chat-cart-root" data-locale="{{ request.locale.iso_code }}" data-country="{{ localization.country.iso_code }}" data-page-type="{{ request.page_type }}" data-product-handle="{{ product.handle | escape }}" data-collection-handle="{{ collection.handle | escape }}" data-search-terms="{{ search.terms | escape }}" data-hide-selector="{{ block.settings.hide_selector | escape }}"></div>
 
 <link rel="stylesheet" href="{{ 'chat-widget.css' | asset_url }}">
 <script src="{{ 'chat-widget.js' | asset_url }}" defer></script>
@@ -9,10 +9,10 @@
   "target": "body",
   "settings": [
     {
-      "type": "textarea",
-      "id": "hide_when_visible",
+      "type": "text",
+      "id": "hide_selector",
       "label": "Hide chat button when these elements cover it",
-      "info": "CSS selectors, separated by commas or new lines (e.g. .menu-drawer, .sticky-add-to-cart). The chat button hides while any of them is visible and overlaps it; an open chat is never hidden. Scripts can also dispatch chat-cart:hide / chat-cart:show events on document."
+      "info": "Comma-separated CSS selectors (e.g. .menu-drawer, .sticky-add-to-cart). The chat button hides while any of them is visible and overlaps it. An open chat is never hidden."
     }
   ]
 }

@@ -4,20 +4,11 @@ import Message from "./components/Message";
 import Panel, { useAnchorScroll, useIosKeyboard } from "./components/Panel";
 import Suggestions from "./components/Suggestions";
 import { useChatSession } from "./hooks/useChatSession";
-import { useSuppressed } from "./hooks/useSuppressed";
 import { t } from "./i18n";
 import { groupTurns, typingLabel } from "./turns";
 
-const NO_SELECTORS: string[] = [];
-
-export default function App({
-  hideSelectors = NO_SELECTORS,
-}: {
-  hideSelectors?: string[];
-}) {
+export default function App({ hideSelector = "" }: { hideSelector?: string }) {
   const [open, setOpen] = useState(false);
-  const launcherRef = useRef<HTMLButtonElement>(null);
-  const suppressed = useSuppressed(hideSelectors, launcherRef, open);
   const {
     conversation,
     loadFailed,
@@ -61,8 +52,7 @@ export default function App({
   return (
     <Panel
       open={open}
-      suppressed={suppressed}
-      launcherRef={launcherRef}
+      hideSelector={hideSelector}
       logRef={logRef}
       composer={{
         value: draft,

@@ -1,20 +1,28 @@
-import { forwardRef } from "react";
+import { useRef } from "react";
 
+import { useCovered } from "../covered";
 import { t } from "../i18n";
 import { ChatIcon, CloseIcon } from "../icons";
 
-const Launcher = forwardRef<
-  HTMLButtonElement,
-  { open: boolean; suppressed?: boolean; onClick?: () => void }
->(function Launcher({ open, suppressed = false, onClick }, ref) {
+export default function Launcher({
+  open,
+  hideSelector = "",
+  onClick,
+}: {
+  open: boolean;
+  hideSelector?: string;
+  onClick?: () => void;
+}) {
+  const ref = useRef<HTMLButtonElement>(null);
+  const covered = useCovered(hideSelector, ref);
+
   return (
     <button
       ref={ref}
       type="button"
       className="cc-launcher"
       data-open={open}
-      data-suppressed={suppressed}
-      aria-hidden={suppressed || undefined}
+      data-covered={covered && !open}
       aria-expanded={open}
       aria-controls="cc-panel"
       aria-label={open ? t("closeChat") : t("openChat")}
@@ -24,6 +32,4 @@ const Launcher = forwardRef<
       <CloseIcon className="cc-launcher__icon cc-launcher__icon--close" />
     </button>
   );
-});
-
-export default Launcher;
+}

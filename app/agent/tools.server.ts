@@ -1,7 +1,7 @@
 import { tool, type Tool } from "ai";
 import type { StorefrontApiContext } from "@shopify/shopify-app-react-router/server";
 
-import { toProductSummary } from "../../shared/product";
+import { toProductSummary, type ShownProduct } from "../../shared/product";
 import {
   TOOLS,
   type ChatTools,
@@ -56,12 +56,19 @@ export function createTools(storefront: StorefrontApiContext, market: Market) {
       execute: async ({ products: requested }) => {
         const products = (
           await Promise.all(
-            requested.map(async ({ handle, highlights }) => {
-              const product = await getProduct(storefront, market, handle);
-              return product === null
-                ? null
-                : { ...toProductSummary(product), highlights };
-            }),
+            requested.map(
+              async ({ handle, highlights }): Promise<ShownProduct | null> => {
+                const product = await getProduct(storefront, market, handle);
+                return product === null
+                  ? null
+                  : {
+                      ...toProductSummary(product),
+                      highlights,
+                      options: product.options,
+                      variants: product.variants,
+                    };
+              },
+            ),
           )
         ).filter((product) => product !== null);
         if (!products.length) throw new Error("No product with those handles");

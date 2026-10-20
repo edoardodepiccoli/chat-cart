@@ -51,10 +51,16 @@ const HEADERS = {
   Accept: "application/json",
 };
 
-export function createCartApi(fetchFn: typeof fetch, root: string): CartApi {
-  async function request<T>(path: string, body?: unknown): Promise<T> {
+export function createCartApi(
+  fetchFn: typeof fetch,
+  root: string,
+  // The current page, so Shopify renders sections in its context.
+  pathname: () => string = () =>
+    typeof location === "undefined" ? root : location.pathname,
+): CartApi {
+  async function request<T>(url: string, body?: unknown): Promise<T> {
     const response = await fetchFn(
-      `${root}${path}`,
+      url,
       body === undefined
         ? { headers: HEADERS }
         : { method: "POST", headers: HEADERS, body: JSON.stringify(body) },
@@ -76,17 +82,19 @@ export function createCartApi(fetchFn: typeof fetch, root: string): CartApi {
   }
 
   const withSections = (body: object, sections: string[]) =>
-    sections.length ? { ...body, sections: sections.join(",") } : body;
+    sections.length
+      ? { ...body, sections: sections.join(","), sections_url: pathname() }
+      : body;
 
   function getCart() {
-    return request<Cart>("cart.js");
+    return request<Cart>(`${root}cart.js`);
   }
 
   return {
     getCart,
     async add(variantId, quantity, sections) {
       const added = await request<{ sections?: Sections }>(
-        "cart/add.js",
+        `${root}cart/add.js`,
         withSections({ items: [{ id: variantId, quantity }] }, sections),
       );
       return { cart: await getCart(), sections: added.sections ?? {} };
@@ -94,11 +102,11 @@ export function createCartApi(fetchFn: typeof fetch, root: string): CartApi {
     async change(key, quantity, sections) {
       const { sections: rendered, ...cart } = await request<
         Cart & { sections?: Sections }
-      >("cart/change.js", withSections({ id: key, quantity }, sections));
+      >(`${root}cart/change.js`, withSections({ id: key, quantity }, sections));
       return { cart, sections: rendered ?? {} };
     },
     renderSections(sections) {
-      return request<Sections>(`?sections=${sections.join(",")}`);
+      return request<Sections>(`${pathname()}?sections=${sections.join(",")}`);
     },
   };
 }

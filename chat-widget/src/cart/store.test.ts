@@ -145,9 +145,7 @@ describe("createCartStore", () => {
     });
     await write;
 
-    expect(log).toEqual([
-      { html: { "cart-drawer": "<b/>" }, next, cart: old },
-    ]);
+    expect(log).toEqual([{ html: { "cart-drawer": "<b/>" }, next, cart: old }]);
     expect(log[0].next).toBe(next);
     expect(store.getSnapshot().cart).toBe(next);
     expect(onLocalChange).toHaveBeenCalledTimes(1);
@@ -205,6 +203,26 @@ describe("createCartStore", () => {
     expect(store.getSnapshot().cart).toBe(second);
     expect(api.getCart).toHaveBeenCalledTimes(2);
     expect(onLocalChange).toHaveBeenCalledTimes(1);
+  });
+
+  it("a refused write that Shopify partly applied refreshes the theme with the re-read cart", async () => {
+    const { adapter, calls, store } = await loaded(makeCart("t", 1));
+    const write = store.setQuantity("k1", 5);
+    await flush();
+    calls.change[0].d.reject(new CartError("Only 2 left", 422));
+    await flush();
+
+    const partial = makeCart("t", 2);
+    calls.getCart[1].resolve(partial);
+    await flush();
+    calls.renderSections[0].d.resolve({ "cart-drawer": "<div></div>" });
+    await write;
+
+    expect(adapter.apply).toHaveBeenCalledWith({
+      cart: partial,
+      sections: { "cart-drawer": "<div></div>" },
+    });
+    expect(store.getSnapshot().cart).toBe(partial);
   });
 
   it("a non-CartError failure uses failMessage", async () => {

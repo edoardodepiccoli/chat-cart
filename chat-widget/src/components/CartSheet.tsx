@@ -74,7 +74,9 @@ export default function CartSheet({
                     type="button"
                     aria-label={t("decrease")}
                     disabled={busy}
-                    onClick={() => void setQuantity(item.key, item.quantity - 1)}
+                    onClick={() =>
+                      void setQuantity(item.key, item.quantity - 1)
+                    }
                   >
                     −
                   </button>
@@ -84,7 +86,9 @@ export default function CartSheet({
                     type="button"
                     aria-label={t("increase")}
                     disabled={busy}
-                    onClick={() => void setQuantity(item.key, item.quantity + 1)}
+                    onClick={() =>
+                      void setQuantity(item.key, item.quantity + 1)
+                    }
                   >
                     +
                   </button>

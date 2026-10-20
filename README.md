@@ -63,7 +63,7 @@ The compiler enforces steps 1 to 3. Step 4 is plain text, so the model only uses
 
 After each cart change Shopify confirms, the cart store hands the new cart, and any section HTML Shopify rendered with the write, to a theme adapter, just before the widget shows the same cart. The adapter's job is to make the theme's own cart icon and cart drawer match. An adapter has two parts: `sections()`, the theme section ids Shopify should render alongside each write, and `apply({ cart, sections })`, which updates the theme. The interface lives in `chat-widget/src/cart/theme.ts`.
 
-The default adapter, used for every theme, is `standardEventsAdapter` in `chat-widget/src/cart/standardEvents.ts`. It dispatches Shopify's standard storefront event `shopify:cart:lines-update` on `document`, carrying the cart in the standard-events shape and the rendered sections, and lets the theme refresh itself. It always sends `action: "update"`, even for an add, so themes that open their drawer on adds stay closed when the shopper buys from the chat.
+The default adapter, used for every theme, is `standardEventsAdapter` in `chat-widget/src/cart/standardEvents.ts`. It dispatches Shopify's standard storefront event `shopify:cart:lines-update` on `document`, carrying the cart in the standard-events shape, the rendered sections and the AJAX cart's items, and lets the theme refresh itself. As in Shopify's own module and Horizon, line ids are the raw AJAX line keys, and the event's `lines` lists every line in the cart with its absolute quantity, not only the lines the write touched. It always sends `action: "update"`, even for an add, so themes that open their drawer on adds stay closed when the shopper buys from the chat.
 
 The dev store runs Horizon, which works with the default adapter. It depends on two things in Horizon: the theme listening for the standard `shopify:cart:lines-update` event (its cart icon and cart drawer do), and its cart items being `cart-items-component` elements with a `data-section-id` attribute, which is how the adapter knows which sections to ask Shopify for. If a Horizon update changes either, the theme's cart UI will stop following chat writes until a reload.
 
@@ -85,4 +85,3 @@ Tests:
 ```bash
 npm test
 ```
-

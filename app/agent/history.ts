@@ -20,10 +20,15 @@ export function trimHistory(messages: ChatMessage[]): ChatMessage[] {
           {
             ...part,
             output: {
-              products: part.output.products.map((product) => ({
-                ...product,
-                image: null,
-              })),
+              // The widget keeps options and variants in the saved
+              // conversation; the model never needs them again.
+              products: part.output.products.map(
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                ({ options, variants, ...product }) => ({
+                  ...product,
+                  image: null,
+                }),
+              ),
             },
           },
         ];

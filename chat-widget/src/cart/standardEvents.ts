@@ -17,8 +17,6 @@ export type StandardCart = {
   discountCodes: { applicable: boolean; code: string }[];
 };
 
-const lineId = (key: string) => `gid://shopify/CartLine/${key}`;
-
 // Cents to a plain decimal string with the currency's minor digits, as the
 // standard events module does ("129.00" for EUR, "1500" for JPY).
 function amount(cents: number, currency: string): string {
@@ -46,7 +44,8 @@ export function toStandardCart(cart: Cart): StandardCart {
     totalQuantity: cart.item_count,
     cost: { totalAmount: money(cart.total_price) },
     lines: cart.items.map((item) => ({
-      id: lineId(item.key),
+      // The raw AJAX line key, as the module and Horizon use it.
+      id: item.key,
       quantity: item.quantity,
       cost: { totalAmount: money(item.final_line_price) },
     })),
@@ -76,13 +75,20 @@ export const standardEventsAdapter: ThemeAdapter = {
         {
           action: "update",
           context: "chat",
+          // Every line in the cart, by raw key, with its absolute quantity
+          // (not only the lines this write touched).
           lines: cart.items.map((item) => ({
-            id: lineId(item.key),
+            id: item.key,
             quantity: item.quantity,
           })),
           promise: Promise.resolve({
             cart: toStandardCart(cart),
-            detail: { sections, itemCount: cart.item_count },
+            // Without `items`, Horizon's product form re-reads /cart.json.
+            detail: {
+              sections,
+              itemCount: cart.item_count,
+              items: cart.items,
+            },
           }),
         },
       );

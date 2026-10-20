@@ -18,7 +18,8 @@ const targets = [
 
 describe("sectionAdapter", () => {
   beforeEach(() => {
-    document.body.innerHTML = '<span id="count">1</span><div id="drawer">old</div>';
+    document.body.innerHTML =
+      '<span id="count">1</span><div id="drawer">old</div>';
   });
   afterEach(() => {
     vi.restoreAllMocks();

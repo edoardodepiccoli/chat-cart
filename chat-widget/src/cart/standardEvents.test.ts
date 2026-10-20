@@ -38,12 +38,12 @@ describe("toStandardCart", () => {
       cost: { totalAmount: { amount: "143.00", currencyCode: "EUR" } },
       lines: [
         {
-          id: "gid://shopify/CartLine/1:abc",
+          id: "1:abc",
           quantity: 2,
           cost: { totalAmount: { amount: "129.00", currencyCode: "EUR" } },
         },
         {
-          id: "gid://shopify/CartLine/2:def",
+          id: "2:def",
           quantity: 1,
           cost: { totalAmount: { amount: "14.00", currencyCode: "EUR" } },
         },
@@ -95,7 +95,7 @@ describe("standardEventsAdapter", () => {
       lines: { id: string; quantity: number }[];
       promise: Promise<{
         cart: { totalQuantity: number };
-        detail: { sections: unknown; itemCount: number };
+        detail: { sections: unknown; itemCount: number; items: unknown };
       }>;
     };
     expect(event.type).toBe("shopify:cart:lines-update");
@@ -103,12 +103,16 @@ describe("standardEventsAdapter", () => {
     expect(event.action).toBe("update");
     expect(event.action).not.toBe("add");
     expect(event.lines).toEqual([
-      { id: "gid://shopify/CartLine/1:abc", quantity: 2 },
-      { id: "gid://shopify/CartLine/2:def", quantity: 1 },
+      { id: "1:abc", quantity: 2 },
+      { id: "2:def", quantity: 1 },
     ]);
     const resolved = await event.promise;
     expect(resolved.cart.totalQuantity).toBe(3);
-    expect(resolved.detail).toEqual({ sections, itemCount: 3 });
+    expect(resolved.detail).toEqual({
+      sections,
+      itemCount: 3,
+      items: cart.items,
+    });
   });
 
   it("does not throw when the cart cannot be converted", () => {

@@ -35,11 +35,17 @@ function fakeTarget(extra: Record<string, unknown> = {}) {
   };
 }
 
-function setup(visibilityState: "visible" | "hidden" = "visible", withChannel = true) {
+function setup(
+  visibilityState: "visible" | "hidden" = "visible",
+  withChannel = true,
+) {
   const win = fakeTarget();
   const doc = fakeTarget({ visibilityState });
   const channel = withChannel
-    ? { postMessage: vi.fn(), onmessage: null as ((e: MessageEvent) => void) | null }
+    ? {
+        postMessage: vi.fn(),
+        onmessage: null as ((e: MessageEvent) => void) | null,
+      }
     : null;
   const refresh = vi.fn<(withTheme: boolean) => Promise<void>>(async () => {});
   const api = installCatchup({

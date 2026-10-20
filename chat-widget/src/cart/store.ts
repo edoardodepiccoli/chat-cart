@@ -110,7 +110,9 @@ export function createCartStore(deps: {
         const message =
           error instanceof CartError ? error.message : failMessage;
         set({ error: { key, message } });
-        await read(false);
+        // Shopify can apply part of a quantity it cannot fully satisfy, so
+        // re-read with the theme: nothing happens when the cart is unchanged.
+        await read(true);
         return;
       }
       adapter.apply({ cart: result.cart, sections: result.sections });
@@ -154,9 +156,7 @@ export function createCartStore(deps: {
         api.add(variantNumber(variantGid), quantity, adapter.sections()),
       ),
     setQuantity: (lineKey, quantity) =>
-      enqueue(lineKey, () =>
-        api.change(lineKey, quantity, adapter.sections()),
-      ),
+      enqueue(lineKey, () => api.change(lineKey, quantity, adapter.sections())),
     themeWrote(cart) {
       if (queued > 0) {
         dirty = true;

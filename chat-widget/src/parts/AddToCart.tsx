@@ -10,6 +10,7 @@ import {
 import { cartSnapshot, inCart, useCart } from "../cart";
 import { formatMoney } from "../components/Price";
 import { t } from "../i18n";
+import { buttonLabel, errorFor, shouldClosePicker } from "./addToCartState";
 
 type Variants = NonNullable<ShownProduct["variants"]>;
 
@@ -25,13 +26,12 @@ export function useAddFlow(variants: Variants) {
     findVariant(variants, picks) ??
     variants.find((variant) => variant.available) ??
     variants[0];
-  const isMine = (key: string | undefined) =>
-    key !== undefined && variants.some((variant) => variant.id === key);
 
   async function add() {
-    await cart.add(selected.id);
+    const id = selected.id;
+    await cart.add(id);
     // The picker stays open on failure so the shopper can retry.
-    if (!isMine(cartSnapshot().error?.key)) setPicking(false);
+    if (shouldClosePicker(cartSnapshot().error, id)) setPicking(false);
   }
 
   return {
@@ -48,25 +48,20 @@ export function useAddFlow(variants: Variants) {
     pending: cart.pending === selected.id,
     inCart: inCart(cart.cart, selected.id),
     soldOut: !variants.some((variant) => variant.available),
-    error: cart.error && isMine(cart.error.key) ? cart.error.message : null,
+    error: errorFor(cart.error, selected.id),
   };
 }
 
 export type AddFlow = ReturnType<typeof useAddFlow>;
 
 export function AddToCart({ flow }: { flow: AddFlow }) {
-  let label: string;
-  if (flow.inCart) {
-    label = flow.multiple
-      ? `${t("inCart")} · ${joinValues(flow.selected.selectedOptions)}`
-      : t("inCart");
-  } else if (flow.soldOut) {
-    label = t("soldOut");
-  } else if (flow.pending) {
-    label = t("adding");
-  } else {
-    label = t("addToCart");
-  }
+  const label = buttonLabel({
+    inCart: flow.inCart,
+    multiple: flow.multiple,
+    soldOut: flow.soldOut,
+    pending: flow.pending,
+    values: joinValues(flow.selected.selectedOptions),
+  });
 
   return (
     <>

@@ -327,6 +327,86 @@ describe("createCartStore", () => {
     expect(listener).toHaveBeenCalledTimes(1);
   });
 
+  it("of two overlapping reads, the later-started one wins even if it resolves second", async () => {
+    const { adapter, calls, store } = await loaded(makeCart("t", 1));
+    const first = store.refresh(false);
+    const second = store.refresh(true);
+    const older = makeCart("t", 2);
+    const newer = makeCart("t", 3);
+
+    calls.getCart[1].resolve(older);
+    await first;
+    expect(store.getSnapshot().cart).toBe(older);
+
+    calls.getCart[2].resolve(newer);
+    await flush();
+    calls.renderSections[0].d.resolve({ "cart-drawer": "<n/>" });
+    await second;
+    expect(adapter.apply).toHaveBeenCalledWith({ "cart-drawer": "<n/>" });
+    expect(store.getSnapshot().cart).toBe(newer);
+  });
+
+  it("an older read that resolves after a later one is dropped", async () => {
+    const current = makeCart("t", 1);
+    const { calls, store } = await loaded(current);
+    const first = store.refresh(false);
+    const second = store.refresh(false);
+    const third = store.refresh(false);
+
+    calls.getCart[2].resolve(makeCart("t", 1)); // later read, unchanged
+    await second;
+    calls.getCart[1].resolve(makeCart("t", 9)); // older read, stale
+    await first;
+    expect(store.getSnapshot().cart).toBe(current);
+
+    const newest = makeCart("t", 4);
+    calls.getCart[3].resolve(newest);
+    await third;
+    expect(store.getSnapshot().cart).toBe(newest);
+  });
+
+  it("a throwing subscriber neither rejects the write nor stalls the queue", async () => {
+    const consoleError = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
+    const { api, calls, store } = await loaded(makeCart("t", 1));
+    store.subscribe(() => {
+      throw new Error("render failed");
+    });
+    const first = store.setQuantity("k1", 2);
+    const second = store.setQuantity("k1", 3);
+    await flush();
+    calls.change[0].d.resolve({ cart: makeCart("t", 2), sections: {} });
+    await expect(first).resolves.toBeUndefined();
+    await flush();
+    expect(api.change).toHaveBeenCalledTimes(2);
+    calls.change[1].d.resolve({ cart: makeCart("t", 3), sections: {} });
+    await expect(second).resolves.toBeUndefined();
+    expect(store.getSnapshot().cart?.item_count).toBe(3);
+    expect(store.getSnapshot().pending).toBeNull();
+    expect(consoleError).toHaveBeenCalled();
+    consoleError.mockRestore();
+  });
+
+  it("a throwing onLocalChange neither rejects the write nor stalls the queue", async () => {
+    const { api, calls, onLocalChange, store } = await loaded(makeCart("t", 1));
+    onLocalChange.mockImplementation(() => {
+      throw new Error("broadcast failed");
+    });
+    const first = store.setQuantity("k1", 2);
+    await flush();
+    calls.change[0].d.resolve({ cart: makeCart("t", 2), sections: {} });
+    await expect(first).resolves.toBeUndefined();
+    expect(store.getSnapshot().pending).toBeNull();
+
+    const second = store.setQuantity("k1", 3);
+    await flush();
+    expect(api.change).toHaveBeenCalledTimes(2);
+    calls.change[1].d.resolve({ cart: makeCart("t", 3), sections: {} });
+    await expect(second).resolves.toBeUndefined();
+    expect(store.getSnapshot().cart?.item_count).toBe(3);
+  });
+
   it("subscribe returns an unsubscribe function", async () => {
     const { store } = await loaded(makeCart("t", 1));
     const listener = vi.fn();

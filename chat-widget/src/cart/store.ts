@@ -41,9 +41,13 @@ export function createCartStore(deps: {
   const { api, adapter, onLocalChange, failMessage } = deps;
   const listeners = new Set<() => void>();
   let state: CartState = { cart: null, pending: null, error: null };
-  // Bumped on every cart change, so a read that started earlier can tell
-  // a newer cart landed while it was in flight and drop its stale result.
-  let version = 0;
+  // Writes and adoptions bump `local`, so a read that started before one
+  // drops its result. Each read takes a start number from `reads`, and
+  // `applied` holds the start number of the newest read whose result was
+  // used, so an older read that resolves late cannot overwrite it.
+  let local = 0;
+  let reads = 0;
+  let applied = 0;
   let tail: Promise<void> = Promise.resolve();
   let queued = 0;
   let dirty = false;
@@ -51,52 +55,81 @@ export function createCartStore(deps: {
   function set(patch: Partial<CartState>) {
     const keys = Object.keys(patch) as (keyof CartState)[];
     if (keys.every((key) => state[key] === patch[key])) return;
-    if ("cart" in patch && patch.cart !== state.cart) version++;
     state = { ...state, ...patch };
-    for (const listener of listeners) listener();
+    for (const listener of listeners) {
+      try {
+        listener();
+      } catch (error) {
+        // Report it without letting one subscriber break the store.
+        console.error(error);
+      }
+    }
+  }
+
+  function setLocal(cart: Cart) {
+    local++;
+    set({ cart });
   }
 
   async function read(withTheme: boolean) {
-    const started = version;
+    const started = ++reads;
+    const localAtStart = local;
+    const stale = () => local !== localAtStart || applied > started;
     try {
       const cart = await api.getCart();
-      if (version !== started || !cartsDiffer(state.cart, cart)) return;
+      if (stale()) return;
+      if (!cartsDiffer(state.cart, cart)) {
+        applied = started;
+        return;
+      }
       if (withTheme && adapter.sections.length) {
         const html = await api.renderSections(adapter.sections);
-        if (version !== started) return;
+        if (stale()) return;
         adapter.apply(html);
       }
+      applied = started;
       set({ cart });
     } catch {
       // Keep the last confirmed cart; the next write or catch-up re-reads.
     }
   }
 
-  function enqueue(key: string, write: () => Promise<WriteResult>) {
-    queued++;
-    if (state.error?.key === key) set({ error: null });
-    const job = tail.then(async () => {
+  async function run(key: string, write: () => Promise<WriteResult>) {
+    try {
       set({ pending: key });
+      let result: WriteResult;
       try {
-        const { cart, sections } = await write();
-        adapter.apply(sections);
-        set({ cart });
-        onLocalChange();
+        result = await write();
       } catch (error) {
         const message =
           error instanceof CartError ? error.message : failMessage;
         set({ error: { key, message } });
         await read(false);
+        return;
       }
+      adapter.apply(result.sections);
+      setLocal(result.cart);
+      onLocalChange();
+    } finally {
       queued--;
       if (queued === 0) {
-        set({ pending: null });
-        if (dirty) {
-          dirty = false;
-          await read(false);
+        try {
+          set({ pending: null });
+        } finally {
+          if (dirty) {
+            dirty = false;
+            await read(false);
+          }
         }
       }
-    });
+    }
+  }
+
+  function enqueue(key: string, write: () => Promise<WriteResult>) {
+    if (state.error?.key === key) set({ error: null });
+    queued++;
+    // Never reject and never poison the chain, whatever a subscriber does.
+    const job = tail.then(() => run(key, write)).catch(() => {});
     tail = job;
     return job;
   }
@@ -120,7 +153,7 @@ export function createCartStore(deps: {
       if (queued > 0) {
         dirty = true;
       } else if (cart) {
-        set({ cart });
+        setLocal(cart);
         onLocalChange();
       } else {
         void read(false).then(onLocalChange);

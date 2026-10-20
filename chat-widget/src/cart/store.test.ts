@@ -298,14 +298,23 @@ describe("createCartStore", () => {
     expect(onLocalChange).not.toHaveBeenCalled();
   });
 
-  it("refresh(true) skips renderSections when the adapter has no sections", async () => {
-    const { api, adapter, calls, store } = await loaded(makeCart("t", 1), []);
+  it("refresh(true) skips renderSections but still applies when the adapter has no sections", async () => {
+    const { api, adapter, calls, log, store } = await loaded(
+      makeCart("t", 1),
+      [],
+    );
+    const old = store.getSnapshot().cart;
     const changed = makeCart("t", 3);
     const refresh = store.refresh(true);
     calls.getCart[1].resolve(changed);
     await refresh;
     expect(api.renderSections).not.toHaveBeenCalled();
-    expect(adapter.apply).not.toHaveBeenCalled();
+    expect(adapter.apply).toHaveBeenCalledTimes(1);
+    expect(adapter.apply).toHaveBeenCalledWith({
+      cart: changed,
+      sections: {},
+    });
+    expect(log[0].cart).toBe(old);
     expect(store.getSnapshot().cart).toBe(changed);
   });
 

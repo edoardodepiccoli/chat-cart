@@ -67,25 +67,27 @@ export const standardEventsAdapter: ThemeAdapter = {
   apply({ cart, sections }) {
     // Always "update", never "add": Horizon opens its cart drawer on adds,
     // and a chat write should refresh the theme silently.
-    const event = Object.assign(
-      new Event(CART_LINES_UPDATE, { bubbles: true, cancelable: true }),
-      {
-        action: "update",
-        context: "chat",
-        lines: cart.items.map((item) => ({
-          id: lineId(item.key),
-          quantity: item.quantity,
-        })),
-        promise: Promise.resolve({
-          cart: toStandardCart(cart),
-          detail: { sections, itemCount: cart.item_count },
-        }),
-      },
-    );
+    // Everything is built inside the try: an unknown currency makes
+    // Intl.NumberFormat throw, and neither that nor a broken theme listener
+    // may stop the store from publishing a cart Shopify confirmed.
     try {
+      const event = Object.assign(
+        new Event(CART_LINES_UPDATE, { bubbles: true, cancelable: true }),
+        {
+          action: "update",
+          context: "chat",
+          lines: cart.items.map((item) => ({
+            id: lineId(item.key),
+            quantity: item.quantity,
+          })),
+          promise: Promise.resolve({
+            cart: toStandardCart(cart),
+            detail: { sections, itemCount: cart.item_count },
+          }),
+        },
+      );
       document.dispatchEvent(event);
     } catch (error) {
-      // A broken theme listener must not break the chat cart.
       console.error(error);
     }
   },

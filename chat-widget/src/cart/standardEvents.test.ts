@@ -111,6 +111,25 @@ describe("standardEventsAdapter", () => {
     expect(resolved.detail).toEqual({ sections, itemCount: 3 });
   });
 
+  it("does not throw when the cart cannot be converted", () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const events: Event[] = [];
+    const listener = (event: Event) => events.push(event);
+    document.addEventListener(CART_LINES_UPDATE, listener);
+    try {
+      expect(() =>
+        standardEventsAdapter.apply({
+          cart: { ...cart, currency: "XXX-not-a-code" },
+          sections: {},
+        }),
+      ).not.toThrow();
+    } finally {
+      document.removeEventListener(CART_LINES_UPDATE, listener);
+    }
+    expect(events).toHaveLength(0);
+    expect(console.error).toHaveBeenCalled();
+  });
+
   it("does not throw when a listener throws", () => {
     const listener = () => {
       throw new Error("theme broke");

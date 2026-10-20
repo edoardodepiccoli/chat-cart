@@ -1,6 +1,6 @@
 import { variantNumber } from "../urls";
 import { CartError } from "./ajax";
-import type { Cart, CartApi, WriteResult } from "./ajax";
+import type { Cart, CartApi, Sections, WriteResult } from "./ajax";
 import type { ThemeAdapter } from "./theme";
 
 export type CartState = {
@@ -82,10 +82,15 @@ export function createCartStore(deps: {
         applied = started;
         return;
       }
-      const sections = withTheme ? adapter.sections() : [];
-      if (sections.length) {
-        const html = await api.renderSections(sections);
-        if (stale()) return;
+      if (withTheme) {
+        // Apply even with no sections: an adapter like the standard-events
+        // broadcast still refreshes the theme's cart icon from the cart.
+        const ids = adapter.sections();
+        let html: Sections = {};
+        if (ids.length) {
+          html = await api.renderSections(ids);
+          if (stale()) return;
+        }
         adapter.apply({ cart, sections: html });
       }
       applied = started;

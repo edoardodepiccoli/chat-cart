@@ -20,5 +20,11 @@
   "inCart": "Nel carrello",
   "soldOut": "Esaurito",
   "cancel": "Annulla",
-  "cartFailed": "Non sono riuscito ad aggiornare il carrello. Riprova."
+  "cartFailed": "Non sono riuscito ad aggiornare il carrello. Riprova.",
+  "cartCount": "{count} articoli",
+  "checkout": "Vai al pagamento",
+  "yourCart": "Il tuo carrello",
+  "closeCart": "Chiudi carrello",
+  "increase": "Aumenta quantità",
+  "decrease": "Diminuisci quantità"
 }

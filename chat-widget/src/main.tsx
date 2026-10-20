@@ -1,6 +1,7 @@
 import { createRoot } from "react-dom/client";
 
 import App from "./App";
+import { startCart } from "./cart";
 import { pageFromDataset, recordVisit, setShopperContext } from "./context";
 import { setLocale } from "./i18n";
 import "./tokens.css";
@@ -17,6 +18,7 @@ function mount() {
     language: el.dataset.locale ?? "",
     page,
   });
+  startCart();
   createRoot(el).render(<App hideSelector={el.dataset.hideSelector?.trim()} />);
 }
 

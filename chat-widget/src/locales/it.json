@@ -13,5 +13,12 @@
   "openChat": "Apri chat",
   "closeChat": "Chiudi chat",
   "readFullPage": "Vai alla pagina",
-  "resetChat": "Nuova conversazione"
+  "resetChat": "Nuova conversazione",
+  "addToCart": "Aggiungi al carrello",
+  "addVariant": "Aggiungi {options} · {price}",
+  "adding": "Aggiungo…",
+  "inCart": "Nel carrello",
+  "soldOut": "Esaurito",
+  "cancel": "Annulla",
+  "cartFailed": "Non sono riuscito ad aggiornare il carrello. Riprova."
 }

@@ -13,5 +13,12 @@
   "openChat": "Open chat",
   "closeChat": "Close chat",
   "readFullPage": "Read full page",
-  "resetChat": "New conversation"
+  "resetChat": "New conversation",
+  "addToCart": "Add to cart",
+  "addVariant": "Add {options} · {price}",
+  "adding": "Adding…",
+  "inCart": "In cart",
+  "soldOut": "Sold out",
+  "cancel": "Cancel",
+  "cartFailed": "Couldn't update your cart. Try again."
 }

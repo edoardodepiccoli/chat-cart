@@ -4,8 +4,11 @@ declare global {
   }
 }
 
-export const ROOT =
+const root =
   (typeof window !== "undefined" && window.Shopify?.routes?.root) || "/";
+
+// Shopify documents routes.root with a trailing slash; don't rely on it.
+export const ROOT = root.endsWith("/") ? root : `${root}/`;
 
 export function productUrl(handle: string) {
   return `${ROOT}products/${handle}`;

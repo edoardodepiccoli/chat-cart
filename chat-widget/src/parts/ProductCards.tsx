@@ -1,6 +1,9 @@
+import type { ReactNode } from "react";
+
 import type { Highlight, ShownProduct } from "../../../shared/product";
 import { productUrl } from "../urls";
 import { ProductPrice } from "../components/Price";
+import { AddToCart, VariantPicker, useAddFlow } from "./AddToCart";
 
 function ProductCard({
   handle,
@@ -8,27 +11,66 @@ function ProductCard({
   image,
   price,
   compareAtPrice,
-}: ShownProduct) {
-  return (
-    <a className="cc-card" href={productUrl(handle)}>
-      <div className="cc-card__media">
-        {image === null ? (
-          <div className="cc-card__image-placeholder" aria-hidden="true" />
-        ) : (
-          <img
-            className="cc-card__image"
-            src={image.url}
-            alt={image.alt ?? title}
-            loading="lazy"
-          />
-        )}
-      </div>
+  action,
+}: ShownProduct & { action?: ReactNode }) {
+  const media =
+    image === null ? (
+      <div className="cc-card__image-placeholder" aria-hidden="true" />
+    ) : (
+      <img
+        className="cc-card__image"
+        src={image.url}
+        alt={image.alt ?? title}
+        loading="lazy"
+      />
+    );
+  const priceRow = (
+    <ProductPrice price={price} compareAtPrice={compareAtPrice} />
+  );
 
+  if (action === undefined) {
+    return (
+      <a className="cc-card" href={productUrl(handle)}>
+        <div className="cc-card__media">{media}</div>
+        <div className="cc-card__body">
+          <div className="cc-card__title">{title}</div>
+          {priceRow}
+        </div>
+      </a>
+    );
+  }
+
+  // A button can't sit inside an anchor, so the image and title link instead.
+  const href = productUrl(handle);
+  return (
+    <div className="cc-card">
+      <a className="cc-card__media" href={href}>
+        {media}
+      </a>
       <div className="cc-card__body">
-        <div className="cc-card__title">{title}</div>
-        <ProductPrice price={price} compareAtPrice={compareAtPrice} />
+        <a className="cc-card__title" href={href}>
+          {title}
+        </a>
+        {priceRow}
+        {action}
       </div>
-    </a>
+    </div>
+  );
+}
+
+function ShoppableCard({
+  product,
+  variants,
+}: {
+  product: ShownProduct;
+  variants: NonNullable<ShownProduct["variants"]>;
+}) {
+  const flow = useAddFlow(variants);
+  return (
+    <>
+      <ProductCard {...product} action={<AddToCart flow={flow} />} />
+      <VariantPicker flow={flow} options={product.options ?? []} />
+    </>
   );
 }
 
@@ -63,7 +105,11 @@ export default function ProductCards({
         ];
         return (
           <div className="cc-product" key={product.handle}>
-            <ProductCard {...product} />
+            {product.variants && product.variants.length > 0 ? (
+              <ShoppableCard product={product} variants={product.variants} />
+            ) : (
+              <ProductCard {...product} />
+            )}
             {highlights.length > 0 && (
               <ul className="cc-highlights">
                 {highlights.map((highlight) => (

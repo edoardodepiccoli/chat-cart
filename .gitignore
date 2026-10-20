@@ -33,3 +33,5 @@ database.sqlite
 /.claude/settings.local.json
 
 CLAUDE.md
+
+.superpowers/

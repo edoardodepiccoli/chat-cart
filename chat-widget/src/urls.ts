@@ -1,6 +1,9 @@
 declare global {
   interface Window {
-    Shopify?: { routes?: { root?: string } };
+    Shopify?: {
+      routes?: { root?: string };
+      theme?: { schema_name?: string };
+    };
   }
 }
 

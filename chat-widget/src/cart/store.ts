@@ -82,10 +82,11 @@ export function createCartStore(deps: {
         applied = started;
         return;
       }
-      if (withTheme && adapter.sections.length) {
-        const html = await api.renderSections(adapter.sections);
+      const sections = withTheme ? adapter.sections() : [];
+      if (sections.length) {
+        const html = await api.renderSections(sections);
         if (stale()) return;
-        adapter.apply(html);
+        adapter.apply({ cart, sections: html });
       }
       applied = started;
       set({ cart });
@@ -107,7 +108,7 @@ export function createCartStore(deps: {
         await read(false);
         return;
       }
-      adapter.apply(result.sections);
+      adapter.apply({ cart: result.cart, sections: result.sections });
       setLocal(result.cart);
       onLocalChange();
     } finally {
@@ -145,10 +146,12 @@ export function createCartStore(deps: {
     load: () => read(false),
     add: (variantGid, quantity) =>
       enqueue(variantGid, () =>
-        api.add(variantNumber(variantGid), quantity, adapter.sections),
+        api.add(variantNumber(variantGid), quantity, adapter.sections()),
       ),
     setQuantity: (lineKey, quantity) =>
-      enqueue(lineKey, () => api.change(lineKey, quantity, adapter.sections)),
+      enqueue(lineKey, () =>
+        api.change(lineKey, quantity, adapter.sections()),
+      ),
     themeWrote(cart) {
       if (queued > 0) {
         dirty = true;

@@ -2,11 +2,11 @@ import { useSyncExternalStore } from "react";
 
 import { t } from "../i18n";
 import { ROOT, variantNumber } from "../urls";
+import { pickAdapter } from "./adapters";
 import { createCartApi } from "./ajax";
 import type { Cart } from "./ajax";
 import { installCatchup } from "./catchup";
 import { installIntercept } from "./intercept";
-import { rangerAdapter } from "./ranger";
 import { createCartStore } from "./store";
 import type { CartState, CartStore } from "./store";
 
@@ -23,7 +23,7 @@ export function startCart(): void {
   );
   const created = createCartStore({
     api: createCartApi(originalFetch, ROOT),
-    adapter: rangerAdapter,
+    adapter: pickAdapter(window.Shopify?.theme?.schema_name),
     onLocalChange: () => catchup.announce(),
     failMessage: t("cartFailed"),
   });

@@ -1,6 +1,13 @@
-import type { Sections } from "./ajax";
+import type { Cart, Sections } from "./ajax";
 
-export type ThemeAdapter = { sections: string[]; apply(html: Sections): void };
+// What the theme gets after each cart change Shopify confirmed: the cart
+// about to be published and the section HTML rendered with the write.
+export type ThemeUpdate = { cart: Cart; sections: Sections };
+export type ThemeAdapter = {
+  // Read at call time, so an adapter can ask the page which sections it has.
+  sections(): string[];
+  apply(update: ThemeUpdate): void;
+};
 export type SectionTarget = { section: string; selector: string };
 
 export function sectionAdapter(
@@ -9,9 +16,10 @@ export function sectionAdapter(
   after?: () => void,
 ): ThemeAdapter {
   let warned = false;
+  const ids = [...new Set(targets.map((t) => t.section))];
   return {
-    sections: [...new Set(targets.map((t) => t.section))],
-    apply(html) {
+    sections: () => ids,
+    apply({ sections: html }) {
       let given = false;
       let replaced = 0;
       for (const [section, markup] of Object.entries(html)) {
@@ -32,11 +40,11 @@ export function sectionAdapter(
       } else if (given && !warned) {
         warned = true;
         console.warn(
-          `chat-cart: ${name} theme markup not found, see chat-widget/src/cart/ranger.ts`,
+          `chat-cart: ${name} theme markup not found, see chat-widget/src/cart/adapters.ts`,
         );
       }
     },
   };
 }
 
-export const noopAdapter: ThemeAdapter = { sections: [], apply() {} };
+export const noopAdapter: ThemeAdapter = { sections: () => [], apply() {} };

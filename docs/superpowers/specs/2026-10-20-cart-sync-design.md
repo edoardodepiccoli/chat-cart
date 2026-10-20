@@ -178,3 +178,17 @@ Manual checklist on the Ranger dev store, run before calling Part 1 done:
 6. A sold-out variant and an over-stock quantity: inline message, nothing changes.
 7. Checkout from the bar: Shopify checkout opens with the same lines.
 8. Mobile width, and desktop with the panel open.
+
+## Amendment (2026-10-20): Horizon and the standard cart events
+
+The original text above is kept as written. This section records what changed after reading the live theme.
+
+The dev store `ranger-ngiknsha` does not run a theme called Ranger: it runs Shopify's **Horizon** theme. Horizon's cart icon and cart drawer do not need their markup swapped from outside. They listen on `document` for the Shopify standard storefront event `shopify:cart:lines-update` (from `https://cdn.shopify.com/storefront/standard-events.js`) and refresh themselves from the event's `promise`, which resolves to `{ cart, detail }`. The cart icon reads `cart.totalQuantity`, falling back to `detail.itemCount`. Each `cart-items-component` re-renders from `detail.sections[<its data-section-id>]` when that HTML is present, and otherwise fetches its own section. Replacing their `innerHTML` ourselves would fight Horizon's own morph and hydration, so the HTML-swap Ranger adapter is not used.
+
+By default, the theme is now refreshed by broadcasting that standard event, for every theme. The default adapter (`chat-widget/src/cart/standardEvents.ts`) asks Shopify to render the sections named by the `data-section-id` of every `cart-items-component` on the page, then, after each confirmed change, dispatches `shopify:cart:lines-update` with the confirmed cart converted to the standard-events cart shape and the rendered section HTML. Themes that implement the standard events refresh themselves; themes that do not simply ignore the event.
+
+The HTML-swap adapter (`sectionAdapter` in `chat-widget/src/cart/theme.ts`) stays available for themes that do not listen to these events. Adapters are chosen by `Shopify.theme.schema_name`: `chat-widget/src/cart/adapters.ts` holds a `THEME_ADAPTERS` map keyed by schema name, and any theme without an entry gets the standard-events adapter. The map is empty for now. `ranger.ts` is removed.
+
+Chat writes are always broadcast with `action: "update"`, never `"add"`, even when the shopper added a product. Horizon opens its cart drawer automatically on an `add` event, and the decision above is that theme feedback on a chat add is silent: the header count and drawer refresh in place and the drawer stays closed.
+
+The adapter interface changed to match: `sections()` is a function, read on every write so it reflects what is on the page at that moment, and `apply` receives `{ cart, sections }`, the cart about to be published together with the section HTML. The "Ranger markup missing" warning now names `chat-widget/src/cart/adapters.ts`, and the manual checklist is run on the Horizon dev store.

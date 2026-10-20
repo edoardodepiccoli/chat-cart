@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { CartError } from "./ajax";
 import type { Cart, CartApi, Sections, WriteResult } from "./ajax";
-import type { ThemeAdapter } from "./theme";
+import type { ThemeAdapter, ThemeUpdate } from "./theme";
 import { cartsDiffer, createCartStore } from "./store";
 
 function deferred<T>() {
@@ -75,13 +75,17 @@ function fakeApi() {
 
 function setup(sections: string[] = ["cart-drawer"]) {
   const { api, calls } = fakeApi();
-  const log: { html: Sections; cart: Cart | null }[] = [];
-  const adapter: ThemeAdapter = {
-    sections,
-    apply: vi.fn((html: Sections) => {
-      log.push({ html, cart: store.getSnapshot().cart });
+  const log: { html: Sections; next: Cart; cart: Cart | null }[] = [];
+  const adapter = {
+    sections: vi.fn(() => sections),
+    apply: vi.fn((update: ThemeUpdate) => {
+      log.push({
+        html: update.sections,
+        next: update.cart,
+        cart: store.getSnapshot().cart,
+      });
     }),
-  };
+  } satisfies ThemeAdapter;
   const onLocalChange = vi.fn();
   const store = createCartStore({
     api,
@@ -141,9 +145,27 @@ describe("createCartStore", () => {
     });
     await write;
 
-    expect(log).toEqual([{ html: { "cart-drawer": "<b/>" }, cart: old }]);
+    expect(log).toEqual([
+      { html: { "cart-drawer": "<b/>" }, next, cart: old },
+    ]);
+    expect(log[0].next).toBe(next);
     expect(store.getSnapshot().cart).toBe(next);
     expect(onLocalChange).toHaveBeenCalledTimes(1);
+  });
+
+  it("asks the adapter for its sections on every write", async () => {
+    const { adapter, api, calls, store } = await loaded(makeCart("t", 1));
+    adapter.sections.mockReturnValueOnce(["a"]).mockReturnValueOnce(["b"]);
+    const first = store.setQuantity("k1", 2);
+    const second = store.setQuantity("k1", 3);
+    await flush();
+    calls.change[0].d.resolve({ cart: makeCart("t", 2), sections: {} });
+    await first;
+    await flush();
+    calls.change[1].d.resolve({ cart: makeCart("t", 3), sections: {} });
+    await second;
+    expect(api.change).toHaveBeenNthCalledWith(1, "k1", 2, ["a"]);
+    expect(api.change).toHaveBeenNthCalledWith(2, "k1", 3, ["b"]);
   });
 
   it("add converts the variant GID and marks it pending", async () => {
@@ -271,6 +293,7 @@ describe("createCartStore", () => {
     await refresh;
     expect(adapter.apply).toHaveBeenCalledTimes(1);
     expect(log[0].cart).toBe(old);
+    expect(log[0].next).toBe(changed);
     expect(store.getSnapshot().cart).toBe(changed);
     expect(onLocalChange).not.toHaveBeenCalled();
   });
@@ -342,7 +365,10 @@ describe("createCartStore", () => {
     await flush();
     calls.renderSections[0].d.resolve({ "cart-drawer": "<n/>" });
     await second;
-    expect(adapter.apply).toHaveBeenCalledWith({ "cart-drawer": "<n/>" });
+    expect(adapter.apply).toHaveBeenCalledWith({
+      cart: newer,
+      sections: { "cart-drawer": "<n/>" },
+    });
     expect(store.getSnapshot().cart).toBe(newer);
   });
 

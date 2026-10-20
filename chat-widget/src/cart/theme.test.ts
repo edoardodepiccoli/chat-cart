@@ -1,6 +1,15 @@
 // @vitest-environment happy-dom
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import type { Cart } from "./ajax";
 import { noopAdapter, sectionAdapter } from "./theme";
+
+const cart: Cart = {
+  token: "t",
+  item_count: 0,
+  total_price: 0,
+  currency: "EUR",
+  items: [],
+};
 
 const targets = [
   { section: "icon", selector: "#count" },
@@ -19,8 +28,11 @@ describe("sectionAdapter", () => {
     const after = vi.fn();
     const adapter = sectionAdapter("t", targets, after);
     adapter.apply({
-      icon: '<div><span id="count">2</span></div>',
-      drawer: '<div id="drawer">new</div>',
+      cart,
+      sections: {
+        icon: '<div><span id="count">2</span></div>',
+        drawer: '<div id="drawer">new</div>',
+      },
     });
     expect(document.querySelector("#count")?.innerHTML).toBe("2");
     expect(document.querySelector("#drawer")?.innerHTML).toBe("new");
@@ -29,7 +41,10 @@ describe("sectionAdapter", () => {
 
   it("skips null sections and applies the others", () => {
     const adapter = sectionAdapter("t", targets);
-    adapter.apply({ icon: null, drawer: '<div id="drawer">new</div>' });
+    adapter.apply({
+      cart,
+      sections: { icon: null, drawer: '<div id="drawer">new</div>' },
+    });
     expect(document.querySelector("#count")?.innerHTML).toBe("1");
     expect(document.querySelector("#drawer")?.innerHTML).toBe("new");
   });
@@ -39,8 +54,11 @@ describe("sectionAdapter", () => {
     const adapter = sectionAdapter("t", targets);
     expect(() =>
       adapter.apply({
-        icon: '<span id="count">2</span>',
-        drawer: '<div id="drawer">new</div>',
+        cart,
+        sections: {
+          icon: '<span id="count">2</span>',
+          drawer: '<div id="drawer">new</div>',
+        },
       }),
     ).not.toThrow();
     expect(document.querySelector("#drawer")?.innerHTML).toBe("new");
@@ -51,9 +69,12 @@ describe("sectionAdapter", () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     const after = vi.fn();
     const adapter = sectionAdapter("t", targets, after);
-    adapter.apply({ icon: '<span id="count">2</span>' });
-    adapter.apply({ icon: '<span id="count">2</span>' });
+    adapter.apply({ cart, sections: { icon: '<span id="count">2</span>' } });
+    adapter.apply({ cart, sections: { icon: '<span id="count">2</span>' } });
     expect(warn).toHaveBeenCalledTimes(1);
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining("chat-widget/src/cart/adapters.ts"),
+    );
     expect(after).not.toHaveBeenCalled();
   });
 
@@ -62,13 +83,15 @@ describe("sectionAdapter", () => {
       ...targets,
       { section: "icon", selector: ".other" },
     ]);
-    expect(adapter.sections).toEqual(["icon", "drawer"]);
+    expect(adapter.sections()).toEqual(["icon", "drawer"]);
   });
 });
 
 describe("noopAdapter", () => {
   it("does nothing", () => {
-    expect(noopAdapter.sections).toEqual([]);
-    expect(() => noopAdapter.apply({ a: "<div></div>" })).not.toThrow();
+    expect(noopAdapter.sections()).toEqual([]);
+    expect(() =>
+      noopAdapter.apply({ cart, sections: { a: "<div></div>" } }),
+    ).not.toThrow();
   });
 });

@@ -53,7 +53,15 @@ describe("cartWriteKind", () => {
       cartWriteKind("https://other.test/cart/add.js", "/", ORIGIN),
     ).toBeNull();
     expect(cartWriteKind("/products/cart/add.js", "/", ORIGIN)).toBeNull();
-    expect(cartWriteKind("/cart/change.js", "/it/", ORIGIN)).toBeNull();
+    expect(cartWriteKind("/products/cart/add.js", "/it/", ORIGIN)).toBeNull();
+    expect(
+      cartWriteKind("https://other.test/cart/add.js", "/it/", ORIGIN),
+    ).toBeNull();
+  });
+
+  it("sees bare-root cart writes on a locale storefront", () => {
+    expect(cartWriteKind("/cart/change.js", "/it/", ORIGIN)).toBe("write");
+    expect(cartWriteKind("/cart/add.js", "/it/", ORIGIN)).toBe("add");
   });
 });
 
@@ -126,13 +134,36 @@ describe("installIntercept fetch", () => {
     expect(onWrite).not.toHaveBeenCalled();
   });
 
-  it("returns the very same Response and propagates rejections", async () => {
+  it("resolves a cart write with the very same Response", async () => {
     const response = new Response(JSON.stringify(cart), { status: 200 });
     const win = fakeWin(() => response);
     installIntercept(win, "/", ORIGIN, vi.fn());
     expect(await win.fetch("/cart/change.js")).toBe(response);
-    win.fetchFn.mockRejectedValueOnce(new TypeError("offline"));
-    await expect(win.fetch("/cart/change.js")).rejects.toThrow("offline");
+  });
+
+  it("rejects a cart write with the very same error", async () => {
+    const win = fakeWin(() => new Response("{}"));
+    const onWrite = vi.fn();
+    installIntercept(win, "/", ORIGIN, onWrite);
+    const error = new TypeError("offline");
+    win.fetchFn.mockRejectedValueOnce(error);
+    const caught = await win.fetch("/cart/change.js").catch((e: unknown) => e);
+    expect(caught).toBe(error);
+    await settle();
+    expect(onWrite).not.toHaveBeenCalled();
+  });
+
+  it("takes the clone before the theme reads the body", async () => {
+    const response = new Response(JSON.stringify(cart), { status: 200 });
+    const clone = vi.spyOn(response, "clone");
+    const win = fakeWin(() => response);
+    const onWrite = vi.fn();
+    installIntercept(win, "/", ORIGIN, onWrite);
+    const res = await win.fetch("/cart/change.js");
+    expect(clone).toHaveBeenCalledTimes(1);
+    expect(res.bodyUsed).toBe(false);
+    expect(await res.json()).toEqual(cart);
+    await vi.waitFor(() => expect(onWrite).toHaveBeenCalledWith("write", cart));
   });
 
   it("onWrite throwing never reaches the caller", async () => {

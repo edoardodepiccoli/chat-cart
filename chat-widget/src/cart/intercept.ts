@@ -19,10 +19,14 @@ export function cartWriteKind(
   try {
     const parsed = new URL(url, origin);
     if (parsed.origin !== new URL(origin).origin) return null;
-    if (!parsed.pathname.startsWith(root)) return null;
-    const match = WRITE_PATH.exec(parsed.pathname.slice(root.length));
-    if (!match) return null;
-    return match[1] === "add" ? "add" : "write";
+    // Shopify also serves the cart API at the bare root on locale storefronts,
+    // and themes often hardcode it: try `root` first, then "/".
+    for (const prefix of [root, "/"]) {
+      if (!parsed.pathname.startsWith(prefix)) continue;
+      const match = WRITE_PATH.exec(parsed.pathname.slice(prefix.length));
+      if (match) return match[1] === "add" ? "add" : "write";
+    }
+    return null;
   } catch {
     return null;
   }
@@ -101,16 +105,23 @@ export function installIntercept(
     } catch {
       kind = null; // e.g. a hostile toString on the input
     }
-    if (kind) {
-      const k = kind;
-      // This handler is registered before the theme's, so the clone is taken
-      // before the theme reads the body. The theme gets `pending` untouched.
-      pending.then(
-        (response) => reportResponse(onWrite, k, response).catch(() => {}),
-        () => {},
-      );
-    }
-    return pending;
+    if (!kind) return pending;
+    const k = kind;
+    // Any handler on `pending` marks it handled, so the theme gets this derived
+    // promise instead: same Response, same rejection reason, and an uncaught
+    // rejection still fires on the promise the theme holds. `watch` takes the
+    // clone synchronously, before the theme's handlers can read the body.
+    const watch = (response: Response): void => {
+      try {
+        reportResponse(onWrite, k, response).catch(() => {});
+      } catch {
+        // Never throw into the theme.
+      }
+    };
+    return pending.then((response) => {
+      watch(response);
+      return response;
+    });
   };
 
   const proto = win.XMLHttpRequest?.prototype as XMLHttpRequest | undefined;

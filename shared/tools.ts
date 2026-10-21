@@ -83,6 +83,8 @@ export const TOOLS = {
 
 export type ToolName = keyof typeof TOOLS;
 
+// The types below make the compiler reject a display tool that is missing
+// its server output (tools.server.ts) or its widget part (parts/index.tsx).
 type ToolOfKind<KIND> = {
   [K in ToolName]: (typeof TOOLS)[K]["kind"] extends KIND ? K : never;
 }[ToolName];

@@ -1,4 +1,4 @@
-import type { PageContext, ShopperContext } from "../../shared/context";
+import type { PageContext, ShopperContext } from "../../shared/shopperContext";
 
 let country = "";
 let language = "";

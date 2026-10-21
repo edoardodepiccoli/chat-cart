@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { pageContextSchema, shopperContextSchema } from "./context";
+import { pageContextSchema, shopperContextSchema } from "./shopperContext";
 
 describe("context schemas", () => {
   it("rejects search terms over 200 characters", () => {

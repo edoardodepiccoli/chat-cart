@@ -1,6 +1,6 @@
 import type { StorefrontApiContext } from "@shopify/shopify-app-react-router/server";
 
-import type { PageContext } from "../../shared/context";
+import type { PageContext } from "../../shared/shopperContext";
 import { getTitle, type Market } from "./storefront.server";
 
 export type ResolvedPage =

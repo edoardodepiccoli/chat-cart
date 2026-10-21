@@ -9,7 +9,7 @@ import {
 import type { StorefrontApiContext } from "@shopify/shopify-app-react-router/server";
 
 import type { ChatMessage } from "../../shared/chat";
-import type { ShopperContext } from "../../shared/context";
+import type { ShopperContext } from "../../shared/shopperContext";
 import { DISPLAY_TOOLS } from "../../shared/tools";
 import { saveMessage } from "../conversations.server";
 import { resolvePage } from "./context.server";

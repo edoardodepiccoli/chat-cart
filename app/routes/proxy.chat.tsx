@@ -3,7 +3,7 @@ import { generateId } from "ai";
 import { z } from "zod";
 
 import type { ChatMessage } from "../../shared/chat";
-import { shopperContextSchema } from "../../shared/context";
+import { shopperContextSchema } from "../../shared/shopperContext";
 import { streamReply } from "../agent/agent.server";
 import {
   findOrCreateConversation,

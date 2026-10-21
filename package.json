@@ -7,7 +7,7 @@
     "build": "react-router build",
     "dev:app": "shopify app dev",
     "dev:app-ngrok": "./scripts/dev-ngrok.sh",
-    "dev:widget": "vite build --watch --config chat-widget/vite.config.ts",
+    "dev:widget": "vite build --watch --mode development --config chat-widget/vite.config.ts",
     "predeploy": "npm run widget:build",
     "deploy": "shopify app deploy",
     "start": "react-router-serve ./build/server/index.js",

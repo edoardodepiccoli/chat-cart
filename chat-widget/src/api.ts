@@ -7,7 +7,11 @@ import { getShopperContext } from "./context";
 export type Conversation = { id: string; messages: ChatMessage[] };
 
 const PROXY_BASE = "/apps/chat-cart";
-const PROXY_HEADERS = { "ngrok-skip-browser-warning": "true" };
+// Only dev builds go through an ngrok tunnel, whose warning page this skips.
+const PROXY_HEADERS: Record<string, string> =
+  import.meta.env.MODE === "development"
+    ? { "ngrok-skip-browser-warning": "true" }
+    : {};
 const CONVERSATION_KEY = "chat-cart:conversationId";
 
 export const transport = new DefaultChatTransport<ChatMessage>({

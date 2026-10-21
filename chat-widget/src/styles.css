@@ -450,9 +450,14 @@
 
 .cc-card__price {
   display: flex;
-  gap: 8px;
+  flex-wrap: wrap;
+  gap: 0 8px;
   align-items: baseline;
   color: var(--cc-color-text-muted);
+}
+
+.cc-card__price > * {
+  white-space: nowrap;
 }
 
 .cc-card__price--was {

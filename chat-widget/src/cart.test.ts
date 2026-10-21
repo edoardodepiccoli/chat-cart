@@ -128,6 +128,35 @@ describe("writes", () => {
     expect(cart.getCartState().pending).toBeNull();
   });
 
+  it("a failed write that still changed the cart notifies the theme", async () => {
+    await start();
+    const partial = { ...CART, item_count: 4, items: [item("1:abc", 42, 3)] };
+    routes["/cart/change.js"] = () => json({ description: "Only 3 left" }, 422);
+    routes["/cart.js"] = () => json(partial);
+    const events: Event[] = [];
+    const listener = (event: Event) => events.push(event);
+    document.addEventListener("shopify:cart:lines-update", listener);
+
+    expect(await cart.changeQuantity("1:abc", 9)).toBe(false);
+    document.removeEventListener("shopify:cart:lines-update", listener);
+
+    expect(cart.getCartState().cart).toEqual(partial);
+    expect(events).toHaveLength(1);
+  });
+
+  it("a failed write that changed nothing does not notify the theme", async () => {
+    await start();
+    routes["/cart/change.js"] = () => json({ description: "Only 2 left" }, 422);
+    const events: Event[] = [];
+    const listener = (event: Event) => events.push(event);
+    document.addEventListener("shopify:cart:lines-update", listener);
+
+    await cart.changeQuantity("1:abc", 9);
+    document.removeEventListener("shopify:cart:lines-update", listener);
+
+    expect(events).toHaveLength(0);
+  });
+
   it("a write while another is pending returns false without a request", async () => {
     await start();
     let release = () => {};

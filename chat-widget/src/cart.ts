@@ -123,8 +123,13 @@ async function write(
     const message =
       error instanceof CartError ? error.message : t("cartFailed");
     setState({ error: { key, message } });
-    // Shopify can apply part of a quantity it cannot fully satisfy.
+    // Shopify can apply part of a quantity it cannot fully satisfy, so
+    // re-read, and tell the theme if the cart did change.
+    const before = JSON.stringify(state.cart);
     await refreshCart();
+    if (state.cart && JSON.stringify(state.cart) !== before) {
+      notifyTheme(state.cart, {});
+    }
     return false;
   } finally {
     setState({ pending: null });

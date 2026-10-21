@@ -2,11 +2,13 @@ import { Fragment, useRef, useState } from "react";
 
 import { refreshCart } from "./cart";
 import Message from "./components/Message";
-import Panel, { useAnchorScroll, useIosKeyboard } from "./components/Panel";
+import Panel from "./components/Panel";
 import Suggestions from "./components/Suggestions";
+import { useAnchorScroll } from "./hooks/useAnchorScroll";
 import { useChatSession } from "./hooks/useChatSession";
+import { useIosKeyboard } from "./hooks/useIosKeyboard";
 import { t } from "./i18n";
-import { groupTurns, typingLabel } from "./turns";
+import { groupTurns, typingLabel } from "./messages";
 
 export default function App({ hideSelector = "" }: { hideSelector?: string }) {
   const [open, setOpen] = useState(false);

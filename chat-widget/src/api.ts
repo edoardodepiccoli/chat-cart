@@ -1,8 +1,7 @@
 import { DefaultChatTransport } from "ai";
-import { useEffect, useState } from "react";
 
 import type { ChatMessage } from "../../shared/chat";
-import { getShopperContext } from "./context";
+import { getShopperContext } from "./shopperContext";
 
 export type Conversation = { id: string; messages: ChatMessage[] };
 
@@ -68,27 +67,4 @@ export async function loadConversation(): Promise<Conversation> {
   );
   writeId(conversation.id);
   return conversation;
-}
-
-export function useConversation() {
-  const [conversation, setConversation] = useState<Conversation>();
-  const [loadFailed, setLoadFailed] = useState(false);
-  const [resetFailed, setResetFailed] = useState(false);
-
-  useEffect(() => {
-    loadConversation()
-      .then(setConversation)
-      .catch(() => setLoadFailed(true));
-  }, []);
-
-  async function reset() {
-    setResetFailed(false);
-    try {
-      setConversation(await startConversation());
-    } catch {
-      setResetFailed(true);
-    }
-  }
-
-  return { conversation, loadFailed, resetFailed, reset };
 }

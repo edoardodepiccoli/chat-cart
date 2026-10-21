@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { pageFromDataset } from "./context";
+import { pageFromDataset } from "./shopperContext";
 
 describe("pageFromDataset", () => {
   it("maps page type data attributes", () => {

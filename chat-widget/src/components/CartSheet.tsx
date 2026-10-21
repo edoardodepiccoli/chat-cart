@@ -2,7 +2,7 @@ import { useEffect } from "react";
 
 import { changeQuantity, useCart } from "../cart";
 import { t } from "../i18n";
-import { CHECKOUT_URL, localUrl } from "../urls";
+import { CHECKOUT_URL, storeUrl } from "../urls";
 import { formatMoney } from "./Price";
 
 export default function CartSheet({
@@ -53,13 +53,13 @@ export default function CartSheet({
               : item.options_with_values.map((o) => o.value).join(" / ");
             return (
               <li className="cc-line" key={item.key}>
-                <a href={localUrl(item.url)} className="cc-line__media">
+                <a href={storeUrl(item.url)} className="cc-line__media">
                   {item.image && (
                     <img className="cc-line__image" src={item.image} alt="" />
                   )}
                 </a>
                 <div className="cc-line__info">
-                  <a className="cc-line__title" href={localUrl(item.url)}>
+                  <a className="cc-line__title" href={storeUrl(item.url)}>
                     {item.product_title}
                   </a>
                   {options && <div className="cc-line__options">{options}</div>}

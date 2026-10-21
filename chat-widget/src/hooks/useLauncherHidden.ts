@@ -22,7 +22,7 @@ function visibleRects(el: Element): DOMRect[] {
 }
 
 // Whether any visible element matching `selector` overlaps `ref`.
-export function useCovered(selector: string, ref: RefObject<Element>) {
+export function useLauncherHidden(selector: string, ref: RefObject<Element>) {
   const [covered, setCovered] = useState(false);
 
   useEffect(() => {

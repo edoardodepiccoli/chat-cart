@@ -1,7 +1,8 @@
 import { useChat } from "@ai-sdk/react";
 
-import { transport, useConversation } from "../api";
-import { greeting } from "../turns";
+import { transport } from "../api";
+import { greeting } from "../messages";
+import { useConversation } from "./useConversation";
 import type { ChatMessage } from "../../../shared/chat";
 
 export function useChatSession() {

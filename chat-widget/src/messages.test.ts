@@ -1,6 +1,6 @@
 import { expect, it } from "vitest";
 
-import { groupTurns, typingLabel } from "./turns";
+import { groupTurns, typingLabel } from "./messages";
 
 it("starts a turn at every user message", () => {
   const m = (id: string, role: "user" | "assistant") => ({

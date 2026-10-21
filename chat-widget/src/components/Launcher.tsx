@@ -1,6 +1,6 @@
 import { useRef } from "react";
 
-import { useCovered } from "../covered";
+import { useLauncherHidden } from "../hooks/useLauncherHidden";
 import { t } from "../i18n";
 import { ChatIcon, CloseIcon } from "../icons";
 
@@ -14,7 +14,7 @@ export default function Launcher({
   onClick?: () => void;
 }) {
   const ref = useRef<HTMLButtonElement>(null);
-  const covered = useCovered(hideSelector, ref);
+  const covered = useLauncherHidden(hideSelector, ref);
 
   return (
     <button

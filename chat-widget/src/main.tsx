@@ -2,7 +2,7 @@ import { createRoot } from "react-dom/client";
 
 import App from "./App";
 import { startCart } from "./cart";
-import { pageFromDataset, setShopperContext } from "./context";
+import { pageFromDataset, setShopperContext } from "./shopperContext";
 import { setLocale } from "./i18n";
 import "./tokens.css";
 import "./styles.css";

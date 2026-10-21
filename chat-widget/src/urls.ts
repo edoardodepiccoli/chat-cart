@@ -19,10 +19,10 @@ export function productUrl(handle: string) {
 
 export const CHECKOUT_URL = `${ROOT}checkout`;
 
-export function localUrl(path: string) {
+export function storeUrl(path: string) {
   return `${ROOT}${path.replace(/^\//, "")}`;
 }
 
-export function variantNumber(gid: string) {
+export function variantIdFromGid(gid: string) {
   return Number(gid.split("/").pop());
 }

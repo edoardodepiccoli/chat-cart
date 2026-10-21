@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { rectsOverlap } from "./covered";
+import { rectsOverlap } from "./useLauncherHidden";
 
 const rect = (left: number, top: number, right: number, bottom: number) => ({
   left,

@@ -2,7 +2,7 @@ import { useSyncExternalStore } from "react";
 
 import { horizonSections, notifyTheme } from "./cartEvent";
 import { t } from "./i18n";
-import { ROOT, variantNumber } from "./urls";
+import { ROOT, variantIdFromGid } from "./urls";
 
 // The shopper's cart is Shopify's cookie cart, read and written through the
 // AJAX Cart API. The widget keeps the last cart Shopify sent, re-reads it
@@ -61,7 +61,7 @@ export function useCart(): CartState {
 }
 
 export function inCart(cart: Cart | null, variantGid: string): boolean {
-  const id = variantNumber(variantGid);
+  const id = variantIdFromGid(variantGid);
   return cart?.items.some((item) => item.variant_id === id) ?? false;
 }
 
@@ -135,7 +135,9 @@ export function addToCart(variantGid: string): Promise<boolean> {
   return write(variantGid, async () => {
     const { sections } = await request<{ sections?: Sections }>(
       "cart/add.js",
-      withSections({ items: [{ id: variantNumber(variantGid), quantity: 1 }] }),
+      withSections({
+        items: [{ id: variantIdFromGid(variantGid), quantity: 1 }],
+      }),
     );
     // The add answer holds only the added item, so read the whole cart.
     return { cart: await request<Cart>("cart.js"), sections: sections ?? {} };

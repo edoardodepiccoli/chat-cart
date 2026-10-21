@@ -25,7 +25,7 @@ Backend (`app/`)
 - `agent/context.server.ts` — resolves the shopper's page and visits against the catalog.
 - `agent/history.ts` — trims saved messages before they go to the model.
 - `agent/prompts/` — system, context and suggestions prompts.
-- `routes/proxy.chat.tsx`, `routes/proxy.events.tsx` — endpoints the widget calls.
+- `routes/proxy.chat.tsx` — the endpoint the widget calls.
 - `conversations.server.ts` — saving and loading conversations.
 - `routes/app._index.tsx` — admin home page (empty for now).
 
@@ -34,7 +34,7 @@ Widget (`chat-widget/src/`)
 - `App.tsx` — the chat: messages, suggestions, sending.
 - `api.ts` — talking to the backend: load a conversation, send events.
 - `context.ts` — the shopper context: country, language, page and visits, kept in `chat-cart:history`.
-- `hooks/` — `useChatSession.ts`, `useLinkTracking.ts`.
+- `hooks/` — `useChatSession.ts`.
 - `components/Message.tsx` — renders one message, picking the part for each tool.
 - `components/` — one file per component.
 - `parts/` — one file per display tool, and `index.tsx` with the `PARTS` map.

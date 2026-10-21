@@ -10,12 +10,14 @@ import { useCart } from "../cart";
 import CartSheet from "./CartSheet";
 import CheckoutBar from "./CheckoutBar";
 import Composer, { type ComposerProps } from "./Composer";
+import Header, { type HeaderProps } from "./Header";
 import Launcher from "./Launcher";
 
 export default function Panel({
   open,
   hideSelector,
   logRef,
+  header,
   composer,
   onToggle,
   children,
@@ -23,6 +25,7 @@ export default function Panel({
   open: boolean;
   hideSelector: string;
   logRef: RefObject<HTMLDivElement>;
+  header: HeaderProps;
   composer: ComposerProps;
   onToggle: () => void;
   children: ReactNode;
@@ -51,6 +54,8 @@ export default function Panel({
         data-open={open}
         aria-hidden={!open}
       >
+        <Header {...header} onClose={onToggle} />
+
         <div className="cc-log" ref={logRef}>
           <div className="cc-log__content">{children}</div>
         </div>

@@ -15,15 +15,6 @@ function Icon({ className, d }: { className?: string; d: string }) {
   );
 }
 
-export function ListIcon({ className }: { className?: string }) {
-  return (
-    <Icon
-      className={className}
-      d="M8 6.00067L21 6.00139M8 12.0007L21 12.0015M8 18.0007L21 18.0015M3.5 6H3.51M3.5 12H3.51M3.5 18H3.51M4 6C4 6.27614 3.77614 6.5 3.5 6.5C3.22386 6.5 3 6.27614 3 6C3 5.72386 3.22386 5.5 3.5 5.5C3.77614 5.5 4 5.72386 4 6ZM4 12C4 12.2761 3.77614 12.5 3.5 12.5C3.22386 12.5 3 12.2761 3 12C3 11.7239 3.22386 11.5 3.5 11.5C3.77614 11.5 4 11.7239 4 12ZM4 18C4 18.2761 3.77614 18.5 3.5 18.5C3.22386 18.5 3 18.2761 3 18C3 17.7239 3.22386 17.5 3.5 17.5C3.77614 17.5 4 17.7239 4 18Z"
-    />
-  );
-}
-
 export function ResetIcon({ className }: { className?: string }) {
   return (
     <Icon
@@ -58,15 +49,6 @@ export function CloseIcon({ className }: { className?: string }) {
   );
 }
 
-export function CartIcon({ className }: { className?: string }) {
-  return (
-    <Icon
-      className={className}
-      d="M3 4h2l2.4 10.2a1 1 0 0 0 1 .8h8.7a1 1 0 0 0 1-.8L20 8H6.2M9.5 19.5h.01M16.5 19.5h.01"
-    />
-  );
-}
-
 export function CheckIcon({ className }: { className?: string }) {
   return <Icon className={className} d="M5 12.5l4.5 4.5L19 7.5" />;
 }
@@ -75,11 +57,47 @@ export function SpinnerIcon({ className }: { className?: string }) {
   return <Icon className={className} d="M12 3a9 9 0 1 0 9 9" />;
 }
 
-export function CardIcon({ className }: { className?: string }) {
+export function PlusIcon({ className }: { className?: string }) {
+  return <Icon className={className} d="M12 5v14M5 12h14" />;
+}
+
+export function MinusIcon({ className }: { className?: string }) {
+  return <Icon className={className} d="M5 12h14" />;
+}
+
+export function ChevronUpIcon({ className }: { className?: string }) {
+  return <Icon className={className} d="M6 15l6-6 6 6" />;
+}
+
+export function ArrowRightIcon({ className }: { className?: string }) {
+  return <Icon className={className} d="M5 12h14M13 6l6 6-6 6" />;
+}
+
+export function PageIcon({ className }: { className?: string }) {
   return (
     <Icon
       className={className}
-      d="M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zM3 10h18M7 15h3"
+      d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8zM14 3v5h5M9 13h6M9 17h4"
     />
+  );
+}
+
+export function AlertIcon({ className }: { className?: string }) {
+  return (
+    <Icon
+      className={className}
+      d="M12 8v5M12 16.5h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"
+    />
+  );
+}
+
+export function SparkIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M12 2Q12 12 22 12Q12 12 12 22Q12 12 2 12Q12 12 12 2Z"
+        fill="currentColor"
+      />
+    </svg>
   );
 }

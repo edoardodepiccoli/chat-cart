@@ -7,7 +7,7 @@
   "lookingUpProducts": "Looking up products",
   "checkingStore": "Checking store info",
   "error": "Something went wrong. Please try again.",
-  "placeholder": "Type a message",
+  "placeholder": "Ask about products, orders or shipping",
   "messageLabel": "Message",
   "send": "Send",
   "openChat": "Open chat",
@@ -24,5 +24,9 @@
   "yourCart": "Your cart",
   "closeCart": "Close cart",
   "increase": "Increase quantity",
-  "decrease": "Decrease quantity"
+  "decrease": "Decrease quantity",
+  "assistantName": "Shopping assistant",
+  "itemCountOne": "{count} item",
+  "itemCountOther": "{count} items",
+  "subtotal": "Subtotal"
 }

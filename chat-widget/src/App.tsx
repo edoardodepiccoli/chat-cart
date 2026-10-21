@@ -8,6 +8,7 @@ import { useAnchorScroll } from "./hooks/useAnchorScroll";
 import { useChatSession } from "./hooks/useChatSession";
 import { useIosKeyboard } from "./hooks/useIosKeyboard";
 import { t } from "./i18n";
+import { AlertIcon, SparkIcon } from "./icons";
 import { groupTurns, typingLabel } from "./messages";
 
 export default function App({ hideSelector = "" }: { hideSelector?: string }) {
@@ -57,14 +58,13 @@ export default function App({ hideSelector = "" }: { hideSelector?: string }) {
       open={open}
       hideSelector={hideSelector}
       logRef={logRef}
+      header={{ onReset: startOver, resetDisabled: !canReset }}
       composer={{
         value: draft,
         onChange: setDraft,
         onSubmit: submit,
         disabled: busy || !conversation,
         inputRef,
-        onReset: startOver,
-        resetDisabled: !canReset,
       }}
       onToggle={() => {
         // The cart shows only in the open panel, so read it fresh on open.
@@ -86,6 +86,9 @@ export default function App({ hideSelector = "" }: { hideSelector?: string }) {
           {index === all.length - 1 && busy && (
             <div className="cc-message cc-message--assistant">
               <div className="cc-part cc-typing">
+                <span className="cc-typing__mark">
+                  <SparkIcon className="cc-typing__spark" />
+                </span>
                 {typingLabel(last)}
                 <span className="cc-typing__dots" aria-hidden="true">
                   <span className="cc-typing__dot" />
@@ -98,7 +101,10 @@ export default function App({ hideSelector = "" }: { hideSelector?: string }) {
 
           {index === all.length - 1 && (error || loadFailed || resetFailed) && (
             <div className="cc-message cc-message--assistant">
-              <div className="cc-part">{t("error")}</div>
+              <div className="cc-part cc-notice" role="alert">
+                <AlertIcon className="cc-icon" />
+                {t("error")}
+              </div>
             </div>
           )}
         </div>

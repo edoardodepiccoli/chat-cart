@@ -1,7 +1,7 @@
 import type { RefObject } from "react";
 
 import { t } from "../i18n";
-import { ResetIcon, SendIcon } from "../icons";
+import { SendIcon } from "../icons";
 
 export type ComposerProps = {
   value: string;
@@ -9,8 +9,6 @@ export type ComposerProps = {
   onSubmit: (event: React.FormEvent) => void;
   disabled?: boolean;
   inputRef?: RefObject<HTMLInputElement>;
-  onReset?: () => void;
-  resetDisabled?: boolean;
 };
 
 export default function Composer({
@@ -19,41 +17,29 @@ export default function Composer({
   onSubmit,
   disabled,
   inputRef,
-  onReset,
-  resetDisabled,
 }: ComposerProps) {
   return (
     <form className="cc-composer" onSubmit={onSubmit}>
-      {onReset && (
+      <div className="cc-composer__field" data-disabled={disabled}>
+        <input
+          ref={inputRef}
+          className="cc-input"
+          enterKeyHint="send"
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          placeholder={t("placeholder")}
+          aria-label={t("messageLabel")}
+          disabled={disabled}
+        />
         <button
-          className="cc-btn cc-btn--secondary cc-btn--icon"
-          type="button"
-          aria-label={t("resetChat")}
-          title={t("resetChat")}
-          onClick={onReset}
-          disabled={resetDisabled}
+          className="cc-composer__send"
+          type="submit"
+          aria-label={t("send")}
+          disabled={disabled || !value.trim()}
         >
-          <ResetIcon className="cc-icon" />
+          <SendIcon className="cc-icon" />
         </button>
-      )}
-      <input
-        ref={inputRef}
-        className="cc-control cc-input"
-        enterKeyHint="send"
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        placeholder={t("placeholder")}
-        aria-label={t("messageLabel")}
-        disabled={disabled}
-      />
-      <button
-        className="cc-btn cc-btn--secondary cc-btn--icon"
-        type="submit"
-        aria-label={t("send")}
-        disabled={disabled}
-      >
-        <SendIcon className="cc-icon" />
-      </button>
+      </div>
     </form>
   );
 }

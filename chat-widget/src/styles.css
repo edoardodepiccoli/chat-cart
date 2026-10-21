@@ -485,10 +485,9 @@ a.cc-card__title {
 
 .cc-card__buy {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: calc(6px * var(--cc-space)) calc(8px * var(--cc-space));
+  flex-direction: column;
+  align-items: flex-start;
+  gap: calc(8px * var(--cc-space));
 }
 
 .cc-card__add {
@@ -496,7 +495,6 @@ a.cc-card__title {
 }
 
 .cc-card__error {
-  flex-basis: 100%;
   margin: 0;
   animation: cc-rise var(--cc-duration-fast) var(--cc-ease) both;
   font-size: var(--cc-font-size-sm);

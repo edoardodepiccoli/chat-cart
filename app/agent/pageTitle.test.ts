@@ -2,8 +2,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { StorefrontApiContext } from "@shopify/shopify-app-react-router/server";
 
-import { resolvePage } from "./context.server";
-import { contextPrompt } from "./prompts/context";
+import { resolvePage } from "./pageTitle.server";
+import { shopperPrompt } from "./prompts/shopper";
 
 const market = { country: "IT", language: "it" };
 const graphql = vi.fn();
@@ -73,9 +73,9 @@ describe("resolvePage", () => {
   });
 });
 
-describe("contextPrompt", () => {
+describe("shopperPrompt", () => {
   it("names the market and the page", () => {
-    const prompt = contextPrompt({
+    const prompt = shopperPrompt({
       country: "IT",
       page: { type: "product", handle: "serum", title: "Vitamin C Serum" },
     });
@@ -85,24 +85,24 @@ describe("contextPrompt", () => {
   });
 
   it("omits the market sentence without a country", () => {
-    const prompt = contextPrompt({ country: "", page: { type: "other" } });
+    const prompt = shopperPrompt({ country: "", page: { type: "other" } });
     expect(prompt).not.toContain("shopping from");
   });
 
   it("warns about outdated prices", () => {
-    const prompt = contextPrompt({ country: "IT", page: { type: "other" } });
+    const prompt = shopperPrompt({ country: "IT", page: { type: "other" } });
     expect(prompt).toContain("outdated");
   });
 
   it("renders collection and search pages", () => {
-    const collection = contextPrompt({
+    const collection = shopperPrompt({
       country: "IT",
       page: { type: "collection", handle: "eyes", title: "Eye Care" },
     });
     expect(collection).toContain("listProducts");
     expect(collection).not.toContain("Before this page");
     expect(
-      contextPrompt({
+      shopperPrompt({
         country: "IT",
         page: { type: "search", terms: "retinol" },
       }),

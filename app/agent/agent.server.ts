@@ -12,10 +12,10 @@ import type { ChatMessage } from "../../shared/chat";
 import type { ShopperContext } from "../../shared/shopperContext";
 import { DISPLAY_TOOLS } from "../../shared/tools";
 import { saveMessage } from "../conversations.server";
-import { resolvePage } from "./context.server";
+import { resolvePage } from "./pageTitle.server";
 import { trimHistory } from "./history";
 import { MODEL } from "./model";
-import { contextPrompt } from "./prompts/context";
+import { shopperPrompt } from "./prompts/shopper";
 import { SYSTEM_PROMPT } from "./prompts/system";
 import { generateSuggestions } from "./suggestions.server";
 import { createTools } from "./tools.server";
@@ -37,7 +37,7 @@ export async function runAgent(
     reasoning: "medium",
     system: [
       SYSTEM_PROMPT,
-      contextPrompt({ country: context.country, page }),
+      shopperPrompt({ country: context.country, page }),
     ].join("\n\n"),
     messages: modelMessages,
     tools: createTools(storefront, market),

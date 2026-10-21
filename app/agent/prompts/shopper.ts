@@ -1,4 +1,4 @@
-import type { ResolvedContext, ResolvedPage } from "../context.server";
+import type { ResolvedContext, ResolvedPage } from "../pageTitle.server";
 
 function pageLine(page: ResolvedPage) {
   switch (page.type) {
@@ -13,7 +13,7 @@ function pageLine(page: ResolvedPage) {
   }
 }
 
-export function contextPrompt(context: ResolvedContext) {
+export function shopperPrompt(context: ResolvedContext) {
   return [
     context.country &&
       `The shopper is shopping from ${context.country}, and prices are in that market's currency. Any price in another currency earlier in the conversation is outdated: look it up again before you use it.`,

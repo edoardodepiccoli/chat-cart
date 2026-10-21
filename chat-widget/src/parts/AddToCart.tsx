@@ -165,7 +165,9 @@ export function VariantPicker({
                     });
                   }}
                 >
-                  {value}
+                  <span className="cc-chip__text" data-text={value}>
+                    {value}
+                  </span>
                 </button>
               ))}
             </div>

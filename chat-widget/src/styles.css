@@ -806,10 +806,24 @@ a.cc-card__title {
   outline-offset: 2px;
 }
 
+/* Only colors change on selection: the border keeps its width, and the
+   bold text has its width reserved below, so nothing shifts. */
 .cc-chip[aria-pressed="true"] {
   border-color: var(--cc-color-primary);
-  box-shadow: inset 0 0 0 1px var(--cc-color-primary);
   font-weight: var(--cc-font-weight-button);
+}
+
+.cc-chip__text {
+  display: inline-flex;
+  flex-direction: column;
+}
+
+.cc-chip__text::after {
+  content: attr(data-text);
+  height: 0;
+  overflow: hidden;
+  font-weight: var(--cc-font-weight-button);
+  visibility: hidden;
 }
 
 .cc-chip:disabled {

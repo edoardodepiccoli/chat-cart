@@ -693,9 +693,9 @@ a.cc-card__title {
 .cc-highlights {
   display: flex;
   flex-direction: column;
-  gap: calc(10px * var(--cc-space));
+  gap: calc(6px * var(--cc-space));
   margin: 0;
-  padding: calc(12px * var(--cc-space));
+  padding: calc(10px * var(--cc-space)) calc(12px * var(--cc-space));
   list-style: none;
   border-top: var(--cc-border-width) solid var(--cc-color-border);
   background: var(--cc-color-surface);

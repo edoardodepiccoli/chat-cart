@@ -28,7 +28,6 @@ export default function CheckoutBar({
       </button>
       <a className="cc-btn" href={CHECKOUT_URL} aria-label={t("checkout")}>
         <CardIcon className="cc-icon" />
-        <span className="cc-full">{t("checkout")} ·</span>
         {formatMoney(cart.total_price / 100, cart.currency)}
       </a>
     </div>

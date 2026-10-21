@@ -17,6 +17,8 @@
   "addToCart": "Add",
   "adding": "Adding…",
   "inCart": "Added",
+  "addToCartFull": "Add to cart",
+  "inCartFull": "In cart",
   "soldOut": "Sold out",
   "cancel": "Cancel",
   "cartFailed": "Couldn't update your cart. Try again.",

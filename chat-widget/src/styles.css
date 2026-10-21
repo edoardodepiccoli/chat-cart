@@ -419,6 +419,7 @@
 
 .cc-card__media {
   display: block;
+  overflow: hidden;
   background: var(--cc-color-surface);
 }
 
@@ -427,6 +428,13 @@
   width: 100%;
   height: auto;
   background: var(--cc-color-surface);
+  transition: transform var(--cc-duration) var(--cc-ease);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  a.cc-card__media:hover .cc-card__image {
+    transform: scale(1.03);
+  }
 }
 
 .cc-card__body {
@@ -443,7 +451,7 @@
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .cc-card:hover .cc-card__title {
+  a.cc-card:hover .cc-card__title {
     text-decoration: underline;
   }
 }
@@ -540,6 +548,17 @@ a.cc-card__title {
   height: 0;
 }
 
+.cc-picker__group {
+  display: flex;
+  flex-direction: column;
+  gap: calc(4px * var(--cc-space));
+}
+
+.cc-picker__name {
+  color: var(--cc-color-text-muted);
+  font-size: var(--cc-font-size-sm);
+}
+
 .cc-picker__row {
   display: flex;
   gap: calc(8px * var(--cc-space));
@@ -600,6 +619,37 @@ a.cc-card__title {
   opacity: 0.5;
   text-decoration: line-through;
   cursor: not-allowed;
+}
+
+.cc-full {
+  display: none;
+}
+
+@media (min-width: 481px) {
+  .cc-short {
+    display: none;
+  }
+
+  .cc-full {
+    display: inline;
+  }
+
+  .cc-picker__name.cc-full {
+    display: block;
+  }
+
+  .cc-card__buy .cc-card__add {
+    align-self: stretch;
+    max-width: 220px;
+  }
+
+  .cc-picker__row {
+    flex-wrap: wrap;
+    margin-inline: 0;
+    padding: 0;
+    overflow: visible;
+    mask-image: none;
+  }
 }
 
 .cc-icon {
@@ -795,7 +845,8 @@ a.cc-card__title {
   }
 
   .cc-picker,
-  .cc-chip {
+  .cc-chip,
+  .cc-card__image {
     transition: none !important;
   }
 

@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import type { SelectedOption, ShownProduct } from "../../../shared/product";
+import type { ShownProduct } from "../../../shared/product";
 import {
   defaultOptions,
   findVariant,
@@ -9,23 +9,17 @@ import {
 } from "../../../shared/product";
 import { addToCart, inCart, useCart } from "../cart";
 import { formatMoney } from "../components/Price";
+import { CartIcon, CheckIcon, CloseIcon, SpinnerIcon } from "../icons";
 import { t } from "../i18n";
 
 type Variants = NonNullable<ShownProduct["variants"]>;
 
-const joinValues = (picks: SelectedOption[]) =>
-  picks.map((pick) => pick.value).join(" / ");
-
 export function buttonLabel(state: {
   inCart: boolean;
-  multiple: boolean;
   soldOut: boolean;
   pending: boolean;
-  values: string;
 }): string {
-  if (state.inCart) {
-    return state.multiple ? `${t("inCart")} · ${state.values}` : t("inCart");
-  }
+  if (state.inCart) return t("inCart");
   if (state.soldOut) return t("soldOut");
   if (state.pending) return t("adding");
   return t("addToCart");
@@ -72,11 +66,16 @@ export type VariantPickerState = ReturnType<typeof useVariantPicker>;
 export function AddToCartButton({ picker }: { picker: VariantPickerState }) {
   const label = buttonLabel({
     inCart: picker.inCart,
-    multiple: picker.multiple,
     soldOut: picker.soldOut,
     pending: picker.pending,
-    values: joinValues(picker.selected.selectedOptions),
   });
+  const Icon = picker.inCart
+    ? CheckIcon
+    : picker.pending
+      ? SpinnerIcon
+      : picker.soldOut
+        ? null
+        : CartIcon;
 
   return (
     <>
@@ -89,6 +88,12 @@ export function AddToCartButton({ picker }: { picker: VariantPickerState }) {
         aria-expanded={picker.multiple ? picker.picking : undefined}
         onClick={picker.multiple ? picker.open : picker.add}
       >
+        {Icon && (
+          <Icon
+            className={`cc-icon cc-icon--pop${picker.pending ? " cc-icon--spin" : ""}`}
+            key={picker.inCart ? "in" : picker.pending ? "wait" : "add"}
+          />
+        )}
         {label}
       </button>
       {picker.error !== null && (
@@ -107,54 +112,66 @@ export function VariantPicker({
   picker: VariantPickerState;
   options: NonNullable<ShownProduct["options"]>;
 }) {
-  if (!picker.multiple || !picker.picking) return null;
+  if (!picker.multiple) return null;
   const { variants, picks, selected } = picker;
+  const price = formatMoney(
+    Number(selected.price.amount),
+    selected.price.currencyCode,
+  );
   return (
-    <div className="cc-picker">
-      {options.map((option) => (
-        <div className="cc-picker__row" key={option.name}>
-          {option.values.map((value) => (
-            <button
-              type="button"
-              className="cc-chip"
-              key={value}
-              aria-pressed={picks.some(
-                (pick) => pick.name === option.name && pick.value === value,
-              )}
-              disabled={
-                !isOptionValueAvailable(variants, picks, option.name, value)
-              }
-              onClick={() => picker.pick(option.name, value)}
-            >
-              {value}
-            </button>
-          ))}
+    <div className="cc-picker" data-open={picker.picking}>
+      <div className="cc-picker__inner">
+        {options.map((option) => (
+          <div className="cc-picker__row" key={option.name}>
+            {option.values.map((value) => (
+              <button
+                type="button"
+                className="cc-chip"
+                key={value}
+                aria-pressed={picks.some(
+                  (pick) => pick.name === option.name && pick.value === value,
+                )}
+                disabled={
+                  !isOptionValueAvailable(variants, picks, option.name, value)
+                }
+                onClick={(event) => {
+                  picker.pick(option.name, value);
+                  event.currentTarget.scrollIntoView({
+                    block: "nearest",
+                    inline: "center",
+                    behavior: "smooth",
+                  });
+                }}
+              >
+                {value}
+              </button>
+            ))}
+          </div>
+        ))}
+        <div className="cc-picker__actions">
+          <button
+            type="button"
+            className="cc-btn cc-btn--secondary cc-btn--icon"
+            aria-label={t("cancel")}
+            onClick={picker.close}
+          >
+            <CloseIcon className="cc-icon cc-icon--stroke" />
+          </button>
+          <button
+            type="button"
+            className="cc-btn cc-picker__confirm"
+            aria-label={`${t("addToCart")} ${price}`}
+            disabled={!selected.available || picker.busy}
+            onClick={picker.add}
+          >
+            {picker.pending ? (
+              <SpinnerIcon className="cc-icon cc-icon--spin" />
+            ) : (
+              <CartIcon className="cc-icon" />
+            )}
+            {price}
+          </button>
         </div>
-      ))}
-      <div className="cc-picker__actions">
-        <button
-          type="button"
-          className="cc-btn cc-btn--secondary"
-          onClick={picker.close}
-        >
-          {t("cancel")}
-        </button>
-        <button
-          type="button"
-          className="cc-btn"
-          disabled={!selected.available || picker.busy}
-          onClick={picker.add}
-        >
-          {picker.pending
-            ? t("adding")
-            : t("addVariant", {
-                options: joinValues(selected.selectedOptions),
-                price: formatMoney(
-                  Number(selected.price.amount),
-                  selected.price.currencyCode,
-                ),
-              })}
-        </button>
       </div>
     </div>
   );

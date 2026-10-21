@@ -51,7 +51,7 @@ export function createTools(storefront: StorefrontApiContext, market: Market) {
     }),
     showProducts: tool({
       description:
-        "Show the shopper one to three products, by their handles, best first, each with its photo, price and exactly three short highlights, linking to its page. A highlight is a pro or a con (kind) for this shopper, at most eight words, tailored to what they said in the conversation (needs, budget, situation) and taken only from the product's data. Mix pros and cons honestly. Ends your reply: write your sentences first.",
+        "Show the shopper one to three products, by their handles, best first, each with its photo, price and exactly three short highlights, linking to its page. A highlight is a pro or a con (kind) for this shopper, at most six words, tailored to what they said in the conversation (needs, budget, situation) and taken only from the product's data. Mix pros and cons honestly. Ends your reply: write your sentences first.",
       inputSchema: TOOLS.showProducts.input,
       execute: async ({ products: requested }) => {
         const products = (

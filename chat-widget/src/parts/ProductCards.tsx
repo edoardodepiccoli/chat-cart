@@ -51,8 +51,10 @@ function ProductCard({
         <a className="cc-card__title" href={href}>
           {title}
         </a>
-        {priceRow}
-        {action}
+        <div className="cc-card__buy">
+          {priceRow}
+          {action}
+        </div>
       </div>
     </div>
   );

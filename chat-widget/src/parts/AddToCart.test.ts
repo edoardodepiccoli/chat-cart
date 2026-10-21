@@ -3,20 +3,11 @@ import { describe, expect, it } from "vitest";
 import { buttonLabel } from "./AddToCart";
 
 describe("buttonLabel", () => {
-  const base = {
-    inCart: false,
-    multiple: true,
-    soldOut: false,
-    pending: false,
-    values: "Blue / M",
-  };
+  const base = { inCart: false, soldOut: false, pending: false };
 
   it("prefers inCart over soldOut, adding and addToCart", () => {
-    expect(
-      buttonLabel({ ...base, inCart: true, soldOut: true, pending: true }),
-    ).toBe("In cart · Blue / M");
-    expect(buttonLabel({ ...base, inCart: true, multiple: false })).toBe(
-      "In cart",
+    expect(buttonLabel({ inCart: true, soldOut: true, pending: true })).toBe(
+      "Added",
     );
   });
 
@@ -25,6 +16,6 @@ describe("buttonLabel", () => {
       "Sold out",
     );
     expect(buttonLabel({ ...base, pending: true })).toBe("Adding…");
-    expect(buttonLabel(base)).toBe("Add to cart");
+    expect(buttonLabel(base)).toBe("Add");
   });
 });

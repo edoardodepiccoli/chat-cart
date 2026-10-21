@@ -57,3 +57,20 @@ export function CloseIcon({ className }: { className?: string }) {
     </svg>
   );
 }
+
+export function CartIcon({ className }: { className?: string }) {
+  return (
+    <Icon
+      className={className}
+      d="M3 4h2l2.4 10.2a1 1 0 0 0 1 .8h8.7a1 1 0 0 0 1-.8L20 8H6.2M9.5 19.5h.01M16.5 19.5h.01"
+    />
+  );
+}
+
+export function CheckIcon({ className }: { className?: string }) {
+  return <Icon className={className} d="M5 12.5l4.5 4.5L19 7.5" />;
+}
+
+export function SpinnerIcon({ className }: { className?: string }) {
+  return <Icon className={className} d="M12 3a9 9 0 1 0 9 9" />;
+}

@@ -29,5 +29,14 @@
   "itemCountOther": "{count} articoli",
   "subtotal": "Subtotale",
   "select": "Seleziona",
-  "checkoutShort": "Checkout"
+  "checkoutShort": "Checkout",
+  "carousel": "Prodotti consigliati",
+  "carouselRole": "carosello",
+  "previous": "Prodotti precedenti",
+  "next": "Prodotti successivi",
+  "pageRange": "{from}–{to} di {total}",
+  "chooseVariant": "Scegli la variante",
+  "close": "Chiudi",
+  "alreadyInCart": "{count} già nel carrello",
+  "saleBadge": "−{percent}%"
 }

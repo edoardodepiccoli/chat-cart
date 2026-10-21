@@ -79,6 +79,21 @@ afterEach(() => {
   XMLHttpRequest.prototype.open = originalOpen;
 });
 
+describe("quantityInCart", () => {
+  it("sums the lines of one variant and is 0 without any", () => {
+    const split = { ...CART, items: [...CART.items, item("3:ghi", 42, 1)] };
+    expect(cart.quantityInCart(split, "gid://shopify/ProductVariant/42")).toBe(
+      3,
+    );
+    expect(cart.quantityInCart(CART, "gid://shopify/ProductVariant/99")).toBe(
+      0,
+    );
+    expect(cart.quantityInCart(null, "gid://shopify/ProductVariant/42")).toBe(
+      0,
+    );
+  });
+});
+
 describe("reads", () => {
   it("refreshCart stores the cart", async () => {
     await start();

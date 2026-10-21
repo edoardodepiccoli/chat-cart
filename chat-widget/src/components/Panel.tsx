@@ -12,6 +12,7 @@ import CheckoutBar from "./CheckoutBar";
 import Composer, { type ComposerProps } from "./Composer";
 import Header, { type HeaderProps } from "./Header";
 import Launcher from "./Launcher";
+import { PanelHost } from "./PanelHost";
 
 export default function Panel({
   open,
@@ -32,6 +33,7 @@ export default function Panel({
 }) {
   const { cart } = useCart();
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [panel, setPanel] = useState<HTMLDivElement | null>(null);
   const hasItems = Boolean(cart?.items.length);
   const closeSheet = useCallback(() => setSheetOpen(false), []);
 
@@ -49,6 +51,7 @@ export default function Panel({
       />
 
       <div
+        ref={setPanel}
         id="cc-panel"
         className="cc-panel"
         data-open={open}
@@ -57,7 +60,9 @@ export default function Panel({
         <Header {...header} onClose={onToggle} />
 
         <div className="cc-log" ref={logRef}>
-          <div className="cc-log__content">{children}</div>
+          <PanelHost.Provider value={panel}>
+            <div className="cc-log__content">{children}</div>
+          </PanelHost.Provider>
         </div>
 
         {cart && hasItems && (

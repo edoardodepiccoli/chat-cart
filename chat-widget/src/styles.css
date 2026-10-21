@@ -186,8 +186,9 @@
 }
 
 .cc-log {
+  --cc-log-padding: calc(20px * var(--cc-space));
   flex: 1 1 auto;
-  padding: calc(20px * var(--cc-space));
+  padding: var(--cc-log-padding);
   overflow-y: auto;
   overscroll-behavior: contain;
   container-type: size;
@@ -541,240 +542,444 @@
   background: var(--cc-color-background);
 }
 
-.cc-card__media {
-  display: block;
-  overflow: hidden;
-  background: var(--cc-color-surface);
-}
-
-.cc-card__image {
-  display: block;
-  width: 100%;
-  height: auto;
-  background: var(--cc-color-surface);
-  transition: transform var(--cc-duration) var(--cc-ease);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  a.cc-card__media:hover .cc-card__image,
-  a.cc-card:hover .cc-card__image {
-    transform: scale(1.03);
-  }
-}
-
-.cc-card__body {
-  display: flex;
-  flex-direction: column;
-  gap: calc(2px * var(--cc-space));
-  min-width: 0;
-  padding: calc(12px * var(--cc-space)) calc(12px * var(--cc-space))
-    calc(12px * var(--cc-space)) calc(14px * var(--cc-space));
-}
-
 .cc-card__title {
+  display: block;
   color: inherit;
   font-weight: var(--cc-font-weight-heading);
   text-decoration: none;
 }
 
 @media (hover: hover) and (pointer: fine) {
-  a.cc-card:hover .cc-card__title {
+  .cc-card__title:hover {
     text-decoration: underline;
   }
 }
 
-.cc-card__price {
+.cc-price {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0 6px;
-  align-items: baseline;
+  flex-direction: column;
+  line-height: 1.25;
   font-weight: var(--cc-font-weight-heading);
   font-variant-numeric: tabular-nums;
 }
 
-.cc-card__price > * {
+.cc-price > * {
   white-space: nowrap;
 }
 
-.cc-card__price--was {
+.cc-price__was {
   color: var(--cc-color-text-subtle);
   font-size: var(--cc-font-size-sm);
   font-weight: var(--cc-font-weight);
 }
 
-.cc-card__body > .cc-card__price {
-  margin-top: auto;
-  padding-top: 6px;
+/* Product carousel: cards scroll sideways and snap; the track bleeds into
+   the log's padding so the next card peeks in at the panel edge. */
+/* Two cards fit whole on a desktop panel, with the third peeking in. */
+.cc-carousel {
+  --cc-card-width: calc((100% - 12px * var(--cc-space)) / 2 - 10px);
+  --cc-card-image: 140px;
+  display: flex;
+  flex-direction: column;
+  gap: calc(12px * var(--cc-space));
 }
 
-.cc-card__image-placeholder {
-  aspect-ratio: 1 / 1;
+.cc-carousel[data-count="1"] {
+  --cc-card-width: 100%;
+  --cc-card-image: 180px;
+}
+
+.cc-carousel[data-count="2"] {
+  --cc-card-width: calc((100% - 12px * var(--cc-space)) / 2);
+}
+
+.cc-carousel__track {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  gap: calc(12px * var(--cc-space));
+  margin: 0 calc(-1 * var(--cc-log-padding));
+  padding: 0 var(--cc-log-padding);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--cc-log-padding);
+  scrollbar-width: none;
+  list-style: none;
+}
+
+.cc-carousel__track::-webkit-scrollbar {
+  display: none;
+}
+
+.cc-carousel__item {
+  flex: 0 0 var(--cc-card-width);
+  display: flex;
+  min-width: 0;
+  scroll-snap-align: start;
+}
+
+.cc-carousel__controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(12px * var(--cc-space));
+}
+
+.cc-carousel__count {
+  color: var(--cc-color-text-muted);
+  font-size: var(--cc-font-size-sm);
+}
+
+.cc-carousel__arrows {
+  display: flex;
+  gap: calc(8px * var(--cc-space));
+}
+
+.cc-carousel__arrow {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: var(--cc-border-width) solid var(--cc-color-border-strong);
+  border-radius: 999px;
+  background: var(--cc-color-background);
+  color: var(--cc-color-text);
+  cursor: pointer;
+  transition:
+    background var(--cc-duration-fast) var(--cc-ease),
+    border-color var(--cc-duration-fast) var(--cc-ease);
+}
+
+.cc-carousel__arrow:disabled {
+  border-color: var(--cc-color-divider);
+  color: var(--cc-color-on-disabled);
+  cursor: not-allowed;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .cc-carousel__arrow:not(:disabled):hover {
+    background: var(--cc-color-surface);
+  }
+}
+
+.cc-carousel__arrow:focus-visible {
+  outline: 2px solid var(--cc-color-primary);
+  outline-offset: 2px;
+}
+
+.cc-carousel__dots {
+  display: none;
+  gap: 6px;
+}
+
+.cc-carousel__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--cc-color-border-strong);
+  transition:
+    width var(--cc-duration-fast) var(--cc-ease),
+    background var(--cc-duration-fast) var(--cc-ease);
+}
+
+.cc-carousel__dot[data-active="true"] {
+  width: 16px;
+  background: var(--cc-color-primary);
+}
+
+/* Touch screens swipe, so they get dots instead of the count and arrows. */
+@media (hover: none), (pointer: coarse) {
+  .cc-carousel__controls {
+    justify-content: center;
+  }
+
+  .cc-carousel__count,
+  .cc-carousel__arrows {
+    display: none;
+  }
+
+  .cc-carousel__dots {
+    display: flex;
+  }
+}
+
+.cc-pcard {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  overflow: hidden;
+  border: var(--cc-border-width) solid var(--cc-color-border);
+  border-radius: var(--cc-radius);
+  background: var(--cc-color-background);
+}
+
+/* A fixed height, cropped to cover, so tall photos can't stretch the card. */
+.cc-pcard__media {
+  position: relative;
+  flex: none;
+  display: block;
+  height: var(--cc-card-image);
+  overflow: hidden;
   background: var(--cc-color-surface);
 }
 
-a.cc-card__media,
-a.cc-card__title {
+.cc-pcard__image,
+.cc-pcard__placeholder {
   display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--cc-duration) var(--cc-ease);
+}
+
+.cc-pcard__badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--cc-color-primary);
+  color: var(--cc-color-on-primary);
+  font-size: var(--cc-font-size-sm);
+  font-weight: var(--cc-font-weight-button);
+}
+
+.cc-pcard__body {
+  display: flex;
+  flex-direction: column;
+  gap: calc(8px * var(--cc-space));
+  padding: calc(12px * var(--cc-space));
+}
+
+/* Two lines, always reserved, so price rows line up across cards. */
+.cc-pcard__title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  min-height: calc(2em * 1.35);
+  overflow: hidden;
   color: inherit;
+  font-weight: var(--cc-font-weight-heading);
+  line-height: 1.35;
   text-decoration: none;
 }
 
 @media (hover: hover) and (pointer: fine) {
-  a.cc-card__title:hover {
+  .cc-pcard:hover .cc-pcard__image {
+    transform: scale(1.03);
+  }
+
+  .cc-pcard:hover .cc-pcard__title {
     text-decoration: underline;
   }
 }
 
-.cc-card__buy {
+.cc-pcard__buy {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: calc(8px * var(--cc-space));
-  margin-top: auto;
-  padding-top: 6px;
 }
 
-.cc-card__add {
+.cc-pcard[data-sold-out="true"] .cc-price {
+  color: var(--cc-color-text-subtle);
+}
+
+.cc-pcard__add {
+  flex: none;
+  padding: 0 calc(12px * var(--cc-space));
   border-color: var(--cc-color-border-strong);
 }
 
-.cc-card__add[aria-expanded="true"] {
-  padding-right: calc(12px * var(--cc-space));
+.cc-pcard__add[aria-expanded="true"] {
   border-color: var(--cc-color-primary);
   background: var(--cc-color-surface);
 }
 
-.cc-card__add[data-state="added"] {
+.cc-pcard__add[data-state="added"] {
   border-color: var(--cc-color-success-border);
   background: var(--cc-color-success);
   color: var(--cc-color-on-success);
 }
 
-.cc-card__add[data-state="added"]:disabled,
-.cc-card__add[data-state="sold-out"]:disabled {
+.cc-pcard__add[data-state="added"]:disabled,
+.cc-pcard__add[data-state="sold-out"]:disabled {
   opacity: 1;
 }
 
-.cc-card__add[data-state="added"]:disabled {
+.cc-pcard__add[data-state="added"]:disabled {
   cursor: default;
 }
 
-.cc-card__add[data-state="sold-out"] {
+.cc-pcard__add[data-state="sold-out"] {
   border-color: var(--cc-color-border);
   background: var(--cc-color-surface);
   color: var(--cc-color-text-subtle);
 }
 
-.cc-card__error,
-.cc-line__error {
+.cc-pcard__error,
+.cc-line__error,
+.cc-vsheet__error {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 6px;
   margin: 0;
   color: var(--cc-color-danger-text);
   font-size: var(--cc-font-size-sm);
+  line-height: 1.35;
 }
 
-.cc-card__error {
-  flex-basis: 100%;
+.cc-pcard__error {
   animation: cc-rise var(--cc-duration-fast) var(--cc-ease) both;
 }
 
-.cc-card__error .cc-icon,
-.cc-line__error .cc-icon {
+.cc-pcard__error .cc-icon,
+.cc-line__error .cc-icon,
+.cc-vsheet__error .cc-icon {
   width: 14px;
   height: 14px;
+  margin-top: 1px;
 }
 
-.cc-picker {
-  display: grid;
-  grid-template-rows: 0fr;
-  visibility: hidden;
-  opacity: 0;
-  border-top: var(--cc-border-width) solid transparent;
-  transition:
-    grid-template-rows var(--cc-duration) var(--cc-ease),
-    opacity var(--cc-duration-fast) var(--cc-ease),
-    border-color var(--cc-duration-fast) var(--cc-ease),
-    visibility 0s linear var(--cc-duration);
+.cc-pcard .cc-highlights {
+  flex: 1 1 auto;
+  gap: 4px;
+  padding: 10px calc(12px * var(--cc-space)) calc(12px * var(--cc-space));
+  font-size: 12.5px;
 }
 
-.cc-picker[data-open="true"] {
-  grid-template-rows: 1fr;
-  visibility: visible;
-  opacity: 1;
-  border-top-color: var(--cc-color-divider);
-  transition-delay: 0s;
+.cc-pcard .cc-highlight {
+  gap: 6px;
+  line-height: 1.35;
 }
 
-.cc-picker__inner {
+.cc-pcard .cc-highlight__icon {
+  width: 14px;
+  height: 14px;
+  margin-top: 2px;
+}
+
+/* The variant sheet reuses the cart sheet's frame, scrim and handle. */
+.cc-vsheet {
+  max-height: 85%;
+  padding: 0;
+}
+
+.cc-vsheet__header {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: calc(12px * var(--cc-space));
+  padding: 0 12px calc(14px * var(--cc-space)) calc(16px * var(--cc-space));
+  border-bottom: var(--cc-border-width) solid var(--cc-color-divider);
+}
+
+.cc-vsheet__thumb {
+  flex: none;
+  width: 64px;
+  height: 64px;
+  overflow: hidden;
+  border-radius: calc(var(--cc-radius-sm) + 2px);
+  background: var(--cc-color-surface);
+}
+
+.cc-vsheet__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cc-vsheet__heading {
+  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
-  gap: calc(14px * var(--cc-space));
+  gap: 2px;
+  min-width: 0;
+  line-height: 1.35;
+}
+
+.cc-vsheet__title {
+  font-weight: var(--cc-font-weight-heading);
+}
+
+.cc-vsheet__heading .cc-price {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 6px;
+}
+
+.cc-vsheet__close {
+  align-self: flex-start;
+}
+
+.cc-vsheet__body {
+  flex: 1 1 auto;
   min-height: 0;
-  overflow: hidden;
-  padding: 0 calc(14px * var(--cc-space));
+  display: flex;
+  flex-direction: column;
+  gap: calc(16px * var(--cc-space));
+  padding: calc(16px * var(--cc-space));
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
-/* Zero-height spacers: the flex gap pads the top and bottom, and padding
-   would not collapse with the grid row. */
-.cc-picker__inner::before,
-.cc-picker__inner::after {
-  content: "";
-  flex: none;
-  height: 0;
-}
-
-.cc-picker__option {
+.cc-vsheet__option {
   min-width: 0;
   margin: 0;
   padding: 0;
   border: 0;
 }
 
-.cc-picker__label {
+.cc-vsheet__label {
   margin-bottom: calc(8px * var(--cc-space));
   padding: 0;
   color: var(--cc-color-text-muted);
-  font-size: var(--cc-font-size-sm);
+  font-size: var(--cc-font-size-chip);
+}
+
+.cc-vsheet__label b {
+  color: var(--cc-color-text);
   font-weight: var(--cc-font-weight-heading);
 }
 
-.cc-picker__row {
+.cc-vsheet__chips {
   display: flex;
+  flex-wrap: wrap;
   gap: calc(8px * var(--cc-space));
-  margin-inline: calc(-14px * var(--cc-space));
-  padding: 0 calc(14px * var(--cc-space));
-  overflow-x: auto;
-  overscroll-behavior-x: contain;
-  scrollbar-width: none;
-  scroll-padding-inline: calc(14px * var(--cc-space));
-  mask-image: linear-gradient(
-    to right,
-    transparent,
-    #000 calc(14px * var(--cc-space)),
-    #000 calc(100% - 14px * var(--cc-space)),
-    transparent
-  );
 }
 
-.cc-picker__row::-webkit-scrollbar {
-  display: none;
-}
-
-.cc-picker__row .cc-chip {
-  flex: none;
-  white-space: nowrap;
-}
-
-.cc-picker__actions {
+.cc-vsheet__list {
   display: flex;
+  flex-direction: column;
+  gap: calc(8px * var(--cc-space));
 }
 
-.cc-picker__confirm {
-  flex: 1 1 auto;
-  min-width: 0;
+.cc-vsheet__footer {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: calc(10px * var(--cc-space));
+  padding: 12px calc(16px * var(--cc-space)) calc(16px * var(--cc-space));
+  border-top: var(--cc-border-width) solid var(--cc-color-divider);
+}
+
+.cc-vsheet__in-cart {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  color: var(--cc-color-on-success);
+  font-size: var(--cc-font-size-chip);
+}
+
+.cc-vsheet__confirm {
+  width: 100%;
+  min-height: 48px;
+  font-size: var(--cc-font-size);
 }
 
 /* Squarer than buttons, and selected by an outline rather than a fill, so
@@ -835,6 +1040,45 @@ a.cc-card__title {
   cursor: not-allowed;
 }
 
+/* One option with prices: a full-width row per value. */
+.cc-chip--row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(12px * var(--cc-space));
+  width: 100%;
+  min-height: calc(var(--cc-control-height) + 12px);
+  padding: 0 calc(14px * var(--cc-space));
+  border-radius: calc(var(--cc-radius-sm) + 2px);
+  font-size: var(--cc-font-size);
+  text-align: left;
+}
+
+.cc-chip--row:disabled {
+  text-decoration: none;
+}
+
+.cc-chip--row:disabled .cc-chip__text {
+  text-decoration: line-through;
+}
+
+.cc-chip__meta {
+  flex: none;
+  color: var(--cc-color-text-muted);
+  font-weight: var(--cc-font-weight);
+  font-variant-numeric: tabular-nums;
+}
+
+.cc-chip--row[aria-pressed="true"] .cc-chip__meta {
+  color: var(--cc-color-text);
+  font-weight: var(--cc-font-weight-button);
+}
+
+.cc-chip--row:disabled .cc-chip__meta {
+  color: var(--cc-color-text-subtle);
+  font-size: var(--cc-font-size-sm);
+}
+
 .cc-icon {
   flex: none;
   width: 16px;
@@ -875,40 +1119,6 @@ a.cc-card__title {
 
 .cc-icon--spin {
   animation: cc-spin 0.8s linear infinite;
-}
-
-.cc-products {
-  display: flex;
-  flex-direction: column;
-  gap: calc(12px * var(--cc-space));
-}
-
-.cc-product {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  border: var(--cc-border-width) solid var(--cc-color-border);
-  border-radius: var(--cc-radius);
-  background: var(--cc-color-background);
-}
-
-.cc-product .cc-card {
-  display: grid;
-  grid-template-columns: 112px minmax(0, 1fr);
-  border: 0;
-  border-radius: 0;
-}
-
-.cc-product .cc-card__media {
-  min-height: 112px;
-}
-
-.cc-product .cc-card__image,
-.cc-product .cc-card__image-placeholder {
-  width: 100%;
-  height: 100%;
-  aspect-ratio: auto;
-  object-fit: cover;
 }
 
 .cc-highlights {
@@ -1039,12 +1249,17 @@ a.cc-card__title {
 }
 
 .cc-checkout__inner {
+  transition: box-shadow var(--cc-duration) var(--cc-ease);
   display: flex;
   align-items: center;
   gap: calc(12px * var(--cc-space));
   padding: 8px 8px 8px 10px;
   border-radius: var(--cc-radius);
   background: var(--cc-color-surface);
+}
+
+.cc-checkout__inner[data-flash="true"] {
+  box-shadow: 0 0 0 2px var(--cc-color-success-border);
 }
 
 .cc-checkout__open {
@@ -1479,7 +1694,7 @@ a.cc-card__title {
   }
 
   .cc-log {
-    padding: calc(16px * var(--cc-space));
+    --cc-log-padding: calc(16px * var(--cc-space));
   }
 
   .cc-message--user .cc-part--text {
@@ -1503,12 +1718,38 @@ a.cc-card__title {
     font-size: var(--cc-font-size);
   }
 
-  .cc-product .cc-card {
-    grid-template-columns: 104px minmax(0, 1fr);
+  .cc-carousel,
+  .cc-carousel[data-count="2"] {
+    --cc-card-width: 260px;
+    --cc-card-image: 156px;
   }
 
-  .cc-product .cc-card__media {
-    min-height: 120px;
+  .cc-carousel[data-count="1"] {
+    --cc-card-width: 100%;
+    --cc-card-image: 150px;
+  }
+
+  .cc-pcard__title,
+  .cc-pcard .cc-price,
+  .cc-vsheet__title {
+    font-size: var(--cc-font-size-message);
+  }
+
+  .cc-pcard .cc-highlights {
+    font-size: var(--cc-font-size-chip);
+  }
+
+  .cc-vsheet {
+    max-height: 88%;
+  }
+
+  .cc-chip {
+    font-size: var(--cc-font-size);
+  }
+
+  .cc-vsheet__confirm {
+    min-height: 52px;
+    font-size: var(--cc-font-size-message);
   }
 
   .cc-checkout {
@@ -1598,13 +1839,14 @@ a.cc-card__title {
 @media (prefers-reduced-motion: reduce) {
   .cc-typing__dot,
   .cc-icon--pop,
-  .cc-card__error {
+  .cc-pcard__error {
     animation: none !important;
   }
 
-  .cc-picker,
   .cc-chip,
-  .cc-card__image {
+  .cc-pcard__image,
+  .cc-carousel__dot,
+  .cc-checkout__inner {
     transition: none !important;
   }
 

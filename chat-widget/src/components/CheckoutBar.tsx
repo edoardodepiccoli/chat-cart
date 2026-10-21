@@ -1,3 +1,5 @@
+import { useEffect, useRef, useState } from "react";
+
 import type { Cart } from "../cart";
 import { t } from "../i18n";
 import { CartIcon, ChevronUpIcon } from "../icons";
@@ -10,6 +12,21 @@ export function itemCount(count: number): string {
   });
 }
 
+// True for a moment each time the count goes up, so a new item is noticed.
+function useFlashOnGrow(count: number): boolean {
+  const [flash, setFlash] = useState(false);
+  const previous = useRef(count);
+  useEffect(() => {
+    const grew = count > previous.current;
+    previous.current = count;
+    if (!grew) return;
+    setFlash(true);
+    const timer = setTimeout(() => setFlash(false), 1200);
+    return () => clearTimeout(timer);
+  }, [count]);
+  return flash;
+}
+
 export default function CheckoutBar({
   cart,
   onOpen,
@@ -18,9 +35,10 @@ export default function CheckoutBar({
   onOpen: () => void;
 }) {
   const count = itemCount(cart.item_count);
+  const flash = useFlashOnGrow(cart.item_count);
   return (
     <div className="cc-checkout">
-      <div className="cc-checkout__inner">
+      <div className="cc-checkout__inner" data-flash={flash}>
         <button
           className="cc-checkout__open"
           type="button"

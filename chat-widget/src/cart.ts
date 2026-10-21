@@ -60,9 +60,15 @@ export function useCart(): CartState {
   return useSyncExternalStore(subscribe, getCartState);
 }
 
-export function inCart(cart: Cart | null, variantGid: string): boolean {
+export function quantityInCart(cart: Cart | null, variantGid: string): number {
   const id = variantIdFromGid(variantGid);
-  return cart?.items.some((item) => item.variant_id === id) ?? false;
+  return (cart?.items ?? [])
+    .filter((item) => item.variant_id === id)
+    .reduce((sum, item) => sum + item.quantity, 0);
+}
+
+export function inCart(cart: Cart | null, variantGid: string): boolean {
+  return quantityInCart(cart, variantGid) > 0;
 }
 
 // An error Shopify answered with, whose message can be shown as is.

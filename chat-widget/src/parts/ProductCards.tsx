@@ -1,80 +1,17 @@
-import type { ReactNode } from "react";
+import { useRef, type ReactNode } from "react";
 
-import type { Highlight, ShownProduct } from "../../../shared/product";
+import type {
+  Highlight,
+  ShownProduct,
+  ShownVariant,
+} from "../../../shared/product";
+import { discountPercent, ProductPrice } from "../components/Price";
+import { useCarousel } from "../hooks/useCarousel";
+import { t } from "../i18n";
+import { AlertIcon, ChevronLeftIcon, ChevronRightIcon } from "../icons";
 import { productUrl } from "../urls";
-import { ProductPrice } from "../components/Price";
-import { AddToCartButton, VariantPicker, useVariantPicker } from "./AddToCart";
-
-function ProductCard({
-  handle,
-  title,
-  image,
-  price,
-  compareAtPrice,
-  action,
-}: ShownProduct & { action?: ReactNode }) {
-  const media =
-    image === null ? (
-      <div className="cc-card__image-placeholder" aria-hidden="true" />
-    ) : (
-      <img
-        className="cc-card__image"
-        src={image.url}
-        alt={image.alt ?? title}
-        loading="lazy"
-      />
-    );
-  const priceRow = (
-    <ProductPrice price={price} compareAtPrice={compareAtPrice} />
-  );
-
-  if (action === undefined) {
-    return (
-      <a className="cc-card" href={productUrl(handle)}>
-        <div className="cc-card__media">{media}</div>
-        <div className="cc-card__body">
-          <div className="cc-card__title">{title}</div>
-          {priceRow}
-        </div>
-      </a>
-    );
-  }
-
-  // A button can't sit inside an anchor, so the image and title link instead.
-  const href = productUrl(handle);
-  return (
-    <div className="cc-card">
-      <a className="cc-card__media" href={href}>
-        {media}
-      </a>
-      <div className="cc-card__body">
-        <a className="cc-card__title" href={href}>
-          {title}
-        </a>
-        <div className="cc-card__buy">
-          {priceRow}
-          {action}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function ShoppableCard({
-  product,
-  variants,
-}: {
-  product: ShownProduct;
-  variants: NonNullable<ShownProduct["variants"]>;
-}) {
-  const picker = useVariantPicker(variants);
-  return (
-    <>
-      <ProductCard {...product} action={<AddToCartButton picker={picker} />} />
-      <VariantPicker picker={picker} options={product.options ?? []} />
-    </>
-  );
-}
+import { AddToCartButton, useVariantPicker } from "./AddToCart";
+import VariantSheet from "./VariantSheet";
 
 function HighlightIcon({ kind }: { kind: Highlight["kind"] }) {
   return (
@@ -93,47 +30,182 @@ function HighlightIcon({ kind }: { kind: Highlight["kind"] }) {
   );
 }
 
+function ProductCard({
+  product,
+  shown = null,
+  soldOut = false,
+  action,
+  error = null,
+}: {
+  product: ShownProduct;
+  // A variant the shopper added, whose price and image replace the product's.
+  shown?: ShownVariant | null;
+  soldOut?: boolean;
+  action?: ReactNode;
+  error?: string | null;
+}) {
+  const href = productUrl(product.handle);
+  const imageUrl = shown?.imageUrl ?? product.image?.url ?? null;
+  const price = shown?.price ?? product.price;
+  const compareAtPrice = shown ? shown.compareAtPrice : product.compareAtPrice;
+  const percent = discountPercent(price, compareAtPrice);
+  const highlights = [
+    ...(product.highlights ?? []).filter(({ kind }) => kind === "pro"),
+    ...(product.highlights ?? []).filter(({ kind }) => kind === "con"),
+  ];
+
+  return (
+    <article className="cc-pcard" data-sold-out={soldOut}>
+      {/* The title link names the product; this one only widens the target. */}
+      <a
+        className="cc-pcard__media"
+        href={href}
+        tabIndex={-1}
+        aria-hidden="true"
+      >
+        {imageUrl ? (
+          <img
+            className="cc-pcard__image"
+            src={imageUrl}
+            alt=""
+            loading="lazy"
+          />
+        ) : (
+          <span className="cc-pcard__placeholder" />
+        )}
+        {percent > 0 && (
+          <span className="cc-pcard__badge">
+            {t("saleBadge", { percent: String(percent) })}
+          </span>
+        )}
+      </a>
+      <div className="cc-pcard__body">
+        <a className="cc-pcard__title" href={href}>
+          {product.title}
+        </a>
+        <div className="cc-pcard__buy">
+          <ProductPrice price={price} compareAtPrice={compareAtPrice} />
+          {action}
+        </div>
+        {error !== null && (
+          <p className="cc-pcard__error" role="alert">
+            <AlertIcon className="cc-icon" />
+            {error}
+          </p>
+        )}
+      </div>
+      {highlights.length > 0 && (
+        <ul className="cc-highlights">
+          {highlights.map((highlight) => (
+            <li
+              className="cc-highlight"
+              data-kind={highlight.kind}
+              key={highlight.text}
+            >
+              <HighlightIcon kind={highlight.kind} />
+              <span>
+                <span className="cc-sr-only">
+                  {highlight.kind === "pro" ? "Pro: " : "Con: "}
+                </span>
+                {highlight.text}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </article>
+  );
+}
+
+function ShoppableCard({
+  product,
+  variants,
+}: {
+  product: ShownProduct;
+  variants: NonNullable<ShownProduct["variants"]>;
+}) {
+  const picker = useVariantPicker(variants);
+  return (
+    <>
+      <ProductCard
+        product={product}
+        shown={picker.shown}
+        soldOut={picker.soldOut}
+        action={<AddToCartButton picker={picker} />}
+        // With variants, a failed add shows in the sheet, which stays open.
+        error={picker.multiple ? null : picker.error}
+      />
+      {picker.multiple && <VariantSheet picker={picker} product={product} />}
+    </>
+  );
+}
+
 export default function ProductCards({
   products,
 }: {
   products: ShownProduct[];
 }) {
+  const trackRef = useRef<HTMLUListElement>(null);
+  const carousel = useCarousel(trackRef, products.length);
+
   return (
-    <div className="cc-products">
-      {products.map((product) => {
-        const highlights = [
-          ...(product.highlights ?? []).filter(({ kind }) => kind === "pro"),
-          ...(product.highlights ?? []).filter(({ kind }) => kind === "con"),
-        ];
-        return (
-          <div className="cc-product" key={product.handle}>
+    <section
+      className="cc-carousel"
+      data-count={products.length}
+      aria-roledescription={t("carouselRole")}
+      aria-label={t("carousel")}
+    >
+      <ul className="cc-carousel__track" ref={trackRef}>
+        {products.map((product) => (
+          <li className="cc-carousel__item" key={product.handle}>
             {product.variants && product.variants.length > 0 ? (
               <ShoppableCard product={product} variants={product.variants} />
             ) : (
-              <ProductCard {...product} />
+              <ProductCard product={product} />
             )}
-            {highlights.length > 0 && (
-              <ul className="cc-highlights">
-                {highlights.map((highlight) => (
-                  <li
-                    className="cc-highlight"
-                    data-kind={highlight.kind}
-                    key={highlight.text}
-                  >
-                    <HighlightIcon kind={highlight.kind} />
-                    <span>
-                      <span className="cc-sr-only">
-                        {highlight.kind === "pro" ? "Pro: " : "Con: "}
-                      </span>
-                      {highlight.text}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
+          </li>
+        ))}
+      </ul>
+      {carousel.overflow && (
+        <div className="cc-carousel__controls">
+          <span className="cc-carousel__count" aria-live="polite">
+            {t("pageRange", {
+              from: String(carousel.first + 1),
+              to: String(carousel.last + 1),
+              total: String(products.length),
+            })}
+          </span>
+          <div className="cc-carousel__arrows">
+            <button
+              type="button"
+              className="cc-carousel__arrow"
+              aria-label={t("previous")}
+              disabled={carousel.first === 0}
+              onClick={() => carousel.step(-1)}
+            >
+              <ChevronLeftIcon className="cc-icon" />
+            </button>
+            <button
+              type="button"
+              className="cc-carousel__arrow"
+              aria-label={t("next")}
+              disabled={carousel.last === products.length - 1}
+              onClick={() => carousel.step(1)}
+            >
+              <ChevronRightIcon className="cc-icon" />
+            </button>
           </div>
-        );
-      })}
-    </div>
+          <div className="cc-carousel__dots" aria-hidden="true">
+            {products.map((product, index) => (
+              <span
+                className="cc-carousel__dot"
+                data-active={index === carousel.first}
+                key={product.handle}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+    </section>
   );
 }

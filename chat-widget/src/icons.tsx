@@ -78,8 +78,21 @@ export function ChevronUpIcon({ className }: { className?: string }) {
   return <Icon className={className} d="M6 15l6-6 6 6" />;
 }
 
-export function ChevronDownIcon({ className }: { className?: string }) {
-  return <Icon className={className} d="M6 9l6 6 6-6" />;
+export function ChevronLeftIcon({ className }: { className?: string }) {
+  return <Icon className={className} d="M15 6l-6 6 6 6" />;
+}
+
+export function ChevronRightIcon({ className }: { className?: string }) {
+  return <Icon className={className} d="M9 6l6 6-6 6" />;
+}
+
+export function SlidersIcon({ className }: { className?: string }) {
+  return (
+    <Icon
+      className={className}
+      d="M4 7h9M17 7h3M4 17h3M11 17h9M15 5v4M9 15v4"
+    />
+  );
 }
 
 export function ArrowRightIcon({ className }: { className?: string }) {

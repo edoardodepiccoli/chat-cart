@@ -389,47 +389,29 @@ export async function getStorePage(
   );
 }
 
-type Titled = { handle: string; title: string };
-
-type TitlesResponse = Record<string, Titled | null>;
-
-export async function resolveTitles(
-  storefront: StorefrontApiContext,
-  market: Market,
-  handles: { products: string[]; collections: string[] },
-) {
-  const fields = [
-    ...handles.products.map((_, i) => ["product", `p${i}`] as const),
-    ...handles.collections.map((_, i) => ["collection", `c${i}`] as const),
-  ];
-  const values = [...handles.products, ...handles.collections];
-  if (!fields.length) return { products: [], collections: [] };
-
-  const declarations = fields.map(([, alias]) => `$${alias}: String!`);
-  const selections = fields.map(
-    ([field, alias]) =>
-      `${alias}: ${field}(handle: $${alias}) { handle title }`,
-  );
-  const query = `#graphql
-  query Titles(
-    $country: CountryCode
-    $language: LanguageCode
-    ${declarations.join("\n    ")}
-  ) @inContext(country: $country, language: $language) {
-    ${selections.join("\n    ")}
+const PRODUCT_TITLE_QUERY = `#graphql
+  query ProductTitle($handle: String!, $country: CountryCode, $language: LanguageCode) @inContext(country: $country, language: $language) {
+    product(handle: $handle) { title }
   }`;
 
-  const response = await storefront.graphql(query, {
-    variables: {
-      ...inContext(market),
-      ...Object.fromEntries(fields.map(([, alias], i) => [alias, values[i]])),
-    },
-  });
-  const { data } = (await response.json()) as { data: TitlesResponse };
-  const found = (prefix: string) =>
-    fields
-      .filter(([, alias]) => alias.startsWith(prefix))
-      .flatMap(([, alias]) => data[alias] ?? []);
+const COLLECTION_TITLE_QUERY = `#graphql
+  query CollectionTitle($handle: String!, $country: CountryCode, $language: LanguageCode) @inContext(country: $country, language: $language) {
+    collection(handle: $handle) { title }
+  }`;
 
-  return { products: found("p"), collections: found("c") };
+export async function getTitle(
+  storefront: StorefrontApiContext,
+  market: Market,
+  type: "product" | "collection",
+  handle: string,
+): Promise<string | null> {
+  const query =
+    type === "product" ? PRODUCT_TITLE_QUERY : COLLECTION_TITLE_QUERY;
+  const response = await storefront.graphql(query, {
+    variables: { handle, ...inContext(market) },
+  });
+  const { data } = (await response.json()) as {
+    data: Record<string, { title: string } | null>;
+  };
+  return data[type]?.title ?? null;
 }

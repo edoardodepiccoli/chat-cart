@@ -12,7 +12,7 @@ import type { ChatMessage } from "../../shared/chat";
 import type { ShopperContext } from "../../shared/context";
 import { DISPLAY_TOOLS } from "../../shared/tools";
 import { saveMessage } from "../conversations.server";
-import { loadCatalog, resolveContext } from "./context.server";
+import { resolvePage } from "./context.server";
 import { trimHistory } from "./history";
 import { MODEL } from "./model";
 import { contextPrompt } from "./prompts/context";
@@ -26,10 +26,7 @@ export async function runAgent(
   context: ShopperContext,
 ) {
   const market = { country: context.country, language: context.language };
-  const resolved = resolveContext(
-    context,
-    await loadCatalog(storefront, context),
-  );
+  const page = await resolvePage(storefront, market, context.page);
   const modelMessages = await convertToModelMessages<ChatMessage>(
     trimHistory(messages),
   );
@@ -38,12 +35,15 @@ export async function runAgent(
   const result = streamText({
     model: MODEL,
     reasoning: "medium",
-    system: [SYSTEM_PROMPT, contextPrompt(resolved)].join("\n\n"),
+    system: [
+      SYSTEM_PROMPT,
+      contextPrompt({ country: context.country, page }),
+    ].join("\n\n"),
     messages: modelMessages,
     tools: createTools(storefront, market),
     stopWhen: [isStepCount(10), hasToolCall(...DISPLAY_TOOLS)],
     prepareStep: ({ stepNumber }) =>
-      firstReply && resolved.page.type === "other" && stepNumber === 0
+      firstReply && page.type === "other" && stepNumber === 0
         ? { toolChoice: { type: "tool", toolName: "listProducts" } }
         : undefined,
   });

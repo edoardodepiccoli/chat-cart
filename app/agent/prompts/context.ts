@@ -1,11 +1,5 @@
 import type { ResolvedContext, ResolvedPage } from "../context.server";
 
-function describe(page: Exclude<ResolvedPage, { type: "other" }>) {
-  return page.type === "search"
-    ? `searched "${page.terms}"`
-    : `${page.type === "product" ? "viewed" : "browsed the collection"} "${page.title}"`;
-}
-
 function pageLine(page: ResolvedPage) {
   switch (page.type) {
     case "product":
@@ -20,14 +14,11 @@ function pageLine(page: ResolvedPage) {
 }
 
 export function contextPrompt(context: ResolvedContext) {
-  const lines = [
+  return [
     context.country &&
       `The shopper is shopping from ${context.country}, and prices are in that market's currency. Any price in another currency earlier in the conversation is outdated: look it up again before you use it.`,
     pageLine(context.page),
-  ];
-  if (context.history.length)
-    lines.push(
-      `Before this page, from oldest to newest, the shopper ${context.history.map(describe).join("; ")}. Use this to understand what they are interested in, never to recite it back.`,
-    );
-  return lines.filter(Boolean).join("\n\n");
+  ]
+    .filter(Boolean)
+    .join("\n\n");
 }

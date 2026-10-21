@@ -1,4 +1,4 @@
-import type { Cart } from "./cart/ajax";
+import type { Cart } from "./cart";
 
 // Shopify's standard storefront events
 // (https://cdn.shopify.com/storefront/standard-events.js). Themes such as

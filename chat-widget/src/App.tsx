@@ -1,5 +1,6 @@
 import { Fragment, useRef, useState } from "react";
 
+import { refreshCart } from "./cart";
 import Message from "./components/Message";
 import Panel, { useAnchorScroll, useIosKeyboard } from "./components/Panel";
 import Suggestions from "./components/Suggestions";
@@ -63,7 +64,11 @@ export default function App({ hideSelector = "" }: { hideSelector?: string }) {
         onReset: startOver,
         resetDisabled: !canReset,
       }}
-      onToggle={() => setOpen(!open)}
+      onToggle={() => {
+        // The cart shows only in the open panel, so read it fresh on open.
+        if (!open) void refreshCart();
+        setOpen(!open);
+      }}
     >
       {(turns.length ? turns : [[]]).map((turn, index, all) => (
         <div className="cc-turn" key={turn[0]?.id ?? "start"}>

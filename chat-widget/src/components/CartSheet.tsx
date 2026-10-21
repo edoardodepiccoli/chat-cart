@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-import { useCart } from "../cart";
+import { changeQuantity, useCart } from "../cart";
 import { t } from "../i18n";
 import { CHECKOUT_URL, localUrl } from "../urls";
 import { formatMoney } from "./Price";
@@ -12,7 +12,7 @@ export default function CartSheet({
   open: boolean;
   onClose: () => void;
 }) {
-  const { cart, pending, error, setQuantity } = useCart();
+  const { cart, pending, error } = useCart();
 
   useEffect(() => {
     if (!open) return;
@@ -48,7 +48,6 @@ export default function CartSheet({
         <h2 className="cc-sheet__title">{t("yourCart")}</h2>
         <ul className="cc-sheet__lines">
           {cart.items.map((item) => {
-            const busy = pending === item.key;
             const options = item.product_has_only_default_variant
               ? ""
               : item.options_with_values.map((o) => o.value).join(" / ");
@@ -73,9 +72,9 @@ export default function CartSheet({
                     className="cc-btn cc-btn--secondary cc-line__step"
                     type="button"
                     aria-label={t("decrease")}
-                    disabled={busy}
+                    disabled={pending !== null}
                     onClick={() =>
-                      void setQuantity(item.key, item.quantity - 1)
+                      void changeQuantity(item.key, item.quantity - 1)
                     }
                   >
                     −
@@ -85,9 +84,9 @@ export default function CartSheet({
                     className="cc-btn cc-btn--secondary cc-line__step"
                     type="button"
                     aria-label={t("increase")}
-                    disabled={busy}
+                    disabled={pending !== null}
                     onClick={() =>
-                      void setQuantity(item.key, item.quantity + 1)
+                      void changeQuantity(item.key, item.quantity + 1)
                     }
                   >
                     +

@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { Cart, CartItem } from "./cart/ajax";
+import type { Cart, CartItem } from "./cart";
 import {
   CART_LINES_UPDATE,
   horizonSections,

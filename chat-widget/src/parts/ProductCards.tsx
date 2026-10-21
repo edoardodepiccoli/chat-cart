@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import type { Highlight, ShownProduct } from "../../../shared/product";
 import { productUrl } from "../urls";
 import { ProductPrice } from "../components/Price";
-import { AddToCart, VariantPicker, useAddFlow } from "./AddToCart";
+import { AddToCartButton, VariantPicker, useVariantPicker } from "./AddToCart";
 
 function ProductCard({
   handle,
@@ -65,11 +65,11 @@ function ShoppableCard({
   product: ShownProduct;
   variants: NonNullable<ShownProduct["variants"]>;
 }) {
-  const flow = useAddFlow(variants);
+  const picker = useVariantPicker(variants);
   return (
     <>
-      <ProductCard {...product} action={<AddToCart flow={flow} />} />
-      <VariantPicker flow={flow} options={product.options ?? []} />
+      <ProductCard {...product} action={<AddToCartButton picker={picker} />} />
+      <VariantPicker picker={picker} options={product.options ?? []} />
     </>
   );
 }

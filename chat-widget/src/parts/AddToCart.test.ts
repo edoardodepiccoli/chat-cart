@@ -1,27 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buttonLabel, errorFor, shouldClosePicker } from "./addToCartState";
-
-const A = "gid://shopify/ProductVariant/1";
-const B = "gid://shopify/ProductVariant/2";
-const staleA = { key: A, message: "Couldn't update your cart. Try again." };
-
-describe("card cart errors", () => {
-  it("ignores a stale error for another variant", () => {
-    expect(errorFor(staleA, B)).toBeNull();
-    expect(shouldClosePicker(staleA, B)).toBe(true);
-  });
-
-  it("shows an error for the selected variant and keeps the picker open", () => {
-    expect(errorFor(staleA, A)).toBe(staleA.message);
-    expect(shouldClosePicker(staleA, A)).toBe(false);
-  });
-
-  it("closes the picker when there is no error", () => {
-    expect(errorFor(null, A)).toBeNull();
-    expect(shouldClosePicker(null, A)).toBe(true);
-  });
-});
+import { buttonLabel } from "./AddToCart";
 
 describe("buttonLabel", () => {
   const base = {

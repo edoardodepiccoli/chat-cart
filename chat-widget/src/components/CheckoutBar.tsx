@@ -1,4 +1,4 @@
-import type { Cart } from "../cart/ajax";
+import type { Cart } from "../cart";
 import { t } from "../i18n";
 import { CHECKOUT_URL } from "../urls";
 import { formatMoney } from "./Price";

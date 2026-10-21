@@ -7,17 +7,31 @@ import {
   isOptionValueAvailable,
   withPick,
 } from "../../../shared/product";
-import { cartSnapshot, inCart, useCart } from "../cart";
+import { addToCart, inCart, useCart } from "../cart";
 import { formatMoney } from "../components/Price";
 import { t } from "../i18n";
-import { buttonLabel, errorFor, shouldClosePicker } from "./addToCartState";
 
 type Variants = NonNullable<ShownProduct["variants"]>;
 
 const joinValues = (picks: SelectedOption[]) =>
   picks.map((pick) => pick.value).join(" / ");
 
-export function useAddFlow(variants: Variants) {
+export function buttonLabel(state: {
+  inCart: boolean;
+  multiple: boolean;
+  soldOut: boolean;
+  pending: boolean;
+  values: string;
+}): string {
+  if (state.inCart) {
+    return state.multiple ? `${t("inCart")} · ${state.values}` : t("inCart");
+  }
+  if (state.soldOut) return t("soldOut");
+  if (state.pending) return t("adding");
+  return t("addToCart");
+}
+
+export function useVariantPicker(variants: Variants) {
   const cart = useCart();
   const [picking, setPicking] = useState(false);
   const [picks, setPicks] = useState(() => defaultOptions(variants));
@@ -28,10 +42,8 @@ export function useAddFlow(variants: Variants) {
     variants[0];
 
   async function add() {
-    const id = selected.id;
-    await cart.add(id);
     // The picker stays open on failure so the shopper can retry.
-    if (shouldClosePicker(cartSnapshot().error, id)) setPicking(false);
+    if (await addToCart(selected.id)) setPicking(false);
   }
 
   return {
@@ -45,22 +57,25 @@ export function useAddFlow(variants: Variants) {
     open: () => setPicking(true),
     close: () => setPicking(false),
     add,
+    // This variant is being added, for the "Adding…" label.
     pending: cart.pending === selected.id,
+    // Any cart write is pending: one write at a time.
+    busy: cart.pending !== null,
     inCart: inCart(cart.cart, selected.id),
     soldOut: !variants.some((variant) => variant.available),
-    error: errorFor(cart.error, selected.id),
+    error: cart.error?.key === selected.id ? cart.error.message : null,
   };
 }
 
-export type AddFlow = ReturnType<typeof useAddFlow>;
+export type VariantPickerState = ReturnType<typeof useVariantPicker>;
 
-export function AddToCart({ flow }: { flow: AddFlow }) {
+export function AddToCartButton({ picker }: { picker: VariantPickerState }) {
   const label = buttonLabel({
-    inCart: flow.inCart,
-    multiple: flow.multiple,
-    soldOut: flow.soldOut,
-    pending: flow.pending,
-    values: joinValues(flow.selected.selectedOptions),
+    inCart: picker.inCart,
+    multiple: picker.multiple,
+    soldOut: picker.soldOut,
+    pending: picker.pending,
+    values: joinValues(picker.selected.selectedOptions),
   });
 
   return (
@@ -69,16 +84,16 @@ export function AddToCart({ flow }: { flow: AddFlow }) {
         type="button"
         className="cc-btn cc-btn--secondary cc-card__add"
         disabled={
-          flow.soldOut || flow.pending || (flow.inCart && !flow.multiple)
+          picker.soldOut || picker.busy || (picker.inCart && !picker.multiple)
         }
-        aria-expanded={flow.multiple ? flow.picking : undefined}
-        onClick={flow.multiple ? flow.open : flow.add}
+        aria-expanded={picker.multiple ? picker.picking : undefined}
+        onClick={picker.multiple ? picker.open : picker.add}
       >
         {label}
       </button>
-      {flow.error !== null && (
+      {picker.error !== null && (
         <p className="cc-card__error" role="alert">
-          {flow.error}
+          {picker.error}
         </p>
       )}
     </>
@@ -86,14 +101,14 @@ export function AddToCart({ flow }: { flow: AddFlow }) {
 }
 
 export function VariantPicker({
-  flow,
+  picker,
   options,
 }: {
-  flow: AddFlow;
+  picker: VariantPickerState;
   options: NonNullable<ShownProduct["options"]>;
 }) {
-  if (!flow.multiple || !flow.picking) return null;
-  const { variants, picks, selected } = flow;
+  if (!picker.multiple || !picker.picking) return null;
+  const { variants, picks, selected } = picker;
   return (
     <div className="cc-picker">
       {options.map((option) => (
@@ -109,7 +124,7 @@ export function VariantPicker({
               disabled={
                 !isOptionValueAvailable(variants, picks, option.name, value)
               }
-              onClick={() => flow.pick(option.name, value)}
+              onClick={() => picker.pick(option.name, value)}
             >
               {value}
             </button>
@@ -120,17 +135,17 @@ export function VariantPicker({
         <button
           type="button"
           className="cc-btn cc-btn--secondary"
-          onClick={flow.close}
+          onClick={picker.close}
         >
           {t("cancel")}
         </button>
         <button
           type="button"
           className="cc-btn"
-          disabled={!selected.available || flow.pending}
-          onClick={flow.add}
+          disabled={!selected.available || picker.busy}
+          onClick={picker.add}
         >
-          {flow.pending
+          {picker.pending
             ? t("adding")
             : t("addVariant", {
                 options: joinValues(selected.selectedOptions),

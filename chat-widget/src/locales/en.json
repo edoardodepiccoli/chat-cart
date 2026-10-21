@@ -18,7 +18,6 @@
   "adding": "Adding…",
   "inCart": "Added",
   "soldOut": "Sold out",
-  "cancel": "Cancel",
   "cartFailed": "Couldn't update your cart. Try again.",
   "checkout": "Checkout",
   "yourCart": "Your cart",
@@ -28,5 +27,7 @@
   "assistantName": "Shopping assistant",
   "itemCountOne": "{count} item",
   "itemCountOther": "{count} items",
-  "subtotal": "Subtotal"
+  "subtotal": "Subtotal",
+  "select": "Select",
+  "checkoutShort": "Checkout"
 }

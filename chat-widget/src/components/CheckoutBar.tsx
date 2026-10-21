@@ -1,6 +1,6 @@
 import type { Cart } from "../cart";
 import { t } from "../i18n";
-import { ChevronUpIcon } from "../icons";
+import { CartIcon, ChevronUpIcon } from "../icons";
 import { CHECKOUT_URL } from "../urls";
 import { formatMoney } from "./Price";
 
@@ -43,7 +43,10 @@ export default function CheckoutBar({
           <ChevronUpIcon className="cc-icon cc-checkout__chevron" />
         </button>
         <a className="cc-btn cc-checkout__pay" href={CHECKOUT_URL}>
-          {t("checkout")}
+          <CartIcon className="cc-icon cc-checkout__cart" />
+          {/* Phones show the short label, so the cart label keeps its room. */}
+          <span className="cc-checkout__pay-long">{t("checkout")}</span>
+          <span className="cc-checkout__pay-short">{t("checkoutShort")}</span>
           <span className="cc-dot" aria-hidden="true">
             ·
           </span>

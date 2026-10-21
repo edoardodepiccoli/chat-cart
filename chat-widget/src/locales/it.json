@@ -18,7 +18,6 @@
   "adding": "Aggiungo…",
   "inCart": "Aggiunto",
   "soldOut": "Esaurito",
-  "cancel": "Annulla",
   "cartFailed": "Non sono riuscito ad aggiornare il carrello. Riprova.",
   "checkout": "Vai al pagamento",
   "yourCart": "Il tuo carrello",
@@ -28,5 +27,7 @@
   "assistantName": "Assistente acquisti",
   "itemCountOne": "{count} articolo",
   "itemCountOther": "{count} articoli",
-  "subtotal": "Subtotale"
+  "subtotal": "Subtotale",
+  "select": "Seleziona",
+  "checkoutShort": "Checkout"
 }

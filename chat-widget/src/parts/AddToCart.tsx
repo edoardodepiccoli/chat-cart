@@ -12,6 +12,7 @@ import { formatMoney } from "../components/Price";
 import {
   AlertIcon,
   CheckIcon,
+  ChevronDownIcon,
   ChevronUpIcon,
   PlusIcon,
   SpinnerIcon,
@@ -24,11 +25,12 @@ export function buttonLabel(state: {
   inCart: boolean;
   soldOut: boolean;
   pending: boolean;
+  multiple: boolean;
 }): string {
   if (state.inCart) return t("inCart");
   if (state.soldOut) return t("soldOut");
   if (state.pending) return t("adding");
-  return t("addToCart");
+  return t(state.multiple ? "select" : "addToCart");
 }
 
 export function useVariantPicker(variants: Variants) {
@@ -54,8 +56,7 @@ export function useVariantPicker(variants: Variants) {
     picking,
     pick: (name: string, value: string) =>
       setPicks((current) => withPick(current, name, value)),
-    open: () => setPicking(true),
-    close: () => setPicking(false),
+    toggle: () => setPicking((open) => !open),
     add,
     // This variant is being added, for the "Adding…" label.
     pending: cart.pending === selected.id,
@@ -74,17 +75,22 @@ export function AddToCartButton({ picker }: { picker: VariantPickerState }) {
     inCart: picker.inCart,
     soldOut: picker.soldOut,
     pending: picker.pending,
+    multiple: picker.multiple,
   });
-  const expanded = picker.multiple && picker.picking;
-  const Icon = expanded
-    ? null
-    : picker.inCart
-      ? CheckIcon
-      : picker.pending
-        ? SpinnerIcon
-        : picker.soldOut
-          ? null
-          : PlusIcon;
+  const Icon = picker.inCart
+    ? CheckIcon
+    : picker.pending
+      ? SpinnerIcon
+      : picker.soldOut || picker.multiple
+        ? null
+        : PlusIcon;
+  // A product with variants opens and closes its picker from this button.
+  const Chevron =
+    picker.multiple && !picker.soldOut
+      ? picker.picking
+        ? ChevronUpIcon
+        : ChevronDownIcon
+      : null;
 
   return (
     <>
@@ -98,7 +104,7 @@ export function AddToCartButton({ picker }: { picker: VariantPickerState }) {
           picker.soldOut || picker.busy || (picker.inCart && !picker.multiple)
         }
         aria-expanded={picker.multiple ? picker.picking : undefined}
-        onClick={picker.multiple ? picker.open : picker.add}
+        onClick={picker.multiple ? picker.toggle : picker.add}
       >
         {Icon && (
           <Icon
@@ -107,7 +113,7 @@ export function AddToCartButton({ picker }: { picker: VariantPickerState }) {
           />
         )}
         {label}
-        {expanded && <ChevronUpIcon className="cc-icon" />}
+        {Chevron && <Chevron className="cc-icon" />}
       </button>
       {picker.error !== null && (
         <p className="cc-card__error" role="alert">
@@ -166,13 +172,6 @@ export function VariantPicker({
           </fieldset>
         ))}
         <div className="cc-picker__actions">
-          <button
-            type="button"
-            className="cc-btn cc-btn--secondary"
-            onClick={picker.close}
-          >
-            {t("cancel")}
-          </button>
           <button
             type="button"
             className="cc-btn cc-picker__confirm"

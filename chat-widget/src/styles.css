@@ -846,13 +846,32 @@ a.cc-card__title {
   background: var(--cc-color-surface);
 }
 
-.cc-checkout__count {
-  color: var(--cc-color-text-muted);
+.cc-checkout__thumb {
+  position: relative;
+  flex: none;
 }
 
-.cc-checkout__total {
-  margin-left: auto;
-  font-weight: var(--cc-font-weight-heading);
+.cc-checkout__badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: var(--cc-color-primary);
+  color: var(--cc-color-on-primary);
+  font-size: var(--cc-font-size-sm);
+  font-weight: var(--cc-font-weight-button);
+  line-height: 18px;
+  text-align: center;
+}
+
+.cc-checkout__label {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--cc-color-text-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .cc-sheet__scrim {

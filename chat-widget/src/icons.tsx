@@ -74,3 +74,12 @@ export function CheckIcon({ className }: { className?: string }) {
 export function SpinnerIcon({ className }: { className?: string }) {
   return <Icon className={className} d="M12 3a9 9 0 1 0 9 9" />;
 }
+
+export function CardIcon({ className }: { className?: string }) {
+  return (
+    <Icon
+      className={className}
+      d="M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zM3 10h18M7 15h3"
+    />
+  );
+}

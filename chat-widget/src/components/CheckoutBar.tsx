@@ -1,5 +1,6 @@
 import type { Cart } from "../cart";
 import { t } from "../i18n";
+import { CardIcon } from "../icons";
 import { CHECKOUT_URL } from "../urls";
 import { formatMoney } from "./Price";
 
@@ -19,16 +20,15 @@ export default function CheckoutBar({
         aria-label={t("yourCart")}
         onClick={onOpen}
       >
-        {image && <img className="cc-checkout__image" src={image} alt="" />}
-        <span className="cc-checkout__count">
-          {t("cartCount", { count: String(cart.item_count) })}
+        <span className="cc-checkout__thumb">
+          {image && <img className="cc-checkout__image" src={image} alt="" />}
+          <span className="cc-checkout__badge">{cart.item_count}</span>
         </span>
-        <span className="cc-checkout__total">
-          {formatMoney(cart.total_price / 100, cart.currency)}
-        </span>
+        <span className="cc-checkout__label">{t("yourCart")}</span>
       </button>
-      <a className="cc-btn" href={CHECKOUT_URL}>
-        {t("checkout")}
+      <a className="cc-btn" href={CHECKOUT_URL} aria-label={t("checkout")}>
+        <CardIcon className="cc-icon" />
+        {formatMoney(cart.total_price / 100, cart.currency)}
       </a>
     </div>
   );

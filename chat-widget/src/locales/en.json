@@ -20,7 +20,6 @@
   "soldOut": "Sold out",
   "cancel": "Cancel",
   "cartFailed": "Couldn't update your cart. Try again.",
-  "cartCount": "{count} items",
   "checkout": "Checkout",
   "yourCart": "Your cart",
   "closeCart": "Close cart",

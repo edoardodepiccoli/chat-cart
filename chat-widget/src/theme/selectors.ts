@@ -28,7 +28,7 @@ export function selectorsAdapter(selectors: string[]): ThemeAdapter {
       if (!targets.length) return;
       const run = ++latest;
       try {
-        const response = await fetch(location.href);
+        const response = await fetch(location.href, { cache: "no-store" });
         if (!response.ok) throw new Error(`page answered ${response.status}`);
         const html = await response.text();
         // A newer write started its own refresh; its page is the fresher one.

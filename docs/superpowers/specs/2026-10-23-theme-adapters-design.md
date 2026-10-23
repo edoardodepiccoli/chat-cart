@@ -94,8 +94,9 @@ A Horizon store in "cart page" mode has no drawer, so detection fails and the st
 - `sections`: `"cart-icon-bubble"`, plus the `data-id` of `#main-cart-footer` when present (the cart page).
 - `refresh`:
   1. Swap targets: `#cart-icon-bubble` gets the inner HTML of the `.shopify-section` in the `cart-icon-bubble` section HTML. On the cart page, `#main-cart-footer .js-contents` gets the `.js-contents` of the footer section HTML.
-  2. If the write's section HTML is missing (the failed-write path passes `{}`), fetch `${ROOT}?sections=<ids>` once and swap from that response.
-  3. Call `window.publish("cart-update", { source: "chat-cart", cartData: cart })`. Dawn's `CartItems` subscribers then re-render the drawer or cart page items. The source is not `"cart-items"`, so Dawn does not skip it.
+  2. If the write's section HTML is missing (the failed-write path passes `{}`), fetch `${location.pathname}?sections=<ids>` once (this page's context, since Shopify answers `null` for a section not on the requested page) and swap from that response.
+  3. Toggle `is-empty` on `cart-items`, `#main-cart-footer` and `cart-drawer` to `cart.item_count === 0`, as Dawn does after its own writes; its pubsub subscribers do not.
+  4. Call `window.publish("cart-update", { source: "chat-cart", cartData: cart })`. Dawn's `CartItems` subscribers then re-render the drawer or cart page items. The source is not `"cart-items"`, so Dawn does not skip it.
 
 ### Fallback (merchant selectors)
 
@@ -103,7 +104,7 @@ A Horizon store in "cart page" mode has no drawer, so detection fails and the st
 - `sections`: none.
 - `refresh`:
   - With no selectors: nothing. The standard event was already sent, as today.
-  - Otherwise: `GET location.href` with the page's original fetch, parse the HTML, and for each selector pair live and parsed matches by index and copy `innerHTML`.
+  - Otherwise: `GET location.href` with `cache: "no-store"`, parse the HTML, and for each selector pair live and parsed matches by index and copy `innerHTML`.
   - Each refresh takes a sequence number. A response applies only if its number is still the latest, so the older of two quick writes cannot overwrite the newer one.
 
 ## Data flow

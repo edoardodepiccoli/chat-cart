@@ -1,4 +1,3 @@
-import { ROOT } from "../urls";
 import type { Sections, ThemeAdapter } from "./adapter";
 import { swapFromHtml, type SwapTarget } from "./swap";
 
@@ -25,7 +24,11 @@ function targets(): Record<string, SwapTarget> {
 }
 
 async function fetchSections(ids: string[]): Promise<Sections> {
-  const response = await fetch(`${ROOT}?sections=${ids.join(",")}`);
+  // Rendered in this page's context, as the write's `sections_url` asks:
+  // Shopify answers null for a section not on the requested page.
+  const response = await fetch(
+    `${location.pathname}?sections=${ids.join(",")}`,
+  );
   if (!response.ok) throw new Error(`sections answered ${response.status}`);
   return response.json();
 }
@@ -60,6 +63,17 @@ export const dawnAdapter: ThemeAdapter = {
     } catch (error) {
       console.error(error);
     } finally {
+      // Dawn toggles these after its own writes, not in its pubsub
+      // subscribers, so a chat write that fills or empties the cart would
+      // leave the page and drawer in the old state.
+      const empty = cart.item_count === 0;
+      for (const selector of [
+        "cart-items",
+        "#main-cart-footer",
+        "cart-drawer",
+      ]) {
+        document.querySelector(selector)?.classList.toggle("is-empty", empty);
+      }
       // Dawn's drawer and cart page items re-render from this, without opening.
       window.publish?.("cart-update", { source: "chat-cart", cartData: cart });
     }

@@ -100,11 +100,29 @@ describe("dawnAdapter", () => {
   it("refresh fetches the sections when the write brought none", async () => {
     await dawnAdapter.refresh({ cart, sections: {} });
     expect(String(fetchMock.mock.calls[0][0])).toBe(
-      `/?sections=cart-icon-bubble,${FOOTER_ID}`,
+      `/cart?sections=cart-icon-bubble,${FOOTER_ID}`,
     );
     expect(bubbleText()).toBe("7");
     expect(footerText()).toBe("€70");
     expect(publish).toHaveBeenCalledTimes(1);
+  });
+
+  it("refresh toggles the empty state of the cart page and drawer", async () => {
+    document.body.innerHTML = `${BUBBLE}<cart-drawer class="is-empty"></cart-drawer><cart-items class="is-empty"></cart-items>${FOOTER.replace('id="main-cart-footer"', 'id="main-cart-footer" class="is-empty"')}`;
+    const empties = () =>
+      ["cart-drawer", "cart-items", "#main-cart-footer"].map((selector) =>
+        document.querySelector(selector)?.classList.contains("is-empty"),
+      );
+
+    await dawnAdapter.refresh({ cart, sections: { "cart-icon-bubble": null } });
+    expect(empties()).toEqual([false, false, false]);
+
+    const empty = { ...cart, item_count: 0 };
+    await dawnAdapter.refresh({
+      cart: empty,
+      sections: { "cart-icon-bubble": null },
+    });
+    expect(empties()).toEqual([true, true, true]);
   });
 
   it("a null section still publishes and swaps the rest", async () => {

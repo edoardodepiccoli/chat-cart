@@ -64,6 +64,8 @@ describe("selectorsAdapter", () => {
     await selectorsAdapter([".count"]).refresh(update);
     expect(count()).toBe("3");
     expect(String(fetchMock.mock.calls[0][0])).toBe(location.href);
+    // A cached page would carry the cart from before the write.
+    expect(fetchMock.mock.calls[0][1]).toMatchObject({ cache: "no-store" });
   });
 
   it("drops a stale response", async () => {

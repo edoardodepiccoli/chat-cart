@@ -50,7 +50,7 @@ afterEach(() => {
 describe("theme", () => {
   it("startTheme does not call detect; the first use does, once", async () => {
     await load();
-    theme.startTheme();
+    theme.startTheme([]);
     expect(spy.detect).not.toHaveBeenCalled();
 
     expect(theme.themeSections()).toEqual(["s1"]);
@@ -107,6 +107,19 @@ describe("theme", () => {
     } finally {
       document.removeEventListener(CART_LINES_UPDATE, broken);
     }
+  });
+
+  it("the fallback is picked when no theme adapter matches", async () => {
+    await load(false);
+    const fetchMock = vi.fn(async () => new Response("<html></html>"));
+    window.fetch = fetchMock as unknown as typeof fetch;
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    theme.startTheme([".count"]);
+    theme.refreshTheme(cart, {});
+    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
+    expect(String((fetchMock.mock.calls[0] as unknown[])[0])).toBe(
+      location.href,
+    );
   });
 
   it("with no matching adapter, only the event is dispatched and there are no sections", async () => {

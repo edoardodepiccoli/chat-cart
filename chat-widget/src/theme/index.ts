@@ -1,16 +1,22 @@
 import type { Cart } from "../cart";
 import { pickAdapter, type Sections, type ThemeAdapter } from "./adapter";
 import { horizonAdapter } from "./horizon";
+import { selectorsAdapter } from "./selectors";
 import { dispatchCartUpdate } from "./standardEvent";
 
 // The theme side of cart sync: which adapter refreshes this page's theme
 // after a chat write. Nothing here may throw into the cart code.
 
-let registry: ThemeAdapter[] = [horizonAdapter];
+// In order; the selectors fallback matches every page, so it goes last.
+function adapters(selectors: string[]): ThemeAdapter[] {
+  return [horizonAdapter, selectorsAdapter(selectors)];
+}
+
+let registry = adapters([]);
 let picked: { adapter: ThemeAdapter | undefined } | null = null;
 
-export function startTheme(): void {
-  registry = [horizonAdapter];
+export function startTheme(selectors: string[]): void {
+  registry = adapters(selectors);
   picked = null;
 }
 

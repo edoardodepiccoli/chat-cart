@@ -40,7 +40,8 @@ Widget (`chat-widget/src/`)
 - `components/` — one file per component.
 - `parts/` — one file per display tool, and `index.tsx` with the `PARTS` map.
 - `i18n.ts`, `locales/` — English and Italian strings.
-- `cart.ts` — the cart: state, AJAX Cart API calls, watching the theme's cart writes. `cartEvent.ts` tells the theme about the widget's writes.
+- `cart.ts` — the cart: state, AJAX Cart API calls, watching the theme's cart writes.
+- `theme/` — refreshing the theme after the widget's cart writes: the standard cart event (`standardEvent.ts`), one adapter per theme (`horizon.ts`, `dawn.ts`, `selectors.ts`), and `index.ts`, which picks the adapter.
 
 Shared (`shared/`), used by both sides
 
@@ -62,7 +63,11 @@ The compiler enforces steps 1 to 3. Step 4 is plain text, so the model only uses
 
 ## Cart sync
 
-The widget reads and writes Shopify's cookie cart, the same one the theme uses, through the AJAX Cart API (`chat-widget/src/cart.ts`). It runs one write at a time and disables every cart button while one is pending. It re-reads `/cart.js` after any cart write the theme makes (it watches the page's `fetch` and `XMLHttpRequest` calls to `cart/add`, `change`, `update` and `clear`), when the chat opens, and when the tab becomes visible again. After its own writes it dispatches Shopify's standard `shopify:cart:lines-update` event (`chat-widget/src/cartEvent.ts`), always with `action: "update"` so the theme refreshes without opening its drawer; themes that don't listen to that event show the change after the next page load. On Horizon, the dev store's theme, the widget also asks Shopify to render the `cart-items-component` sections with each write, because Horizon's drawer re-renders from them.
+The widget reads and writes Shopify's cookie cart, the same one the theme uses, through the AJAX Cart API (`chat-widget/src/cart.ts`). It runs one write at a time and disables every cart button while one is pending. It re-reads `/cart.js` after any cart write the theme makes (it watches the page's `fetch` and `XMLHttpRequest` calls to `cart/add`, `change`, `update` and `clear`), when the chat opens, and when the tab becomes visible again. After its own writes it dispatches Shopify's standard `shopify:cart:lines-update` event, always with `action: "update"` so the theme refreshes without opening its drawer. Then it hands the cart to a theme adapter (`chat-widget/src/theme/`). On the first write the widget picks the first adapter whose feature check passes: Horizon, then Dawn, then the fallback. Each adapter names the sections Shopify renders along with a write. On Horizon (and its family) these are the `cart-items-component` sections, and the standard event does the rest. On Dawn (and its family) the adapter swaps the header count and the cart page footer, then calls Dawn's `publish("cart-update")` so its drawer and cart page items re-render.
+
+On any other theme the fallback re-fetches the page and copies the elements listed in the theme editor under App embeds → Chat Cart → "Cart elements to refresh". With that setting empty, the theme only gets the standard event, and themes that ignore it show the change after the next page load.
+
+Adding a theme adapter: one file in `chat-widget/src/theme/` exporting a `ThemeAdapter` (`detect`, `sections`, `refresh`), a test with a fixture of the theme's markup, and its place in the list in `theme/index.ts`, before the fallback.
 
 ## Development
 

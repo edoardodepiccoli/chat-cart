@@ -4,6 +4,8 @@ declare global {
       routes?: { root?: string };
       theme?: { schema_name?: string };
     };
+    // Dawn's pubsub (assets/pubsub.js), a global on Dawn-family themes.
+    publish?: (event: string, data: unknown) => unknown;
   }
 }
 

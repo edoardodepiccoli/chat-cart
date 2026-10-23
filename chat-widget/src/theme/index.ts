@@ -1,5 +1,6 @@
 import type { Cart } from "../cart";
 import { pickAdapter, type Sections, type ThemeAdapter } from "./adapter";
+import { dawnAdapter } from "./dawn";
 import { horizonAdapter } from "./horizon";
 import { selectorsAdapter } from "./selectors";
 import { dispatchCartUpdate } from "./standardEvent";
@@ -9,7 +10,7 @@ import { dispatchCartUpdate } from "./standardEvent";
 
 // In order; the selectors fallback matches every page, so it goes last.
 function adapters(selectors: string[]): ThemeAdapter[] {
-  return [horizonAdapter, selectorsAdapter(selectors)];
+  return [horizonAdapter, dawnAdapter, selectorsAdapter(selectors)];
 }
 
 let registry = adapters([]);

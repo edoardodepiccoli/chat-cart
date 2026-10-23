@@ -1,13 +1,12 @@
 // @vitest-environment happy-dom
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import type { Cart, CartItem } from "./cart";
+import type { Cart, CartItem } from "../cart";
 import {
   CART_LINES_UPDATE,
-  horizonSections,
-  notifyTheme,
+  dispatchCartUpdate,
   toStandardCart,
-} from "./cartEvent";
+} from "./standardEvent";
 
 function item(key: string, quantity: number, linePrice: number): CartItem {
   return {
@@ -64,29 +63,13 @@ describe("toStandardCart", () => {
   });
 });
 
-describe("notifyTheme and horizonSections", () => {
-  beforeEach(() => {
-    document.body.innerHTML = "";
-  });
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
-  it("lists the unique section ids of cart-items-component elements", () => {
-    document.body.innerHTML = `
-      <cart-items-component data-section-id="drawer"></cart-items-component>
-      <cart-items-component data-section-id="main"></cart-items-component>
-      <cart-items-component data-section-id="drawer"></cart-items-component>
-      <cart-items-component></cart-items-component>`;
-    expect(horizonSections()).toEqual(["drawer", "main"]);
-  });
-
+describe("dispatchCartUpdate", () => {
   it("dispatches one bubbling lines-update event with action update", async () => {
     const events: Event[] = [];
     const listener = (event: Event) => events.push(event);
     document.addEventListener(CART_LINES_UPDATE, listener);
     const sections = { drawer: "<div></div>" };
-    notifyTheme(cart, sections);
+    dispatchCartUpdate(cart, sections);
     document.removeEventListener(CART_LINES_UPDATE, listener);
 
     expect(events).toHaveLength(1);
@@ -114,34 +97,5 @@ describe("notifyTheme and horizonSections", () => {
       itemCount: 3,
       items: cart.items,
     });
-  });
-
-  it("does not throw when the cart cannot be converted", () => {
-    vi.spyOn(console, "error").mockImplementation(() => {});
-    const events: Event[] = [];
-    const listener = (event: Event) => events.push(event);
-    document.addEventListener(CART_LINES_UPDATE, listener);
-    try {
-      expect(() =>
-        notifyTheme({ ...cart, currency: "XXX-not-a-code" }, {}),
-      ).not.toThrow();
-    } finally {
-      document.removeEventListener(CART_LINES_UPDATE, listener);
-    }
-    expect(events).toHaveLength(0);
-    expect(console.error).toHaveBeenCalled();
-  });
-
-  it("does not throw when a listener throws", () => {
-    const listener = () => {
-      throw new Error("theme broke");
-    };
-    document.addEventListener(CART_LINES_UPDATE, listener);
-    vi.spyOn(console, "error").mockImplementation(() => {});
-    try {
-      expect(() => notifyTheme(cart, {})).not.toThrow();
-    } finally {
-      document.removeEventListener(CART_LINES_UPDATE, listener);
-    }
   });
 });

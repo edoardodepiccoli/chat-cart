@@ -1,7 +1,8 @@
 import { useSyncExternalStore } from "react";
 
-import { horizonSections, notifyTheme } from "./cartEvent";
 import { t } from "./i18n";
+import { refreshTheme, themeSections } from "./theme";
+import type { Sections } from "./theme/adapter";
 import { ROOT, variantIdFromGid } from "./urls";
 
 // The shopper's cart is Shopify's cookie cart, read and written through the
@@ -34,8 +35,6 @@ export type CartState = {
   pending: string | null;
   error: { key: string; message: string } | null;
 };
-
-type Sections = Record<string, string | null>;
 
 let state: CartState = { cart: null, pending: null, error: null };
 const listeners = new Set<() => void>();
@@ -97,9 +96,9 @@ async function request<T>(path: string, body?: object): Promise<T> {
   return data as T;
 }
 
-// Asks Shopify to render the theme's cart sections along with a write.
+// Asks Shopify to render the theme adapter's sections along with a write.
 function withSections(body: object): object {
-  const ids = horizonSections();
+  const ids = themeSections();
   return ids.length
     ? { ...body, sections: ids.join(","), sections_url: location.pathname }
     : body;
@@ -123,7 +122,7 @@ async function write(
   try {
     const { cart, sections } = await send();
     setState({ cart });
-    notifyTheme(cart, sections);
+    refreshTheme(cart, sections);
     return true;
   } catch (error) {
     const message =
@@ -134,7 +133,7 @@ async function write(
     const before = JSON.stringify(state.cart);
     await refreshCart();
     if (state.cart && JSON.stringify(state.cart) !== before) {
-      notifyTheme(state.cart, {});
+      refreshTheme(state.cart, {});
     }
     return false;
   } finally {
